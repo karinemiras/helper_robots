@@ -1,0 +1,6 @@
+use dummy as knowledge.
+
+define sayAnimated(Text) with
+	pre { true }
+	post { spoke }
+ 
