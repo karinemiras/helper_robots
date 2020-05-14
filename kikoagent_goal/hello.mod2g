@@ -9,7 +9,7 @@ use dummy as knowledge.
 exit=always.
 
 module hello {
-   %if not(bel(spoke)) then sayAnimated('hi').
- %if true then sleep(3000).
+   if not(bel(spoke)) then sayAnimated('hi').
+ if true then sleep(3000).
 
 }
