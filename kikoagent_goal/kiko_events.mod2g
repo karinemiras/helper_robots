@@ -1,0 +1,18 @@
+use facts as knowledge.
+use dynamics as knowledge.
+use fixed_goals as goals.
+
+module kiko_events 
+{
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%% Percept and event processing      %%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	% NAO event percepts
+	forall percept(event(E)), not(bel(event(E)))
+		do insert(event(E)).
+	forall bel(event(E)), not(percept(event(E)))
+		do delete(event(E)).
+		
+}

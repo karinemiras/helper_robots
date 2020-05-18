@@ -1,8 +1,0 @@
------------------------------------------
-Number of runs                : 13
-Situations encountered (below): 1
------------------------------------------
-
-s0000000 [] main:
-
-     sayAnimated(hi) : +1.000

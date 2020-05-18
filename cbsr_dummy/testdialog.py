@@ -16,9 +16,9 @@ class DialogFlowSampleApplication(Base.AbstractApplication):
         self.setDialogflowAgent('answer-name-pgocqj')
 
         # Make the robot ask the question, and wait until it is done speaking
-        self.speechLock = Semaphore(0)
-        self.sayAnimated('name?')
-        self.speechLock.acquire()
+        #self.speechLock = Semaphore(0)
+        self.sayAnimated('what is your namelis?')
+        #self.speechLock.acquire()
 
         # Listen for an answer for at most 5 seconds
         self.name = None
@@ -36,7 +36,7 @@ class DialogFlowSampleApplication(Base.AbstractApplication):
             self.sayAnimated('Nice to meet you ' + self.name + '!')
         else:
             self.sayAnimated('whatever')
-        self.speechLock.acquire()
+       # self.speechLock.acquire()
 
         # Display a gesture (replace <gestureID> with your gestureID)
         self.gestureLock = Semaphore(0)
@@ -46,8 +46,8 @@ class DialogFlowSampleApplication(Base.AbstractApplication):
     def onRobotEvent(self, event):
         if event == 'LanguageChanged':
             self.langLock.release()
-        elif event == 'TextDone':
-            self.speechLock.release()
+        #elif event == 'TextDone':
+            #self.speechLock.release()
         elif event == 'GestureDone':
            self.gestureLock.release()
 

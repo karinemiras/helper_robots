@@ -1,5 +1,0 @@
-use dummy as knowledge.
-
-module ev {
-		if true then sleep(3000).
-}

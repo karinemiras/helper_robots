@@ -1,14 +1,19 @@
 use 'cbsr-eis-connector.jar' as environment with
 		server='192.168.1.19',
+		%flowkey='kikoagent-iajdfl-9d037d057933.json',
 		flowkey='silly.json',
 		flowagent='answer-name-pgocqj',
+		%flowagent='kikoagent-iajdfl',
 		flowlang='en-US'.
 		
-define kiko as agent {
-	use hello as main.
-	use ev as event module.
+define kiko as agent 
+{
+	use kiko_main as main.
+	use kiko_init as init module.
+	use kiko_events as event module.
 }
 
-launchpolicy{
-	when * launch kiko with alpha=1.0, gamma=2.0, epsilon=5.0, decay=4.0.
+launchpolicy
+{
+	when * launch kiko.
 }
