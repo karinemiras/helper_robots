@@ -4,12 +4,15 @@ use fixed_goals as goals.
 
 use kiko_actions as actionspec.
 
-use search_subject as module.
+use watch_for_subjects as module.
 
 order=linearall.
+%exit=always.
  
 module kiko_main 
 {
-   if goal(helping) then search_subject.
-	
+ 
+   if goal(helping), bel(not(watching)) then watch_for_subjects.
+
+
 }

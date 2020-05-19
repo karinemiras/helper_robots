@@ -1,18 +1,39 @@
 use facts as knowledge.
 use dynamics as knowledge.
-use fixed_goals as goals.
+
+use kiko_actions as actionspec.
+order=linearall.
 
 module kiko_events 
 {
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%% Percept and event processing      %%%
+	%%%    Percept and event processing   %%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	
-	% NAO event percepts
+
+	%%% event percepts
 	forall percept(event(E)), not(bel(event(E)))
 		do insert(event(E)).
 	forall bel(event(E)), not(percept(event(E)))
 		do delete(event(E)).
+	%%%
+		
+	%%% personDetected percept
+	% also: when a person is detected, stops watching and believing to be watching	
+ 	if percept(personDetected), not(bel(personDetected))
+		then insert(personDetected)
+			 +delete(watching)+stopWatching.
+		
+	if bel(personDetected), not(percept(personDetected))
+		then delete(personDetected).
+	%%%
+		
+	%%% when person is detected, offers types of help
+	% for now, assumes person is near enough.
+	if goal(helping), bel(personDetected) 
+		then sayAnimated('i see you')
+			 +insert(helping).
+	%%%
+
 		
 }

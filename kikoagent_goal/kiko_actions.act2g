@@ -2,9 +2,13 @@ use facts as knowledge.
 use dynamics as knowledge.
 
 define sayAnimated(Text) with
-	pre { not(event('TextDone')) }
+	pre { true }
 	post { true }
  
 define startWatching with
+	pre { not(watching) }
+	post { watching } 
+		
+define stopWatching with
 	pre { true }
-	post { true } 
+	post { true }
