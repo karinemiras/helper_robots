@@ -4,15 +4,27 @@ use fixed_goals as goals.
 
 use kiko_actions as actionspec.
 
-use watch_for_subjects as module.
+use offer_help_type as module.
 
 order=linearall.
-%exit=always.
  
 module kiko_main 
 {
  
-   if goal(helping), bel(not(watching)) then watch_for_subjects.
-
-
+   % find a subject to help
+   %if goal(helping), bel(not(watching)) then startWatching.
+   
+	%%% when person is detected, offers types of help
+	% for now, assumes person is near enough.
+	if goal(helping), true % remove temp (working in the dark)  bel(personDetected) 
+		then offer_help_type
+			 +insert(helping).
+	if bel(type_of_help(TypeofHelp), string_concat('i will help you with', TypeofHelp, Say)), not(bel(speaking)) then 
+		sayAnimated(Say)
+	    +insert(speaking)
+		+delete(type_of_help(TypeofHelp))
+		+print('speakinggg').
+		%+delete(helping)+adopt(helping).
+	%%%
+	
 }

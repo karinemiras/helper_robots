@@ -31,7 +31,7 @@ class SampleApplication(Base.AbstractApplication):
         self.speechLock = Semaphore(0)
         self.say('you')
         self.speechLock.acquire()
-         
+
 
     def onRobotEvent(self, event):
 

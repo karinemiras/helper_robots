@@ -12,8 +12,9 @@ class SampleApplication(Base.AbstractApplication):
         self.sem_setLanguage.acquire()
 
         self.sem_setLanguage = Semaphore(0)
-        self.sayAnimated('i am gonna look at you')
+        self.say('i am gonna look at you')
         self.sem_setLanguage.acquire()
+
 
         self.semaphore_looking = Semaphore(0)
         self.startLooking()
@@ -22,6 +23,7 @@ class SampleApplication(Base.AbstractApplication):
 
 
     def onRobotEvent(self, event):
+        print(event)
         if event == 'LanguageChanged':
             self.sem_setLanguage.release()
         elif event == 'TextDone':

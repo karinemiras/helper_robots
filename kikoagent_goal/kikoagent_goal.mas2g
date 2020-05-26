@@ -1,9 +1,9 @@
 use 'cbsr-eis-connector.jar' as environment with
 		server='192.168.1.19',
-		%flowkey='kikoagent-iajdfl-9d037d057933.json',
-		flowkey='silly.json',
-		flowagent='answer-name-pgocqj',
-		%flowagent='kikoagent-iajdfl',
+		flowkey='kikoagent-iajdfl-9d037d057933.json',
+		%flowkey='silly.json',
+		%flowagent='answer-name-pgocqj',
+		flowagent='kikoagent-iajdfl',
 		flowlang='en-US'.
 		
 define kiko as agent 

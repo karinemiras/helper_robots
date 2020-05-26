@@ -12,3 +12,21 @@ define startWatching with
 define stopWatching with
 	pre { true }
 	post { true }
+	
+define startListening with
+	pre { not(listening) }
+	post { listening }
+
+define stopListening with
+	pre { listening }
+	post {  not(listening) }
+	
+define startListening(Context) with
+	pre { not(listening) }
+	post { listening }
+	
+define stopListening(Context) with
+	pre { listening }
+	post { not(listening) }
+	
+	

@@ -2,7 +2,8 @@ use facts as knowledge.
 use dynamics as knowledge.
 
 use kiko_actions as actionspec.
-order=linearall.
+
+use offer_help_type as module.
 
 module kiko_events 
 {
@@ -27,13 +28,39 @@ module kiko_events
 	if bel(personDetected), not(percept(personDetected))
 		then delete(personDetected).
 	%%%
-		
-	%%% when person is detected, offers types of help
-	% for now, assumes person is near enough.
-	if goal(helping), bel(personDetected) 
-		then sayAnimated('i see you')
-			 +insert(helping).
-	%%%
 
+	
+	% Handling timeouts
+	if percept(timer(S, _)), not(bel(timeout(S)))
+		then insert(timeout(S)).
+	if bel(timeout(S)), not(percept(timer(S, _)))
+		then delete(timeout(S)).
+ 
+			if    bel(timeout(type_of_help)) then
+			print('bostaaaaaaaaaaa').
+			
+	if   bel(listening), not(bel(timeout(type_of_help))) then
+			print('timeout goneeeeeeeeeeeee')
+	 		+stopListening('type_of_help')
+	 		+canceltimer(type_of_help)
+	 		+delete(waitingResponse).
+	 		%+delete(helping).
+	 	%	+adopt(helping).
+	
+	%%%
+	
+	if bel(event(TextDone)) then delete(speaking)+print('text dooooooooone').
+	
+	%if percept(intent(Intent, Params) then print('intentttt').
+	
+	if percept(intent(Intent, Params), nth0(0, Params, TypeofHelp)) then  
+			print('there is intentttttt')
+		+insert(type_of_help(TypeofHelp))
+		+delete(waitingResponse)
+		%+canceltimer(type_of_help)
+		+stopListening('type_of_help')
+   .
 		
+
+	
 }
