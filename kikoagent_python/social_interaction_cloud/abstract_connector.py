@@ -57,8 +57,7 @@ class AbstractSICConnector(object):
         HandRightLeftReleased, HandRightRightTouched, HandRightRightReleased, HandLeftBackTouched, HandLeftBackReleased,
         HandLeftLeftTouched, HandLeftLeftReleased, HandLeftRightTouched, or HandLeftRightReleased
         See: http://doc.aldebaran.com/2-8/family/nao_technical/contact-sensors_naov6.html"""
-        #pass
-        print(event)
+        pass
 
     def on_posture_changed(self, posture: str):
         """
@@ -66,14 +65,12 @@ class AbstractSICConnector(object):
         :param posture: new posture.
         :return:
         """
-        #pass
-        print('posture')
+        pass
 
     def on_person_detected(self):
         """Triggered when some person was detected in front of the robot (after a startWatching action was called).
         Only sent when the people detection service is running. Will be sent as long as a person is detected."""
-        #pass
-        print('hiiii')
+        pass
 
     def on_face_recognized(self, identifier: str):
         """Triggered when a specific face was detected in front of the robot (after a startWatching action was called).

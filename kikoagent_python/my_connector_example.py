@@ -13,14 +13,14 @@ class MyConnector(AbstractSICConnector):
         self.start()
         self.set_language('en-US')
         sleep(1)  # wait for the language to change
-        self.say('Hello, world!')
+        self.say('Hello,')
+        self.say(' hi  ')
         sleep(3)  # wait for the robot to be done speaking (to see the relevant prints)
-        self.stop()
-        self.go_to_posture('Crouch')
 
-        sleep(3)
-    #def on_robot_event(self, event):
-       # print(event)
+
+        self.stop()
+    def on_robot_event(self, event):
+        print(event)
 
 
 # Run the application

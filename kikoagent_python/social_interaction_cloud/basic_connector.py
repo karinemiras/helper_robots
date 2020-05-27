@@ -62,10 +62,12 @@ class BasicSICConnector(AbstractSICConnector):
     ###########################
 
     def on_robot_event(self, event):
+        print('event', event)
         self.__notify_listeners(event)
         self.__notify_touch_listeners(event)
 
     def on_posture_changed(self, posture: str):
+        print('posture', posture)
         self.__notify_listeners('onPostureChanged', posture)
         if self.robot == RobotType.NAO:
             self.robot_state['posture'] = BasicNaoPosture[posture.upper()]
@@ -76,12 +78,14 @@ class BasicSICConnector(AbstractSICConnector):
         self.__notify_listeners('onAudioLanguage', language_key)
 
     def on_audio_intent(self, *args, intent_name):
+        print('on_audio_intent', intent_name)
         self.__notify_listeners('onAudioIntent', intent_name, *args)
 
     def on_new_audio_file(self, audio_file):
         self.__notify_listeners('onNewAudioFile', audio_file)
 
     def on_speech_text(self, text):
+        print('on_speech_text', text)
         self.__notify_listeners('onSpeechText', text)
 
     def on_new_picture_file(self, picture_file):
@@ -90,12 +94,15 @@ class BasicSICConnector(AbstractSICConnector):
         self.__notify_listeners('onNewPictureFile', picture_file)
 
     def on_person_detected(self):
+        print('on_person_detected')
         self.__notify_vision_listeners('onPersonDetected')
 
     def on_face_recognized(self, identifier):
+        print('on_face_recognized')
         self.__notify_vision_listeners('onFaceRecognized', identifier)
 
     def on_emotion_detected(self, emotion):
+        print('on_emotion_detected')
         self.__notify_vision_listeners('onEmotionDetected', emotion)
 
     ###########################
