@@ -33,14 +33,14 @@ class BDI:
             self.connection.close()
             print("PostgreSQL connection is closed")
 
-    def insert(self, label, role, params_role=''):
+    def adopt(self, label, role, params_role=''):
 
-        query = """ INSERT INTO bdi (label, active, role, params) VALUES (%s,%s,%s, %s)"""
+        query = """ INSERT INTO bdi (label, datetime, active, role, params) VALUES (%s, now(), %s,%s, %s)"""
         params = (label, True, role, params_role)
         self.cursor.execute(query, params)
         self.connection.commit()
 
-    def update(self, label, role):
+    def drop(self, label, role):
 
         query = """ Update bdi set active = %s where label = %s and role = %s"""
         params = (False, label, role)
@@ -56,6 +56,14 @@ class BDI:
 
         return records
 
+    def role_params(self, label, role, active=True):
+
+        query = "select params from bdi where label = %s and role = %s and active = %s"
+        param = (label, role, active)
+        self.cursor.execute(query, param)
+        records = self.cursor.fetchall()
+        return records[0][0]
+
     def has_bdi_role(self, label, role, active=True):
 
         if len(self.select(label, role, active)) > 0:
@@ -63,9 +71,9 @@ class BDI:
         else:
             return False
 
-    def status_bdi(self, context):
+    def states_bdi(self, context):
 
-        query = "select * from bdi order by active, role, label"
+        query = "select role, label, params from bdi where active = True order by role, label"
         self.cursor.execute(query)
         records = self.cursor.fetchall()
 

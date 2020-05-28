@@ -378,6 +378,7 @@ class BasicSICConnector(AbstractSICConnector):
 
     def __notify_conditions(self):
         for condition in self.__conditions:
+            print(condition)
             with condition:
                 condition.notify()
 

@@ -11,6 +11,8 @@ class SampleApplication(Base.AbstractApplication):
         self.setLanguage('en-US')
         self.sem_setLanguage.acquire()
 
+        self.say('\\rspd=80\\this is a test, yes it is. This is a test,  yes it is')
+        sys.exit()
         self.sem_setLanguage = Semaphore(0)
         self.say('i am gonna look at you')
         self.sem_setLanguage.acquire()
