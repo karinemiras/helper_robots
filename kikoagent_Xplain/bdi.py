@@ -1,4 +1,5 @@
 import psycopg2
+from time import sleep
 
 # Belief Desire and Intentions management
 class BDI:
@@ -62,7 +63,11 @@ class BDI:
         param = (label, role, active)
         self.cursor.execute(query, param)
         records = self.cursor.fetchall()
-        return records[0][0]
+        params = records[0][0].split('|')
+        if len(params) > 1:
+            return params
+        else:
+            return params[0]
 
     def has_bdi_role(self, label, role, active=True):
 
@@ -73,6 +78,7 @@ class BDI:
 
     def states_bdi(self, context):
 
+        sleep(0.01)
         query = "select role, label, params from bdi where active = True order by role, label"
         self.cursor.execute(query)
         records = self.cursor.fetchall()

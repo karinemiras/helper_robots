@@ -1,11 +1,14 @@
 from social_interaction_cloud.abstract_connector import AbstractSICConnector
-from time import sleep
 from bdi import *
-from threading import Semaphore
-import sys
-import requests
+
 from bs4 import BeautifulSoup
 import numpy
+import pprint
+import random
+import requests
+import sys
+from time import sleep
+from threading import Semaphore
 
 class Agent(AbstractSICConnector):
 
@@ -15,22 +18,21 @@ class Agent(AbstractSICConnector):
         self.set_dialogflow_key(dialogflow_key_file)
         self.set_dialogflow_agent(dialogflow_agent_id)
 
-        self.speech_text = ''
-
         self.speaking_semaphore = Semaphore(0)
         self.watching_semaphore = Semaphore(0)
         self.listening_semaphore = Semaphore(0)
 
         self.bdi = BDI()
+        self.topics = {}
 
     def run(self):
 
         self.start()
-
+        self.load_topics()
         self.set_language('en-US')
         sleep(0.1)
 
-        # TODO: add loop breaker
+        # TODO: add loop breaker? fidelius,
         while True:
             self.main()
 
@@ -42,42 +44,60 @@ class Agent(AbstractSICConnector):
         self.offer_help()
         self.help()
 
+    # INI: events processing
+
     def on_robot_event(self, event):
-        print('event', event)
+        print('\n event', event)
+
         if event == 'TextDone':
             self.bdi.drop('speaking', 'belief')
-            self.bdi.states_bdi('on_robot_event_TextDone')
             self.speaking_semaphore.release()
 
-        # TODO or any other touch
-        if event == 'RightBumperPressed':
+        # always listening to touch sensors; uses touch to identify that there is a subject
+        touch_sensors = ['RightBumperPressed',
+                         'LeftBumperPressed',
+                         'BackBumperPressed',
+                         'FrontTactilTouched',
+                         'MiddleTactilTouched',
+                         'RearTactilTouched',
+                         'HandRightBackTouched',
+                         'HandRightLeftTouched',
+                         'HandRightRightTouched',
+                         'HandLeftBackTouched',
+                         'HandLeftLeftTouched',
+                         'HandLeftRightTouched']
+        if event in touch_sensors:
             if not (self.bdi.has_bdi_role('has_subject', 'belief')):
-                self.bdi.adopt('has_subject', 'belief')
-                self.bdi.states_bdi('on_person_detected')
-                self.watching_semaphore.release()
+                self.bdi.states_bdi('on_robot_event_Touched')
+                self.has_subject(True)
 
     def on_person_detected(self):
         if not(self.bdi.has_bdi_role('has_subject', 'belief')):
-            self.bdi.adopt('has_subject', 'belief')
             self.bdi.states_bdi('on_person_detected')
-            self.watching_semaphore.release()
+            self.has_subject(True)
 
     def on_speech_text(self, text):
-        print('on_speech_text', text)
-        self.speech_text = text
+        print('\n on_speech_text', text)
+        if self.bdi.has_bdi_role('speech_text', 'belief'):
+            self.bdi.drop('speech_text', 'belief')
+        self.bdi.adopt('speech_text', 'belief', text)
 
     def on_audio_intent(self, *args, intent_name):
-        print('on_audio_intent', intent_name)
-
-        print(args)
-        if len(args) > 0:
-            temp = args[0]
-        else:
-            temp = ''
-
-        self.bdi.adopt(intent_name, 'belief', str(temp))
+        print('\n on_audio_intent', intent_name, args)
+        if not(self.bdi.has_bdi_role(intent_name, 'belief')):
+            params = ''
+            for param in args:
+                params += param+'|'
+            self.bdi.adopt(intent_name, 'belief', params[0:-1])
         self.bdi.states_bdi('on_audio_intent')
         self.listening_semaphore.release()
+
+    # END: events processing
+
+    def has_subject(self, true_or_false):
+        if true_or_false:
+            self.bdi.adopt('has_subject', 'belief')
+            self.watching_semaphore.release()
 
     def __say(self, text):
         self.bdi.adopt('speaking', 'belief')
@@ -85,126 +105,131 @@ class Agent(AbstractSICConnector):
         self.speaking_semaphore.acquire()
 
     def __listen(self, context=''):
-        self.speech_text = ''
         self.set_audio_context(context)
         self.start_listening()
         self.listening_semaphore.acquire(timeout=10)
         self.stop_listening()
 
     def search_subject(self):
-        # if has no subject at sight
+        # if it doesnt believe to have a subject, searches for it by looking
         if not(self.bdi.has_bdi_role('has_subject', 'belief')):
-            print('\nsearching subject')
+            print('\n> searching subject')
             self.start_looking()
-            self.watching_semaphore.acquire(timeout=10)
+            self.watching_semaphore.acquire()
             self.stop_looking()
+
+    def load_topics(self):
+        topics = ['general',
+                  'find_employee',
+                  'freestyle_poetry']
+
+        for topic in topics:
+            self.topics[topic] = {}
+
+        for topic in topics:
+            file = open('topics/{}.txt'.format(topic), 'r')
+            lines = file.readlines()
+            sentence_name = 0
+            sentence_variation = 1
+            sentence_text = 2
+            previous_name = ''
+            for line in lines:
+                line = line.strip().split('|')
+                if line[sentence_name] != previous_name:
+                    self.topics[topic][line[sentence_name]] = []
+                    previous_name = line[sentence_name]
+                self.topics[topic][line[sentence_name]].append(line[sentence_text])
+            file.close()
+
+    def get_sentence(self, topic, sentence_name):
+        return random.choice(self.topics[topic][sentence_name])
 
     def offer_help(self):
 
-        # if there is NOT a current offer of help
-        if self.bdi.has_bdi_role('has_subject', 'belief') and not(self.bdi.has_bdi_role('type_of_help', 'belief')) :
+        # if a person is believed to be near and there is NOT a current offer of help
+        if self.bdi.has_bdi_role('has_subject', 'belief') and \
+                not(self.bdi.has_bdi_role('type_of_help', 'belief')):
+            print('\n> offering help')
 
-            print('\noffering help')
-
-            ### make this part reusable ###
-            if not(self.bdi.has_bdi_role('offer_help_on_table', 'belief')):
-                self.__say('Hi, do you need any help? Say employee if you wanna find an employee, or poetry if you want me to improvise poetry.')
-
-            if self.bdi.has_bdi_role('offer_help_on_table', 'belief') and  \
-               not(self.bdi.has_bdi_role('type_of_help', 'belief')) and \
-               not(self.bdi.has_bdi_role('input.unknown', 'belief')):
-                self.__say('Did you say anything? I did not understand you.')
-
-            if self.bdi.has_bdi_role('input.unknown', 'belief'):
-                self.bdi.drop('input.unknown', 'belief')
-                self.__say("Can you please reformulate, I don't know what you mean by " + self.speech_text)
-
-
-
-            if not(self.bdi.has_bdi_role('offer_help_on_table', 'belief')):
-                self.bdi.adopt('offer_help_on_table', 'belief')
+            if not(self.bdi.has_bdi_role('offers_on_table', 'belief')):
+                self.bdi.adopt('offers_on_table', 'belief')
+            self.say_and_wait('type_of_help', self.get_sentence('general', 'offer_help'))
 
             self.bdi.states_bdi('offer_help')
-            self.__listen('type_of_help')
+
+    # say something and wait for a response; includes fallback;
+    def say_and_wait(self, answer_type, say_text):
+
+        # no answer received
+        if self.bdi.has_bdi_role('waiting_answer', 'belief') and \
+                not(self.bdi.has_bdi_role(answer_type, 'belief')) and \
+                not(self.bdi.has_bdi_role('input.unknown', 'belief')):
+            self.__say(self.get_sentence('general', 'no_answer'))
+
+        # answer is unexpected
+        if self.bdi.has_bdi_role('input.unknown', 'belief'):
+            self.__say(self.get_sentence('general', 'unexpected_answer')
+                       .format(self.bdi.role_params('speech_text', 'belief')))
+            self.bdi.drop('input.unknown', 'belief')
+            self.bdi.drop('speech_text', 'belief')
+
+        # say it for the first time
+        if not(self.bdi.has_bdi_role('waiting_answer', 'belief')):
+            self.__say(say_text)
+            self.bdi.adopt('waiting_answer', 'belief')
+
+        self.__listen(answer_type)
 
     def help(self):
             
-        if self.bdi.has_bdi_role('type_of_help', 'belief'): #and \
-              #  not(self.bdi.has_bdi_role('helping', 'belief')):
-
-            print('\nhelping')
-            #self.bdi.adopt('helping', 'belief')
+        if self.bdi.has_bdi_role('type_of_help', 'belief'):
+            print('\n> helping')
+            self.bdi.drop('offers_on_table', 'belief')
+            if not(self.bdi.has_bdi_role('helping', 'belief')):
+                self.bdi.drop('waiting_answer', 'belief')
+            self.bdi.states_bdi('helping')
 
             if self.bdi.role_params('type_of_help', 'belief') == 'employee':
                 self.help_find_employee()
-
             elif self.bdi.role_params('type_of_help', 'belief') == 'poetry':
-                self.help_poetry()
+                self.help_freestyling_poetry()
 
     def help_find_employee(self):
 
-        ### make this part reusable ###
-        if not (self.bdi.has_bdi_role('waiting_response', 'belief')):
-            self.__say('What is the name of the employee?')
-
-        if self.bdi.has_bdi_role('waiting_response', 'belief') and \
-                not (self.bdi.has_bdi_role('employee_name', 'belief')) and \
-                not (self.bdi.has_bdi_role('input.unknown', 'belief')):
-            self.__say('Can you please repeat? I did not hear you.')
-
-        if self.bdi.has_bdi_role('input.unknown', 'belief'):
-            self.bdi.drop('input.unknown', 'belief')
-            self.__say("Can you please reformulate, I don't know what you mean by " + self.speech_text)
-
-        if not(self.bdi.has_bdi_role('waiting_response', 'belief')):
-            self.bdi.adopt('waiting_response', 'belief', 'offer_help')
-
+        print('\n> finding employee')
+        if not (self.bdi.has_bdi_role('helping', 'belief')):
+            self.bdi.adopt('helping', 'belief', 'help_find_employee')
         self.bdi.states_bdi('help_find_employee')
-        self.__listen('employee_name')
-        ###
+        self.say_and_wait('employee_name', self.get_sentence('find_employee', 'employee_name'))
+        self.bdi.states_bdi('help_find_employee')
 
         if self.bdi.has_bdi_role('employee_name', 'belief'):
-
             if self.bdi.role_params('employee_name', 'belief') == 'Charlie Brown':
                 self.__say('Charlie Brown works on the third floor, T345.')
-
             if self.bdi.role_params('employee_name', 'belief') == 'Bob Dylan':
                 self.__say('Bob Dylan works on the second floor, T240.')
-
             if self.bdi.role_params('employee_name', 'belief') == '':
                 self.__say('I could not find '+self.speech_text)
             else:
 
-                print('passosususususususus')
-                # when helping is accomplished, drop idle bdi roles
+                #when helping is accomplished, drop idle bdi roles
                 self.bdi.drop('has_subject', 'belief')
-                self.bdi.drop('waiting_response', 'belief')
+                self.bdi.drop('waiting_answer', 'belief')
                 self.bdi.drop('type_of_help', 'belief')
-                self.bdi.drop('offer_help_on_table', 'belief')
-
-                #self.bdi.drop('helping', 'belief')
+                self.bdi.drop('offers_on_table', 'belief')
+                self.bdi.drop('input.unknown', 'belief')
+                self.bdi.drop('helping', 'belief')
+                self.bdi.drop('speech_text', 'belief')
+                self.bdi.drop('employee_name', 'belief')
                 self.bdi.states_bdi('helped')
 
-    def help_poetry(self):
-        ### make this part reusable ###
-        if not (self.bdi.has_bdi_role('waiting_response', 'belief')):
-            self.__say('Give me a word!')
+    def help_freestyling_poetry(self):
 
-        if self.bdi.has_bdi_role('waiting_response', 'belief') and \
-                not (self.bdi.has_bdi_role('given_word', 'belief')) and \
-                not (self.bdi.has_bdi_role('input.unknown', 'belief')):
-            self.__say('Can you please repeat? I did not hear you.')
-
-        if self.bdi.has_bdi_role('input.unknown', 'belief'):
-            self.bdi.drop('input.unknown', 'belief')
-            self.__say("Can you please reformulate, I don't know what you mean by " + self.speech_text)
-
-        if not (self.bdi.has_bdi_role('waiting_response', 'belief')):
-            self.bdi.adopt('waiting_response', 'belief', 'offer_help')
-
+        print('\n> freestyling poetry')
+        if not(self.bdi.has_bdi_role('helping', 'belief')):
+            self.bdi.adopt('helping', 'belief', 'help_poetry')
+        self.say_and_wait('given_word', self.get_sentence('freestyle_poetry', 'ask_word'))
         self.bdi.states_bdi('help_poetry')
-        self.__listen('given_word')
-        ###
 
         if self.bdi.has_bdi_role('given_word', 'belief'):
 
@@ -229,18 +254,22 @@ class Agent(AbstractSICConnector):
                 print(sentense)
                 self.__say(sentense)
 
-                # when helping is accomplished, drop idle bdi roles
+                #when helping is accomplished, drop idle bdi roles
                 self.bdi.drop('has_subject', 'belief')
-                self.bdi.drop('waiting_response', 'belief')
+                self.bdi.drop('waiting_answer', 'belief')
                 self.bdi.drop('type_of_help', 'belief')
+               # self.bdi.drop('offers_on_table', 'belief')
+               # self.bdi.drop('input.unknown', 'belief')
+                self.bdi.drop('helping', 'belief')
+                self.bdi.drop('speech_text', 'belief')
+                
                 self.bdi.drop('given_word', 'belief')
-                self.bdi.drop('offer_help_on_table', 'belief')
-                # self.bdi.drop('helping', 'belief')
                 self.bdi.states_bdi('helped')
             else:
                 self.bdi.drop('given_word', 'belief')
 
-my_connector = Agent(server_ip='192.168.1.19',
+
+my_connector = Agent(server_ip='192.168.1.18',
                      robot='nao',
                      dialogflow_key_file='kikoagent-iajdfl-9d037d057933.json',
                      dialogflow_agent_id='kikoagent-iajdfl')

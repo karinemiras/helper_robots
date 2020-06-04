@@ -1,49 +1,24 @@
-# import json
-import requests
-# import html2json
-word = 'sun'
-response = requests.get('https://www.rhymezone.com/r/rhyme.cgi?Word='+word+'&typeofrhyme=perfect&org1=syl&org2=l&org3=y').text
-
+# import requests
+# from bs4 import BeautifulSoup
+# import numpy
 #
-# response.encoding = 'utf-8'
-# #
-# print(response.text)
-# template = {"Test": ["null", "class", ["/r/"]]}
-# print(html2json.collect(response.text, template))
-
-from bs4 import BeautifulSoup
-import numpy
-
-
-#Create the soup object from the HTML data
+# word = 'Sun'
+# response = requests.get(
+#     'https://www.rhymezone.com/r/rhyme.cgi?Word=' + word + '&typeofrhyme=perfect').text
+#
 # soup = BeautifulSoup(response)
-# print(soup.prettify())
-#
 # rhymes = []
 # for a in soup.find_all('a'):
-#     #if a.get('class')[0] in ['r', 'd']:
 #     if a.get('class') is not None:
 #         rhymes.append(a.get_text().replace(u'\xa0', u' '))
-#
 # rhymes = numpy.array(rhymes)
-# #print(rhymes)
 #
-# print(rhymes[numpy.random.choice(len(rhymes), 1)])
+# sentense = word + ' rhymes with ' \
+#            +  rhymes[numpy.random.choice(len(rhymes), 1)][0] \
+#            + ', ' + str(rhymes[numpy.random.choice(len(rhymes), 1)][0]) \
+#            + ', and ' + str(rhymes[numpy.random.choice(len(rhymes), 1)][0]) + '.'
+#
+# print(sentense)
 
-word = 'Sun'
-response = requests.get(
-    'https://www.rhymezone.com/r/rhyme.cgi?Word=' + word + '&typeofrhyme=perfect').text
-
-soup = BeautifulSoup(response)
-rhymes = []
-for a in soup.find_all('a'):
-    if a.get('class') is not None:
-        rhymes.append(a.get_text().replace(u'\xa0', u' '))
-rhymes = numpy.array(rhymes)
-
-sentense = word + ' rhymes with ' \
-           +  rhymes[numpy.random.choice(len(rhymes), 1)][0] \
-           + ', ' + str(rhymes[numpy.random.choice(len(rhymes), 1)]) \
-           + ', and ' + str(rhymes[numpy.random.choice(len(rhymes), 1)]) + '.'
-
-print(sentense)
+test = 'test'
+print(test)

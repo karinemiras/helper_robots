@@ -4,7 +4,7 @@ import sys
 
 class SampleApplication(Base.AbstractApplication):
     def __init__(self):
-        super(SampleApplication, self).__init__(serverIP='192.168.1.19')
+        super(SampleApplication, self).__init__(serverIP='192.168.1.18')
 
     def main(self):
         self.sem_setLanguage = Semaphore(0)
