@@ -1,3 +1,5 @@
 ask_word|1|Give me a word to rhyme!
 ask_word|2|Gimme me a word!
 ask_word|3|Suggest me a word!
+unexpected_answer|1|Can I try again? Give me another word.
+unexpected_answer|2|Can you give me another chance? Say another word.

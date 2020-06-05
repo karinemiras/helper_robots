@@ -63,11 +63,14 @@ class BDI:
         param = (label, role, active)
         self.cursor.execute(query, param)
         records = self.cursor.fetchall()
-        params = records[0][0].split('|')
-        if len(params) > 1:
-            return params
+        if len(records) > 0:
+            params = records[0][0].split('|')
+            if len(params) > 1:
+                return params
+            else:
+                return params[0]
         else:
-            return params[0]
+            return ''
 
     def has_bdi_role(self, label, role, active=True):
 

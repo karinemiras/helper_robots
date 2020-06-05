@@ -19,6 +19,6 @@
 #            + ', and ' + str(rhymes[numpy.random.choice(len(rhymes), 1)][0]) + '.'
 #
 # print(sentense)
-
-test = 'test'
+t = ['sd', 'b']
+test = 'test{}{}'.format(*t)
 print(test)

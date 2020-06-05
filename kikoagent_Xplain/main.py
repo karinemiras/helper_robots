@@ -32,7 +32,7 @@ class Agent(AbstractSICConnector):
         self.set_language('en-US')
         sleep(0.1)
 
-        # TODO: add loop breaker? fidelius,
+        # TODO: add loop breaker? fidelius, sets all beleifs false: NAO, you have to go to sleep immediately, and have nice dreams.
         while True:
             self.main()
 
@@ -47,7 +47,7 @@ class Agent(AbstractSICConnector):
     # INI: events processing
 
     def on_robot_event(self, event):
-        print('\n event', event)
+        print('\n on_robot_event', event)
 
         if event == 'TextDone':
             self.bdi.drop('speaking', 'belief')
@@ -72,6 +72,7 @@ class Agent(AbstractSICConnector):
                 self.has_subject(True)
 
     def on_person_detected(self):
+        print('\n on_person_detected')
         if not(self.bdi.has_bdi_role('has_subject', 'belief')):
             self.bdi.states_bdi('on_person_detected')
             self.has_subject(True)
@@ -153,23 +154,40 @@ class Agent(AbstractSICConnector):
 
             if not(self.bdi.has_bdi_role('offers_on_table', 'belief')):
                 self.bdi.adopt('offers_on_table', 'belief')
-            self.say_and_wait('type_of_help', self.get_sentence('general', 'offer_help'))
+            self.say_and_wait(answer_belief='type_of_help',
+                              say_text=self.get_sentence('general', 'offer_help'),
+                              unexpected_answer_params=[self.bdi.role_params('speech_text', 'belief')])
 
             self.bdi.states_bdi('offer_help')
 
     # say something and wait for a response; includes fallback;
-    def say_and_wait(self, answer_type, say_text):
+    def say_and_wait(self,
+                     answer_belief, say_text,
+                     no_answer_topic='general',
+                     no_answer_subtopic='no_answer',
+                     no_answer_params=None,
+                     unexpected_answer_topic='general',
+                     unexpected_answer_subtopic='unexpected_answer',
+                     unexpected_answer_params=None):
 
         # no answer received
         if self.bdi.has_bdi_role('waiting_answer', 'belief') and \
-                not(self.bdi.has_bdi_role(answer_type, 'belief')) and \
+                not(self.bdi.has_bdi_role(answer_belief, 'belief')) and \
                 not(self.bdi.has_bdi_role('input.unknown', 'belief')):
-            self.__say(self.get_sentence('general', 'no_answer'))
+            sentence = self.get_sentence(no_answer_topic, no_answer_subtopic)
+            if no_answer_params is not None:
+                self.__say(sentence.format(*no_answer_params))
+            else:
+                self.__say(sentence)
 
         # answer is unexpected
         if self.bdi.has_bdi_role('input.unknown', 'belief'):
-            self.__say(self.get_sentence('general', 'unexpected_answer')
-                       .format(self.bdi.role_params('speech_text', 'belief')))
+            sentence = self.get_sentence(unexpected_answer_topic, unexpected_answer_subtopic)
+            if unexpected_answer_params is not None:
+                self.__say(sentence.format(*unexpected_answer_params))
+            else:
+                self.__say(sentence)
+
             self.bdi.drop('input.unknown', 'belief')
             self.bdi.drop('speech_text', 'belief')
 
@@ -178,7 +196,7 @@ class Agent(AbstractSICConnector):
             self.__say(say_text)
             self.bdi.adopt('waiting_answer', 'belief')
 
-        self.__listen(answer_type)
+        self.__listen(answer_belief)
 
     def help(self):
             
@@ -197,38 +215,34 @@ class Agent(AbstractSICConnector):
     def help_find_employee(self):
 
         print('\n> finding employee')
-        if not (self.bdi.has_bdi_role('helping', 'belief')):
+        if not(self.bdi.has_bdi_role('helping', 'belief')):
             self.bdi.adopt('helping', 'belief', 'help_find_employee')
-        self.bdi.states_bdi('help_find_employee')
-        self.say_and_wait('employee_name', self.get_sentence('find_employee', 'employee_name'))
+        self.say_and_wait(answer_belief='employee_name',
+                          say_text=self.get_sentence('find_employee', 'employee_name'),
+                          unexpected_answer_params=[self.bdi.role_params('speech_text', 'belief')])
         self.bdi.states_bdi('help_find_employee')
 
         if self.bdi.has_bdi_role('employee_name', 'belief'):
+
             if self.bdi.role_params('employee_name', 'belief') == 'Charlie Brown':
                 self.__say('Charlie Brown works on the third floor, T345.')
             if self.bdi.role_params('employee_name', 'belief') == 'Bob Dylan':
                 self.__say('Bob Dylan works on the second floor, T240.')
             if self.bdi.role_params('employee_name', 'belief') == '':
                 self.__say('I could not find '+self.speech_text)
-            else:
 
-                #when helping is accomplished, drop idle bdi roles
-                self.bdi.drop('has_subject', 'belief')
-                self.bdi.drop('waiting_answer', 'belief')
-                self.bdi.drop('type_of_help', 'belief')
-                self.bdi.drop('offers_on_table', 'belief')
-                self.bdi.drop('input.unknown', 'belief')
-                self.bdi.drop('helping', 'belief')
-                self.bdi.drop('speech_text', 'belief')
-                self.bdi.drop('employee_name', 'belief')
-                self.bdi.states_bdi('helped')
+            self.drop_basic_beliefs()
+            self.bdi.drop('employee_name', 'belief')
+            self.bdi.states_bdi('helped')
 
     def help_freestyling_poetry(self):
 
         print('\n> freestyling poetry')
         if not(self.bdi.has_bdi_role('helping', 'belief')):
             self.bdi.adopt('helping', 'belief', 'help_poetry')
-        self.say_and_wait('given_word', self.get_sentence('freestyle_poetry', 'ask_word'))
+        self.say_and_wait(answer_belief='given_word',
+                          say_text=self.get_sentence('freestyle_poetry', 'ask_word'),
+                          unexpected_answer_topic='freestyle_poetry')
         self.bdi.states_bdi('help_poetry')
 
         if self.bdi.has_bdi_role('given_word', 'belief'):
@@ -254,22 +268,24 @@ class Agent(AbstractSICConnector):
                 print(sentense)
                 self.__say(sentense)
 
-                #when helping is accomplished, drop idle bdi roles
-                self.bdi.drop('has_subject', 'belief')
-                self.bdi.drop('waiting_answer', 'belief')
-                self.bdi.drop('type_of_help', 'belief')
-               # self.bdi.drop('offers_on_table', 'belief')
-               # self.bdi.drop('input.unknown', 'belief')
-                self.bdi.drop('helping', 'belief')
-                self.bdi.drop('speech_text', 'belief')
-                
+                self.drop_basic_beliefs()
                 self.bdi.drop('given_word', 'belief')
                 self.bdi.states_bdi('helped')
             else:
+                self.__say('Oh no, I can not rhyme with this word!')
                 self.bdi.drop('given_word', 'belief')
+                self.bdi.drop('speech_text', 'belief')
+                self.bdi.adopt('input.unknown', 'belief')
+
+    def drop_basic_beliefs(self):
+        self.bdi.drop('has_subject', 'belief')
+        self.bdi.drop('waiting_answer', 'belief')
+        self.bdi.drop('type_of_help', 'belief')
+        self.bdi.drop('helping', 'belief')
+        self.bdi.drop('speech_text', 'belief')
 
 
-my_connector = Agent(server_ip='192.168.1.18',
+my_connector = Agent(server_ip='192.168.1.19',
                      robot='nao',
                      dialogflow_key_file='kikoagent-iajdfl-9d037d057933.json',
                      dialogflow_agent_id='kikoagent-iajdfl')
