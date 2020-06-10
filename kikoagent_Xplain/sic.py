@@ -26,7 +26,6 @@ class SIC(AbstractSICConnector):
         print('\n on_robot_event', event)
 
         if event == 'TextDone':
-            self.agent.xplain.drop('speaking')
             self.agent.speaking_semaphore.release()
 
         # always listening to touch sensors; uses touch to identify that there is a subject
@@ -43,20 +42,17 @@ class SIC(AbstractSICConnector):
                          'HandLeftLeftTouched',
                          'HandLeftRightTouched']
         if event in touch_sensors:
-            if not (self.agent.xplain.is_fact('has_subject')):
-                self.agent.has_subject(True)
+            self.agent.has_subject(True)
 
     def on_person_detected(self):
         print('\n on_person_detected')
 
-        if not(self.agent.xplain.is_fact('has_subject')):
-            self.agent.has_subject(True)
+        self.agent.has_subject(True)
 
     def on_speech_text(self, text):
         print('\n on_speech_text', text)
 
-        if self.agent.xplain.is_fact('speech_text'):
-            self.agent.xplain.drop('speech_text')
+        self.agent.xplain.drop('speech_text')
         self.agent.xplain.adopt('speech_text', 'percept', text)
 
     def on_audio_intent(self, *args, intent_name):

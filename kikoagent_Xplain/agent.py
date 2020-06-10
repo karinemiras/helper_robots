@@ -4,6 +4,7 @@ from sic import SIC
 from find_employee import FindEmployee
 from freestyle_poetry import FreestylePoetry
 import random
+from time import sleep
 from threading import Semaphore
 
 class Agent():
@@ -42,23 +43,23 @@ class Agent():
                 not (self.xplain.is_fact('type_of_help')):
             print('\n> offering help')
 
-            if not (self.xplain.is_fact('offers_on_table')):
-                self.xplain.adopt('offers_on_table', 'action')
+            self.xplain.adopt('offer_help', 'action')
             self.say_and_wait(fact_type='type_of_help',
                               say_text=self.get_sentence('general', 'offer_help'),
-                              unexpected_answer_params=[self.xplain.ftype_params('speech_text')])
+                              unexpected_answer_params=[self.xplain.fact_params('speech_text')])
+            self.xplain.drop('offer_help')
 
     def help(self):
 
         if self.xplain.is_fact('type_of_help'):
             print('\n> helping')
-            self.xplain.drop('offers_on_table')
-            if not (self.xplain.is_fact('helping')):
-                self.xplain.drop('waiting_answer')
 
-            if self.xplain.ftype_params('type_of_help') == 'employee':
+            if not (self.xplain.is_fact('helping')):
+                self.clear_answer_facts()
+
+            if self.xplain.fact_params('type_of_help') == 'employee':
                 FindEmployee(self).act()
-            elif self.xplain.ftype_params('type_of_help') == 'poetry':
+            elif self.xplain.fact_params('type_of_help') == 'poetry':
                 FreestylePoetry(self).act()
 
         # say something and wait for a response; includes fallback;
@@ -105,15 +106,20 @@ class Agent():
         self.xplain.adopt('speaking', 'action', text)
         self.sic.say(text)
         self.speaking_semaphore.acquire()
+        self.xplain.drop('speaking')
 
     def listen(self, context=''):
+        self.xplain.adopt('listening', 'action')
         self.sic.set_audio_context(context)
         self.sic.start_listening()
         self.listening_semaphore.acquire(timeout=self.timeout_listing)
         self.sic.stop_listening()
+        # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
+        self.xplain.drop('listening')
+        sleep(1)
 
-    def has_subject(self, true_or_false):
-        if true_or_false:
+    def has_subject(self, has):
+        if has:
             self.xplain.adopt('has_subject', 'percept')
             self.watching_semaphore.release()
 
@@ -143,10 +149,12 @@ class Agent():
     def get_sentence(self, topic, sentence_name):
         return random.choice(self.topics[topic][sentence_name])
 
-    def drop_basic_beliefs(self):
-        self.xplain.drop('has_subject')
+    def clear_answer_facts(self):
         self.xplain.drop('waiting_answer')
+        self.xplain.drop('speech_text')
+
+    def drop_helping_facts(self):
         self.xplain.drop('type_of_help')
         self.xplain.drop('helping')
-        self.xplain.drop('speech_text')
+
 

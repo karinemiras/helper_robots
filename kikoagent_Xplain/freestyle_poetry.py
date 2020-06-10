@@ -19,7 +19,9 @@ class FreestylePoetry:
 
         if self.agent.xplain.is_fact('given_word'):
 
-            word = self.agent.xplain.ftype_params('given_word')
+            self.agent.clear_answer_facts()
+
+            word = self.agent.xplain.fact_params('given_word')
 
             response = requests.get(
                 'https://www.rhymezone.com/r/rhyme.cgi?Word=' + word + '&typeofrhyme=perfect').text
@@ -40,10 +42,11 @@ class FreestylePoetry:
                 print(sentense)
                 self.agent.say(sentense)
 
-                self.agent.drop_basic_beliefs()
+                self.agent.drop_helping_facts()
                 self.agent.xplain.drop('given_word')
+                self.agent.xplain.drop('has_subject')
             else:
                 self.agent.say(self.agent.get_sentence('freestyle_poetry', 'excuse'))
                 self.agent.xplain.drop('given_word')
                 self.agent.xplain.drop('speech_text')
-                self.agent.xplain.adopt('input.unknown', 'percept')
+                self.agent.xplain.adopt('input.unknown', 'inference')
