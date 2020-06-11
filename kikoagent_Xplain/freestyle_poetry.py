@@ -11,17 +11,17 @@ class FreestylePoetry:
     def act(self):
 
         print('\n> freestyling poetry')
-        if not (self.agent.xplain.is_fact('helping')):
+        if not (self.agent.xplain.is_belief('helping')):
             self.agent.xplain.adopt('helping', 'action', 'help_poetry')
-        self.agent.say_and_wait(fact_type='given_word',
+        self.agent.say_and_wait(belief_type='given_word',
                                 say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
                                 unexpected_answer_topic='freestyle_poetry')
 
-        if self.agent.xplain.is_fact('given_word'):
+        if self.agent.xplain.is_belief('given_word'):
 
-            self.agent.clear_answer_facts()
+            self.agent.clear_answer_beliefs()
 
-            word = self.agent.xplain.fact_params('given_word')
+            word = self.agent.xplain.belief_params('given_word')
 
             response = requests.get(
                 'https://www.rhymezone.com/r/rhyme.cgi?Word=' + word + '&typeofrhyme=perfect').text
@@ -42,7 +42,7 @@ class FreestylePoetry:
                 print(sentense)
                 self.agent.say(sentense)
 
-                self.agent.drop_helping_facts()
+                self.agent.drop_helping_beliefs()
                 self.agent.xplain.drop('given_word')
                 self.agent.xplain.drop('has_subject')
             else:

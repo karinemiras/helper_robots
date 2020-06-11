@@ -14,7 +14,7 @@ class Agent():
         self.timeout_listing = parameters['timeout_listing']
 
         self.speaking_semaphore = Semaphore(0)
-        self.watching_semaphore = Semaphore(0)
+        self.looking_semaphore = Semaphore(0)
         self.listening_semaphore = Semaphore(0)
 
         self.xplain = Xplain(parameters)
@@ -29,43 +29,45 @@ class Agent():
         self.help()
 
     def search_subject(self):
-        # if it doesnt believe to have a subject, searches for it by looking
-        if not(self.xplain.is_fact('has_subject')):
+        # if it doesnt believe to have a subject, keeps searching for it by looking
+        if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
+            self.xplain.adopt('looking', 'action')
             self.sic.start_looking()
-            self.watching_semaphore.acquire()
+            self.looking_semaphore.acquire()
             self.sic.stop_looking()
+            self.xplain.drop('looking')
 
     def offer_help(self):
 
         # if a person is believed to be near and there is NOT a current offer of help
-        if self.xplain.is_fact('has_subject') and \
-                not (self.xplain.is_fact('type_of_help')):
+        if self.xplain.is_belief('has_subject') and \
+                not (self.xplain.is_belief('type_of_help')):
             print('\n> offering help')
 
             self.xplain.adopt('offer_help', 'action')
-            self.say_and_wait(fact_type='type_of_help',
+            self.say_and_wait(belief_type='type_of_help',
                               say_text=self.get_sentence('general', 'offer_help'),
-                              unexpected_answer_params=[self.xplain.fact_params('speech_text')])
+                              unexpected_answer_params=[self.xplain.belief_params('speech_text')])
             self.xplain.drop('offer_help')
 
     def help(self):
 
-        if self.xplain.is_fact('type_of_help'):
+        if self.xplain.is_belief('type_of_help'):
             print('\n> helping')
 
-            if not (self.xplain.is_fact('helping')):
-                self.clear_answer_facts()
+            if not (self.xplain.is_belief('helping')):
+                self.clear_answer_beliefs()
 
-            if self.xplain.fact_params('type_of_help') == 'employee':
+            if self.xplain.belief_params('type_of_help') == 'employee':
                 FindEmployee(self).act()
-            elif self.xplain.fact_params('type_of_help') == 'poetry':
+            elif self.xplain.belief_params('type_of_help') == 'poetry':
                 FreestylePoetry(self).act()
 
         # say something and wait for a response; includes fallback;
 
     def say_and_wait(self,
-                     fact_type,
+                     belief_type,
                      say_text,
                      no_answer_topic='general',
                      no_answer_subtopic='no_answer',
@@ -75,9 +77,9 @@ class Agent():
                      unexpected_answer_params=None):
 
         # no answer received
-        if self.xplain.is_fact('waiting_answer') and \
-                not (self.xplain.is_fact(fact_type)) and \
-                not (self.xplain.is_fact('input.unknown')):
+        if self.xplain.is_belief('waiting_answer') and \
+                not (self.xplain.is_belief(belief_type)) and \
+                not (self.xplain.is_belief('input.unknown')):
             sentence = self.get_sentence(no_answer_topic, no_answer_subtopic)
             if no_answer_params is not None:
                 self.say(sentence.format(*no_answer_params))
@@ -85,7 +87,7 @@ class Agent():
                 self.say(sentence)
 
         # answer is unexpected
-        if self.xplain.is_fact('input.unknown'):
+        if self.xplain.is_belief('input.unknown'):
             sentence = self.get_sentence(unexpected_answer_topic, unexpected_answer_subtopic)
             if unexpected_answer_params is not None:
                 self.say(sentence.format(*unexpected_answer_params))
@@ -96,15 +98,18 @@ class Agent():
             self.xplain.drop('speech_text')
 
         # say it for the first time
-        if not (self.xplain.is_fact('waiting_answer')):
+        if not (self.xplain.is_belief('waiting_answer')):
             self.say(say_text)
             self.xplain.adopt('waiting_answer', 'action')
 
-        self.listen(fact_type)
+        self.listen(belief_type)
 
-    def say(self, text):
+    def say(self, text, say_animated=True):
         self.xplain.adopt('speaking', 'action', text)
-        self.sic.say(text)
+        if say_animated:
+            self.sic.say_animated(text)
+        else:
+            self.sic.say(text)
         self.speaking_semaphore.acquire()
         self.xplain.drop('speaking')
 
@@ -114,14 +119,14 @@ class Agent():
         self.sic.start_listening()
         self.listening_semaphore.acquire(timeout=self.timeout_listing)
         self.sic.stop_listening()
-        # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
         self.xplain.drop('listening')
+        # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
         sleep(1)
 
     def has_subject(self, has):
         if has:
             self.xplain.adopt('has_subject', 'percept')
-            self.watching_semaphore.release()
+            self.looking_semaphore.release()
 
     def load_topics(self):
         topics = ['general',
@@ -149,11 +154,11 @@ class Agent():
     def get_sentence(self, topic, sentence_name):
         return random.choice(self.topics[topic][sentence_name])
 
-    def clear_answer_facts(self):
+    def clear_answer_beliefs(self):
         self.xplain.drop('waiting_answer')
         self.xplain.drop('speech_text')
 
-    def drop_helping_facts(self):
+    def drop_helping_beliefs(self):
         self.xplain.drop('type_of_help')
         self.xplain.drop('helping')
 

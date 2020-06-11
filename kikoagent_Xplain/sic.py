@@ -65,3 +65,5 @@ class SIC(AbstractSICConnector):
         self.agent.listening_semaphore.release()
 
 
+    def on_posture_changed(self, posture: str):
+        print('cu', str)

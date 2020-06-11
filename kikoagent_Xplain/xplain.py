@@ -1,10 +1,10 @@
 import psycopg2
 
 # Xplain manages the BDI of the agent.
-# Everything the agent knows is a fact, instead of a belief.
-# Desires and intentions are implict, while this agent for now only desires and intends to always be helping.
-# The agent knows its own deeds, each represented by a fact called 'action'.
-# The agent knows facts about its environment and itself, represented by facts of type 'percept' and 'inference'.
+# Everything the agent knows is a belief.
+# Desires and intentions are implicit, while this agent for now only desires and intends to always be helping.
+# The agent knows its own deeds, each represented by a belief called 'action'.
+# The agent knows beliefs about its environment and itself, represented by beliefs of type 'percept' and 'inference'.
 
 class Xplain:
 
@@ -38,43 +38,49 @@ class Xplain:
         except Exception as error:
             print('\nERROR close: ', error)
 
-    # registers active facts when an action starts
-    def register_facts_of_action(self, id_fact):
+    # registers active beliefs when an action starts
+    def register_beliefs_of_action(self, id_belief):
 
         cursor = self.connection.cursor()
-        query = """select id from facts where active = True"""
-        cursor.execute(query)
+        query = "select id from beliefs where active = True and id != %s"
+        cursor.execute(query, (id_belief, ))
         records = cursor.fetchall()
-        for fact in records:
-            if id_fact != fact[0]:
-                query = """ INSERT INTO facts_of_action (action_fact_id, active_fact_id) VALUES (%s, %s) """
-                params = (id_fact, fact[0])
+        query = """ INSERT INTO beliefs_of_action (action_belief_id, active_belief_id) VALUES (%s, %s) """
+
+        if len(records) > 0:
+            for belief in records:
+                params = (id_belief, belief[0])
                 cursor.execute(query, params)
+        else:
+            # actions taken when there is no beliefs are known
+            params = (id_belief, -1)
+            cursor.execute(query, params)
+
         self.connection.commit()
         cursor.close()
 
-    def adopt(self, fact, facttype, params_facttype=''):
+    def adopt(self, belief, belieftype, params_belieftype=''):
         try:
-            if not(self.is_fact(fact)):
+            if not(self.is_belief(belief)):
                 cursor = self.connection.cursor()
-                query = """ INSERT INTO facts (fact, time_started, active, facttype, params) 
+                query = """ INSERT INTO beliefs (belief, time_started, active, belieftype, params) 
                                    VALUES (%s, now(), %s,%s, %s) returning id """
-                params = (fact, True, facttype, params_facttype)
+                params = (belief, True, belieftype, params_belieftype)
                 cursor.execute(query, params)
                 self.connection.commit()
 
-                if facttype == 'action':
-                    self.register_facts_of_action(cursor.fetchone()[0])
+                if belieftype == 'action':
+                    self.register_beliefs_of_action(cursor.fetchone()[0])
                 cursor.close()
 
         except Exception as error:
             print('\nERROR adopt: ', error)
 
-    def drop(self, fact):
+    def drop(self, belief):
         try:
             cursor = self.connection.cursor()
-            query = """ Update facts set active = %s, time_finished = now() where fact = %s and active = True"""
-            params = (False, fact)
+            query = """ Update beliefs set active = %s, time_finished = now() where belief = %s and active = True"""
+            params = (False, belief)
             cursor.execute(query, params)
             self.connection.commit()
             cursor.close()
@@ -82,11 +88,11 @@ class Xplain:
             print('\nERROR drop: ', error)
 
     # fetches parameters
-    def fact_params(self, fact):
+    def belief_params(self, belief):
         try:
             cursor = self.connection.cursor()
-            query = "select params from facts where fact = %s and active = %s"
-            param = (fact, True)
+            query = "select params from beliefs where belief = %s and active = %s"
+            param = (belief, True)
             cursor.execute(query, param)
             records = cursor.fetchall()
             cursor.close()
@@ -98,17 +104,17 @@ class Xplain:
                 # for one or no parameters
                 else:
                     return params[0]
-            # if fact does not exits, returns empty string
+            # if belief does not exits, returns empty string
             else:
                 return ''
         except Exception as error:
-            print('\nERROR facttype_params: ',    error)
+            print('\nERROR belieftype_params: ',    error)
 
-    def is_fact(self, fact):
+    def is_belief(self, belief):
         try:
             cursor = self.connection.cursor()
-            query = "select * from facts where fact = %s and active = %s"
-            param = (fact, True)
+            query = "select * from beliefs where belief = %s and active = %s"
+            param = (belief, True)
             cursor.execute(query, param)
             records = cursor.fetchall()
             cursor.close()
@@ -117,19 +123,19 @@ class Xplain:
             else:
                 return False
         except Exception as error:
-            print('\nERROR is_fact: ', error)
+            print('\nERROR is_belief: ', error)
 
-    def summary_facts(self):
+    def summary_beliefs(self):
         try:
             cursor = self.connection.cursor()
-            query = "select facttype, fact, params from facts where active = True order by facttype, fact"
+            query = "select belieftype, belief, params from beliefs where active = True order by belieftype, belief"
             cursor.execute(query)
             records = cursor.fetchall()
             cursor.close()
             for row in records:
                 print(row)
         except Exception as error:
-            print('\nERROR summary_facts: ', error)
+            print('\nERROR summary_beliefs: ', error)
 
 
 
