@@ -11,8 +11,9 @@ class FindEmployee:
         self.agent.xplain.adopt('helping', 'action', 'help_find_employee')
 
         self.agent.say_and_wait(belief_type='employee_name',
-                                say_text=self.agent.get_sentence('find_employee', 'employee_name'),
-                                unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')])
+                                say_text=self.agent.get_sentence('find_employee', 'ask_name'),
+                                unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
+                                timeout=self.agent.timeout_listing)
 
         if self.agent.xplain.is_belief('employee_name'):
 

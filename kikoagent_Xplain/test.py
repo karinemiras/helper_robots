@@ -1,4 +1,5 @@
 
 
-c = 'd'.split('|')
-print(c)
+while True:
+    print('ki')
+    break

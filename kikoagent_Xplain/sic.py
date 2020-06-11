@@ -62,8 +62,12 @@ class SIC(AbstractSICConnector):
         for param in args:
             params += param+'|'
         self.agent.xplain.adopt(intent_name, 'percept', params[0:-1])
+
         self.agent.listening_semaphore.release()
 
+        # magic sentence to stop Kiko safely:
+        # Kiko, you have to stop, sleep immediately, and have nice dreams.
+        if self.agent.xplain.is_belief('sleep_order'):
+            self.agent.dropall_and_sleep()
 
-    def on_posture_changed(self, posture: str):
-        print('cu', str)
+

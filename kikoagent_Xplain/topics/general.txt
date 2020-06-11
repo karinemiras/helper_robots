@@ -4,3 +4,5 @@ no_answer|1|Did you say anything? I did not hear you.
 no_answer|2|Can you please repeat? I did not understand you.
 unexpected_answer|1|Can you please reformulate? I don't know what you mean by {}.
 unexpected_answer|2|Can you say it again? I don't get what you mean with {}.
+sleep_order_taken|1|All right, I'm going to sleep.
+sleep_order_taken|2|Ok, I'll sleep. See you later.

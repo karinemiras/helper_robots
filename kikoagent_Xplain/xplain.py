@@ -59,13 +59,13 @@ class Xplain:
         self.connection.commit()
         cursor.close()
 
-    def adopt(self, belief, belieftype, params_belieftype=''):
+    def adopt(self, belief, belieftype, params=''):
         try:
             if not(self.is_belief(belief)):
                 cursor = self.connection.cursor()
                 query = """ INSERT INTO beliefs (belief, time_started, active, belieftype, params) 
                                    VALUES (%s, now(), %s,%s, %s) returning id """
-                params = (belief, True, belieftype, params_belieftype)
+                params = (belief, True, belieftype, params)
                 cursor.execute(query, params)
                 self.connection.commit()
 
@@ -79,9 +79,8 @@ class Xplain:
     def drop(self, belief):
         try:
             cursor = self.connection.cursor()
-            query = """ Update beliefs set active = %s, time_finished = now() where belief = %s and active = True"""
-            params = (False, belief)
-            cursor.execute(query, params)
+            query = """ Update beliefs set active = False, time_finished = now() where belief = %s and active = True"""
+            cursor.execute(query, (belief,))
             self.connection.commit()
             cursor.close()
         except Exception as error:
@@ -108,7 +107,7 @@ class Xplain:
             else:
                 return ''
         except Exception as error:
-            print('\nERROR belieftype_params: ',    error)
+            print('\nERROR belieftype_params: ', error)
 
     def is_belief(self, belief):
         try:
@@ -125,7 +124,17 @@ class Xplain:
         except Exception as error:
             print('\nERROR is_belief: ', error)
 
-    def summary_beliefs(self):
+    def dropall(self):
+        try:
+            cursor = self.connection.cursor()
+            query = "update beliefs set active=False, time_finished = now() where active = True"
+            cursor.execute(query)
+            self.connection.commit()
+            cursor.close()
+        except Exception as error:
+            print('\nERROR dropall: ', error)
+
+    def summary_active_beliefs(self):
         try:
             cursor = self.connection.cursor()
             query = "select belieftype, belief, params from beliefs where active = True order by belieftype, belief"
@@ -135,7 +144,7 @@ class Xplain:
             for row in records:
                 print(row)
         except Exception as error:
-            print('\nERROR summary_beliefs: ', error)
+            print('\nERROR summary_active_beliefs: ', error)
 
 
 

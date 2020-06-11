@@ -4,14 +4,17 @@ from sic import SIC
 from find_employee import FindEmployee
 from freestyle_poetry import FreestylePoetry
 import random
+import sys
 from time import sleep
 from threading import Semaphore
+
 
 class Agent():
 
     def __init__(self, parameters):
 
-        self.timeout_listing = parameters['timeout_listing']
+        self.sleeping = False
+        self.timeout_listing = parameters['timeout_listening']
 
         self.speaking_semaphore = Semaphore(0)
         self.looking_semaphore = Semaphore(0)
@@ -29,7 +32,7 @@ class Agent():
         self.help()
 
     def search_subject(self):
-        # if it doesnt believe to have a subject, keeps searching for it by looking
+        # if it doesnt believe to have a subject, keeps searching for it
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
             self.xplain.adopt('looking', 'action')
@@ -48,7 +51,8 @@ class Agent():
             self.xplain.adopt('offer_help', 'action')
             self.say_and_wait(belief_type='type_of_help',
                               say_text=self.get_sentence('general', 'offer_help'),
-                              unexpected_answer_params=[self.xplain.belief_params('speech_text')])
+                              unexpected_answer_params=[self.xplain.belief_params('speech_text')],
+                              timeout=self.timeout_listing)
             self.xplain.drop('offer_help')
 
     def help(self):
@@ -59,9 +63,9 @@ class Agent():
             if not (self.xplain.is_belief('helping')):
                 self.clear_answer_beliefs()
 
-            if self.xplain.belief_params('type_of_help') == 'employee':
+            if self.xplain.belief_params('type_of_help') == 'find employee':
                 FindEmployee(self).act()
-            elif self.xplain.belief_params('type_of_help') == 'poetry':
+            elif self.xplain.belief_params('type_of_help') == 'freestyle poetry':
                 FreestylePoetry(self).act()
 
         # say something and wait for a response; includes fallback;
@@ -74,7 +78,8 @@ class Agent():
                      no_answer_params=None,
                      unexpected_answer_topic='general',
                      unexpected_answer_subtopic='unexpected_answer',
-                     unexpected_answer_params=None):
+                     unexpected_answer_params=None,
+                     timeout=None):
 
         # no answer received
         if self.xplain.is_belief('waiting_answer') and \
@@ -102,7 +107,7 @@ class Agent():
             self.say(say_text)
             self.xplain.adopt('waiting_answer', 'action')
 
-        self.listen(belief_type)
+        self.listen(belief_type, timeout)
 
     def say(self, text, say_animated=True):
         self.xplain.adopt('speaking', 'action', text)
@@ -113,11 +118,14 @@ class Agent():
         self.speaking_semaphore.acquire()
         self.xplain.drop('speaking')
 
-    def listen(self, context=''):
+    def listen(self, context='', timeout=None):
         self.xplain.adopt('listening', 'action')
         self.sic.set_audio_context(context)
         self.sic.start_listening()
-        self.listening_semaphore.acquire(timeout=self.timeout_listing)
+        if timeout is not None:
+            self.listening_semaphore.acquire(timeout=timeout)
+        else:
+            self.listening_semaphore.acquire()
         self.sic.stop_listening()
         self.xplain.drop('listening')
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
@@ -161,5 +169,18 @@ class Agent():
     def drop_helping_beliefs(self):
         self.xplain.drop('type_of_help')
         self.xplain.drop('helping')
+
+    def load_magic_beliefs(self, magic_beliefs):
+        for belief in magic_beliefs:
+            self.xplain.adopt(belief, magic_beliefs[belief][0], magic_beliefs[belief][1])
+
+    # says goodbye, drops any active beliefs, stops SIC, and breaks out the life loop
+    def dropall_and_sleep(self):
+        self.sic.say_animated(self.get_sentence('general', 'sleep_order_taken'))
+        self.xplain.adopt('abandon_and_sleep', 'action')
+        self.xplain.dropall()
+        self.sic.stop()
+        self.sleeping = True
+        sys.exit()
 
 
