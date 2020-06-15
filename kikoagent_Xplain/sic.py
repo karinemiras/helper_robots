@@ -42,11 +42,14 @@ class SIC(AbstractSICConnector):
                          'HandLeftLeftTouched',
                          'HandLeftRightTouched']
         if event in touch_sensors:
+            self.agent.xplain.adopt('subject_touched', 'percept')
             self.agent.has_subject(True)
 
     def on_person_detected(self):
         print('\n on_person_detected')
 
+        self.agent.xplain.adopt('seen_subject', 'percept')
+        self.agent.looking_semaphore.release()
         self.agent.has_subject(True)
 
     def on_speech_text(self, text):
@@ -63,11 +66,13 @@ class SIC(AbstractSICConnector):
             params += param+'|'
         self.agent.xplain.adopt(intent_name, 'percept', params[0:-1])
 
-        self.agent.listening_semaphore.release()
-
         # magic sentence to stop Kiko safely:
         # Kiko, you have to stop, sleep immediately, and have nice dreams.
         if self.agent.xplain.is_belief('sleep_order'):
             self.agent.dropall_and_sleep()
 
+        if self.agent.xplain.is_belief('proactive_subject'):
+            self.agent.has_subject(True)
+        else:
+            self.agent.listening_semaphore.release()
 

@@ -27,7 +27,7 @@ class Xplain:
                                                port=self.port,
                                                database=self.database)
         except Exception as error:
-            print('\nERROR: ', error)
+            self.log.write('\nERROR open: {}'.format(error))
 
     def close(self):
         try:
@@ -36,7 +36,7 @@ class Xplain:
                 self.connection.close()
                 print("PostgreSQL connection is closed")
         except Exception as error:
-            print('\nERROR close: ', error)
+            self.log.write('\nERROR close: {}'.format(error))
 
     # registers active beliefs when an action starts
     def register_beliefs_of_action(self, id_belief):
@@ -74,7 +74,7 @@ class Xplain:
                 cursor.close()
 
         except Exception as error:
-            print('\nERROR adopt: ', error)
+            self.log.write('\nERROR adopt: {}'.format(error))
 
     def drop(self, belief):
         try:
@@ -107,7 +107,7 @@ class Xplain:
             else:
                 return ''
         except Exception as error:
-            print('\nERROR belieftype_params: ', error)
+            self.log.write('\nERROR belieftype_params: {}'.format(error))
 
     def is_belief(self, belief):
         try:
@@ -122,7 +122,7 @@ class Xplain:
             else:
                 return False
         except Exception as error:
-            print('\nERROR is_belief: ', error)
+            self.log.write('\nERROR is_belief: {}'.format(error))
 
     def dropall(self):
         try:
@@ -132,7 +132,7 @@ class Xplain:
             self.connection.commit()
             cursor.close()
         except Exception as error:
-            print('\nERROR dropall: ', error)
+            self.log.write('\nERROR dropall: {}'.format(error))
 
     def summary_active_beliefs(self):
         try:
@@ -144,7 +144,7 @@ class Xplain:
             for row in records:
                 print(row)
         except Exception as error:
-            print('\nERROR summary_active_beliefs: ', error)
+            self.log.write('\nERROR summary_active_beliefs: {}'.format(error))
 
 
 

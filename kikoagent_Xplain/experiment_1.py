@@ -1,27 +1,31 @@
 from agent import Agent
+from log import Log
 
 
 class Main:
 
     def __init__(self, parameters):
 
-        self.agent = Agent(parameters)
+        self.log = Log(parameters)
+        self.agent = Agent(parameters, self.log)
 
         # magic_beliefs are for testing only:
         # use it to provide a particular state of mind for Kiko in his awakening
         # {'belief': ['belieftype', 'params']}
-        #magic_beliefs = {'has_subject': ['percept', '']}
-        #self.agent.load_magic_beliefs(magic_beliefs)
+        # magic_beliefs = {'has_subject': ['percept', '']}
+        # self.agent.load_magic_beliefs(magic_beliefs)
 
     def run(self):
 
         while not self.agent.sleeping:
 
             print('>> life loop')
-            try:
-                self.agent.life_loop()
-            except Exception as error:
-                print('ERROR loop:', error)
+            self.agent.life_loop()
+            # try:
+            #     self.agent.life_loop()
+            # except Exception as error:
+            #     self.log.write('ERROR loop: {}'.format(error))
+
 
 parameters = {
             'server_ip': '192.168.0.104',
@@ -34,6 +38,7 @@ parameters = {
             'postgres_port': '5432',
             'postgres_database': 'kikoagent',
             'timeout_listening': 15,
+            'experiment_name': 'test'
             }
 
 

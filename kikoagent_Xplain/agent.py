@@ -9,16 +9,19 @@ from time import sleep
 from threading import Semaphore
 
 
-class Agent():
+class Agent:
 
-    def __init__(self, parameters):
+    def __init__(self, parameters, log):
 
+        self.parameters = parameters
+        self.log = log
         self.sleeping = False
-        self.timeout_listing = parameters['timeout_listening']
 
         self.speaking_semaphore = Semaphore(0)
+        self.attention_semaphore = Semaphore(0)
         self.looking_semaphore = Semaphore(0)
         self.listening_semaphore = Semaphore(0)
+        self.has_subject_semaphore = Semaphore(0)
 
         self.xplain = Xplain(parameters)
         self.topics = {}
@@ -35,11 +38,7 @@ class Agent():
         # if it doesnt believe to have a subject, keeps searching for it
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
-            self.xplain.adopt('looking', 'action')
-            self.sic.start_looking()
-            self.looking_semaphore.acquire()
-            self.sic.stop_looking()
-            self.xplain.drop('looking')
+            self.listen_and_look('proactive_subject', self.parameters['timeout_listening'])
 
     def offer_help(self):
 
@@ -49,10 +48,11 @@ class Agent():
             print('\n> offering help')
 
             self.xplain.adopt('offer_help', 'action')
+            self.drop_perception_of_subject()
             self.say_and_wait(belief_type='type_of_help',
                               say_text=self.get_sentence('general', 'offer_help'),
                               unexpected_answer_params=[self.xplain.belief_params('speech_text')],
-                              timeout=self.timeout_listing)
+                              timeout=self.parameters['timeout_listening'])
             self.xplain.drop('offer_help')
 
     def help(self):
@@ -131,10 +131,41 @@ class Agent():
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
         sleep(1)
 
+    def listen_and_look(self, context='', timeout=None):
+
+            self.xplain.adopt('listening', 'action')
+            self.sic.set_audio_context(context)
+            self.sic.start_listening()
+            self.xplain.adopt('looking', 'action')
+            self.sic.start_looking()
+
+            if timeout is not None:
+                self.has_subject_semaphore.acquire(timeout=timeout)
+            else:
+                self.has_subject_semaphore.acquire()
+
+            self.sic.stop_listening()
+
+            self.xplain.drop('listening')
+            self.sic.stop_looking()
+            self.xplain.drop('looking')
+            # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
+            sleep(1)
+
+    def look(self, timeout=None):
+        self.xplain.adopt('looking', 'action')
+        self.sic.start_looking()
+        if timeout is not None:
+            self.look_semaphore.acquire(timeout=timeout)
+        else:
+            self.look_semaphore.acquire()
+        self.sic.stop_looking()
+        self.xplain.drop('looking')
+
     def has_subject(self, has):
         if has:
             self.xplain.adopt('has_subject', 'percept')
-            self.looking_semaphore.release()
+            self.has_subject_semaphore.release()
 
     def load_topics(self):
         topics = ['general',
@@ -169,6 +200,12 @@ class Agent():
     def drop_helping_beliefs(self):
         self.xplain.drop('type_of_help')
         self.xplain.drop('helping')
+
+    def drop_perception_of_subject(self):
+        self.xplain.drop('proactive_subject')
+        self.xplain.drop('speech_text')
+        self.xplain.drop('seen_subject')
+        self.xplain.drop('subject_touched')
 
     def load_magic_beliefs(self, magic_beliefs):
         for belief in magic_beliefs:

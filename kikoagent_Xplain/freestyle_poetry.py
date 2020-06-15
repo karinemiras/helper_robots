@@ -16,7 +16,7 @@ class FreestylePoetry:
         self.agent.say_and_wait(belief_type='given_word',
                                 say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
                                 unexpected_answer_topic='freestyle_poetry',
-                                timeout=self.agent.timeout_listing)
+                                timeout=self.agent.parameters['timeout_listening'])
 
         if self.agent.xplain.is_belief('given_word'):
 

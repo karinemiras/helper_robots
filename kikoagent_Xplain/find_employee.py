@@ -13,7 +13,7 @@ class FindEmployee:
         self.agent.say_and_wait(belief_type='employee_name',
                                 say_text=self.agent.get_sentence('find_employee', 'ask_name'),
                                 unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
-                                timeout=self.agent.timeout_listing)
+                                timeout=self.agent.parameters['timeout_listening'])
 
         if self.agent.xplain.is_belief('employee_name'):
 

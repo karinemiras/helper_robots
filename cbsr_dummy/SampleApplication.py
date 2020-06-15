@@ -7,15 +7,15 @@ class SampleApplication(Base.AbstractApplication):
         super(SampleApplication, self).__init__(serverIP='192.168.1.19')
 
     def main(self):
-        # self.sem_setLanguage = Semaphore(0)
-        # self.setLanguage('en-US')
-        # self.sem_setLanguage.acquire()
-        # #\\pau=value\\  msec
-        # #Insert \\rspd=value\\ in the text. The value between 50 and 400 in %. Default value is 100.
-        # #Insert \\vct=value\\ in the text. The value is between 50 and 200 in %. Default value is 100.
-        #
-        # # 50 to 150
-        # self.say(' first second \\pau=1000\\ third  \\pau=3000\\ fourth ')
+        self.sem_setLanguage = Semaphore(0)
+        self.setLanguage('en-US')
+        self.sem_setLanguage.acquire()
+        #\\pau=value\\  msec
+        #Insert \\rspd=value\\ in the text. The value between 50 and 400 in %. Default value is 100.
+        #Insert \\vct=value\\ in the text. The value is between 50 and 200 in %. Default value is 100.
+
+        # 50 to 150
+        self.say(' first second \\pau=1000\\ third  \\pau=3000\\ fourth ')
         # sys.exit()
         # self.sem_setLanguage = Semaphore(0)
         # self.say('i am gonna look at you')
