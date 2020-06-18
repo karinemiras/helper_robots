@@ -12,7 +12,7 @@ class FreestylePoetry:
 
         print('\n> freestyling poetry')
         if not (self.agent.xplain.is_belief('helping')):
-            self.agent.xplain.adopt('helping', 'action', 'help_poetry')
+            self.agent.xplain.adopt('helping', 'action', 'freestyle poetry')
         self.agent.say_and_wait(belief_type='given_word',
                                 say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
                                 unexpected_answer_topic='freestyle_poetry',
@@ -51,3 +51,4 @@ class FreestylePoetry:
                 self.agent.xplain.drop('given_word')
                 self.agent.xplain.drop('speech_text')
                 self.agent.xplain.adopt('input.unknown', 'inference')
+                self.agent.xplain.adopt('waiting_answer', 'action')

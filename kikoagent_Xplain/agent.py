@@ -38,7 +38,8 @@ class Agent:
         # if it doesnt believe to have a subject, keeps searching for it
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
-            self.listen_and_look('proactive_subject', self.parameters['timeout_listening'])
+            self.listen_and_look('proactive_subject')
+            self.xplain.drop('speech_text')
 
     def offer_help(self):
 
@@ -47,29 +48,37 @@ class Agent:
                 not (self.xplain.is_belief('type_of_help')):
             print('\n> offering help')
 
-            self.xplain.adopt('offer_help', 'action')
             self.drop_perception_of_subject()
+
             self.say_and_wait(belief_type='type_of_help',
-                              say_text=self.get_sentence('general', 'offer_help'),
+                              say_text=self.get_sentence('general', 'contact_attempt'),
                               unexpected_answer_params=[self.xplain.belief_params('speech_text')],
                               timeout=self.parameters['timeout_listening'])
-            self.xplain.drop('offer_help')
 
     def help(self):
 
         if self.xplain.is_belief('type_of_help'):
-            print('\n> helping')
+            print('\n> trying to help')
 
             if not (self.xplain.is_belief('helping')):
                 self.clear_answer_beliefs()
 
             if self.xplain.belief_params('type_of_help') == 'find employee':
                 FindEmployee(self).act()
+
             elif self.xplain.belief_params('type_of_help') == 'freestyle poetry':
                 FreestylePoetry(self).act()
 
-        # say something and wait for a response; includes fallback;
+            # when offer is rejected, agent abandons the subject
+            elif self.xplain.belief_params('type_of_help') == 'nothing':
+                self.say(self.get_sentence('general', 'rejection_taken'))
+                self.xplain.drop('type_of_help')
+                self.xplain.drop('has_subject')
+                # TODO: rotate_randomly() -/+ 45 90 135 180, or maybe just left and right 61 degres
+                # use semaphore, but for now sleep
+                sleep(5)
 
+    # say something and wait for a response; includes fallback;
     def say_and_wait(self,
                      belief_type,
                      say_text,
@@ -85,36 +94,47 @@ class Agent:
         if self.xplain.is_belief('waiting_answer') and \
                 not (self.xplain.is_belief(belief_type)) and \
                 not (self.xplain.is_belief('input.unknown')):
-            sentence = self.get_sentence(no_answer_topic, no_answer_subtopic)
-            if no_answer_params is not None:
-                self.say(sentence.format(*no_answer_params))
+
+            # after X attempts, assumes subject is gone
+            attempts = int(self.xplain.belief_params('contact_attempt')[-1])
+            if attempts < self.parameters['contact_attempts']:
+                self.say(self.get_sentence(no_answer_topic, no_answer_subtopic), no_answer_params)
+                self.xplain.increment('contact_attempt', str(attempts+1))
             else:
-                self.say(sentence)
+                self.clear_answer_beliefs()
+                self.xplain.drop('has_subject')
+                self.say(self.get_sentence('general', 'no_answer_limit'))
+                # rotate_for_subject (use same method for subject rejection)
 
         # answer is unexpected
         if self.xplain.is_belief('input.unknown'):
+            self.xplain.drop('contact_attempt')
+            self.xplain.adopt('contact_attempt', 'action', '1')
             sentence = self.get_sentence(unexpected_answer_topic, unexpected_answer_subtopic)
-            if unexpected_answer_params is not None:
-                self.say(sentence.format(*unexpected_answer_params))
-            else:
-                self.say(sentence)
-
+            self.say(sentence, unexpected_answer_params)
             self.xplain.drop('input.unknown')
             self.xplain.drop('speech_text')
 
         # say it for the first time
-        if not (self.xplain.is_belief('waiting_answer')):
+        if self.xplain.is_belief('has_subject') and not(self.xplain.is_belief('waiting_answer')):
+            self.xplain.adopt('contact_attempt', 'action', '1')
             self.say(say_text)
             self.xplain.adopt('waiting_answer', 'action')
 
         self.listen(belief_type, timeout)
 
-    def say(self, text, say_animated=True):
+    def say(self, text, params=None, say_animated=True):
+
+        if params is not None:
+            text = text.format(*params)
+
         self.xplain.adopt('speaking', 'action', text)
         if say_animated:
             self.sic.say_animated(text)
         else:
             self.sic.say(text)
+        print(text)
+
         self.speaking_semaphore.acquire()
         self.xplain.drop('speaking')
 
@@ -126,6 +146,7 @@ class Agent:
             self.listening_semaphore.acquire(timeout=timeout)
         else:
             self.listening_semaphore.acquire()
+
         self.sic.stop_listening()
         self.xplain.drop('listening')
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
@@ -141,11 +162,11 @@ class Agent:
 
             if timeout is not None:
                 self.has_subject_semaphore.acquire(timeout=timeout)
+
             else:
                 self.has_subject_semaphore.acquire()
 
             self.sic.stop_listening()
-
             self.xplain.drop('listening')
             self.sic.stop_looking()
             self.xplain.drop('looking')
@@ -162,8 +183,8 @@ class Agent:
         self.sic.stop_looking()
         self.xplain.drop('looking')
 
-    def has_subject(self, has):
-        if has:
+    def has_subject(self):
+        if not self.xplain.is_belief('has_subject'):
             self.xplain.adopt('has_subject', 'percept')
             self.has_subject_semaphore.release()
 
@@ -196,6 +217,7 @@ class Agent:
     def clear_answer_beliefs(self):
         self.xplain.drop('waiting_answer')
         self.xplain.drop('speech_text')
+        self.xplain.drop('contact_attempt')
 
     def drop_helping_beliefs(self):
         self.xplain.drop('type_of_help')
@@ -203,7 +225,6 @@ class Agent:
 
     def drop_perception_of_subject(self):
         self.xplain.drop('proactive_subject')
-        self.xplain.drop('speech_text')
         self.xplain.drop('seen_subject')
         self.xplain.drop('subject_touched')
 
@@ -213,7 +234,7 @@ class Agent:
 
     # says goodbye, drops any active beliefs, stops SIC, and breaks out the life loop
     def dropall_and_sleep(self):
-        self.sic.say_animated(self.get_sentence('general', 'sleep_order_taken'))
+        self.say(self.get_sentence('general', 'sleep_order_taken'))
         self.xplain.adopt('abandon_and_sleep', 'action')
         self.xplain.dropall()
         self.sic.stop()

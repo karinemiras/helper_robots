@@ -28,7 +28,7 @@ class Main:
 
 
 parameters = {
-            'server_ip': '192.168.0.104',
+            'server_ip': '192.168.1.19',
             'robot': 'nao',
             'dialogflow_key_file': 'miscellaneous/kikoagent-iajdfl-9d037d057933.json',
             'dialogflow_agent_id': 'kikoagent-iajdfl',
@@ -37,8 +37,9 @@ parameters = {
             'postgres_host': '127.0.0.1',
             'postgres_port': '5432',
             'postgres_database': 'kikoagent',
-            'timeout_listening': 15,
-            'experiment_name': 'test'
+            'timeout_listening': 10,
+            'experiment_name': 'test',
+            'contact_attempts': 3
             }
 
 

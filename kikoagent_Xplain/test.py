@@ -1,5 +1,4 @@
 
 
-while True:
-    print('ki')
-    break
+s = 'vai se foder {}'
+print(s.format(*['no']))

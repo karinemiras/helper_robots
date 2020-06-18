@@ -8,7 +8,7 @@ class FindEmployee:
 
         print('\n> finding employee')
 
-        self.agent.xplain.adopt('helping', 'action', 'help_find_employee')
+        self.agent.xplain.adopt('helping', 'action', 'find employee')
 
         self.agent.say_and_wait(belief_type='employee_name',
                                 say_text=self.agent.get_sentence('find_employee', 'ask_name'),

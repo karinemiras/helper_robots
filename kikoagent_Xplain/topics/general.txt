@@ -1,8 +1,12 @@
-offer_help|1|Hi, I'm Kiko. Say one the following words to choose what I can help you with. Employee, or poetry.
-offer_help|2|Hi, My name is Kiko. Do you need any help? Say employee or poetry.
+contact_attempt|1|Hi, I'm Kiko. Say one the following words to choose what I can help you with. Employee, poetry, or nothing.
+contact_attempt|2|Hi, My name is Kiko. Do you need any help? Say employee, poetry, or nothing.
 no_answer|1|Did you say anything? I did not hear you.
 no_answer|2|Can you please repeat? I did not understand you.
 unexpected_answer|1|Can you please reformulate? I don't know what you mean by {}.
 unexpected_answer|2|Can you say it again? I don't get what you mean with {}.
 sleep_order_taken|1|All right, I'm going to sleep.
 sleep_order_taken|2|Ok, I'll sleep. See you later.
+rejection_taken|1|All right, maybe another time. See you later!
+rejection_taken|2|Ok, Let me know if you need anything. See you another time!
+no_answer_limit|1|I guess I lost you. Come back later!
+no_answer_limit|2|Oh, I see you left me talking to myself. All right, see you next time!

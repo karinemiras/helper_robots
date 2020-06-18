@@ -1,6 +1,6 @@
 belief               belieftype             meaning
 
-"waiting_answer"   action               "agent is waiting for an answer from subject"
+"waiting_answer"   action               "agent is waiting for an acceptable answer from subject"
 "speech_text"	   percept              "current speech to text from subject or environment"
 "type_of_help"	   percept              "current type of help chosen by subject to be performed by agent"
 "employee_name"	   percept              "name of employee provided by subject for agent to find employee"
@@ -12,7 +12,7 @@ belief               belieftype             meaning
 "input.unknown"	   percept/inference    "an unknown intent has been generated either by dialogflow or agent"
 "speaking"	       action               "agent is speaking"
 "listening"	       action               "agent is using microphones to listen"
-"offer_help"	   action               "agent is in the process of offering help to subject, but not performing help yet"
+"contact_attempt"  action               "agent is trying to verbally contact the subject"
 "helping"	       action               "agent is performing help to subject, after offer has been made "
 "looking"	       action               "agent is using the camera to look around"
 "sleep_order"      percept              "subject has given a sleep order: magic sentence known by developer"

@@ -41,16 +41,17 @@ class SIC(AbstractSICConnector):
                          'HandLeftBackTouched',
                          'HandLeftLeftTouched',
                          'HandLeftRightTouched']
-        if event in touch_sensors:
-            self.agent.xplain.adopt('subject_touched', 'percept')
-            self.agent.has_subject(True)
+        # if event in touch_sensors:
+        #     self.agent.xplain.adopt('subject_touched', 'percept')
+        #     #self.agent.has_subject(True)
 
     def on_person_detected(self):
         print('\n on_person_detected')
 
         self.agent.xplain.adopt('seen_subject', 'percept')
-        self.agent.looking_semaphore.release()
-        self.agent.has_subject(True)
+        if self.agent.xplain.is_belief('looking'):
+            self.agent.looking_semaphore.release()
+        self.agent.has_subject()
 
     def on_speech_text(self, text):
         print('\n on_speech_text', text)
@@ -72,7 +73,8 @@ class SIC(AbstractSICConnector):
             self.agent.dropall_and_sleep()
 
         if self.agent.xplain.is_belief('proactive_subject'):
-            self.agent.has_subject(True)
+            self.agent.has_subject()
         else:
-            self.agent.listening_semaphore.release()
+            if self.agent.xplain.is_belief('listening'):
+                self.agent.listening_semaphore.release()
 

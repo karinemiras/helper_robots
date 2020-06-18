@@ -27,7 +27,7 @@ class Xplain:
                                                port=self.port,
                                                database=self.database)
         except Exception as error:
-            self.log.write('\nERROR open: {}'.format(error))
+            self.log.write('\nERROR db open: {}'.format(error))
 
     def close(self):
         try:
@@ -36,7 +36,7 @@ class Xplain:
                 self.connection.close()
                 print("PostgreSQL connection is closed")
         except Exception as error:
-            self.log.write('\nERROR close: {}'.format(error))
+            self.log.write('\nERROR db close: {}'.format(error))
 
     # registers active beliefs when an action starts
     def register_beliefs_of_action(self, id_belief):
@@ -74,7 +74,7 @@ class Xplain:
                 cursor.close()
 
         except Exception as error:
-            self.log.write('\nERROR adopt: {}'.format(error))
+            self.log.write('\nERROR db adopt: {}'.format(error))
 
     def drop(self, belief):
         try:
@@ -84,7 +84,17 @@ class Xplain:
             self.connection.commit()
             cursor.close()
         except Exception as error:
-            print('\nERROR drop: ', error)
+            print('\nERROR db drop: ', error)
+
+    def increment(self, belief, value):
+        try:
+            cursor = self.connection.cursor()
+            query = """ Update beliefs set params=CONCAT(params,'|',%s) where belief = %s and active = True"""
+            cursor.execute(query, (value, belief) )
+            self.connection.commit()
+            cursor.close()
+        except Exception as error:
+            print('\nERROR db increment: ', error)
 
     # fetches parameters
     def belief_params(self, belief):
@@ -107,7 +117,7 @@ class Xplain:
             else:
                 return ''
         except Exception as error:
-            self.log.write('\nERROR belieftype_params: {}'.format(error))
+            self.log.write('\nERROR db belieftype_params: {}'.format(error))
 
     def is_belief(self, belief):
         try:
@@ -122,7 +132,7 @@ class Xplain:
             else:
                 return False
         except Exception as error:
-            self.log.write('\nERROR is_belief: {}'.format(error))
+            self.log.write('\nERROR db is_belief: {}'.format(error))
 
     def dropall(self):
         try:
@@ -132,7 +142,7 @@ class Xplain:
             self.connection.commit()
             cursor.close()
         except Exception as error:
-            self.log.write('\nERROR dropall: {}'.format(error))
+            self.log.write('\nERROR db dropall: {}'.format(error))
 
     def summary_active_beliefs(self):
         try:
@@ -144,7 +154,7 @@ class Xplain:
             for row in records:
                 print(row)
         except Exception as error:
-            self.log.write('\nERROR summary_active_beliefs: {}'.format(error))
+            self.log.write('\nERROR db summary_active_beliefs: {}'.format(error))
 
 
 
