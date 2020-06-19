@@ -18,10 +18,9 @@ class Agent:
         self.sleeping = False
 
         self.speaking_semaphore = Semaphore(0)
-        self.attention_semaphore = Semaphore(0)
         self.looking_semaphore = Semaphore(0)
         self.listening_semaphore = Semaphore(0)
-        self.has_subject_semaphore = Semaphore(0)
+        self.listening_looking_semaphore = Semaphore(0)
 
         self.xplain = Xplain(parameters)
         self.topics = {}
@@ -40,6 +39,7 @@ class Agent:
             print('\n> searching subject')
             self.listen_and_look('proactive_subject')
             self.xplain.drop('speech_text')
+            self.xplain.drop('input.unknown')
 
     def offer_help(self):
 
@@ -147,6 +147,7 @@ class Agent:
         else:
             self.listening_semaphore.acquire()
 
+        print('came to stop listenting')
         self.sic.stop_listening()
         self.xplain.drop('listening')
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
@@ -154,22 +155,20 @@ class Agent:
 
     def listen_and_look(self, context='', timeout=None):
 
-            self.xplain.adopt('listening', 'action')
+            self.xplain.adopt('listening_looking', 'action')
             self.sic.set_audio_context(context)
             self.sic.start_listening()
-            self.xplain.adopt('looking', 'action')
             self.sic.start_looking()
 
             if timeout is not None:
-                self.has_subject_semaphore.acquire(timeout=timeout)
-
+                self.listening_looking_semaphore.acquire(timeout=timeout)
             else:
-                self.has_subject_semaphore.acquire()
+                self.listening_looking_semaphore.acquire()
 
+            print('saiu lock has subject')
             self.sic.stop_listening()
-            self.xplain.drop('listening')
             self.sic.stop_looking()
-            self.xplain.drop('looking')
+            self.xplain.drop('listening_looking')
             # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
             sleep(1)
 
@@ -184,9 +183,11 @@ class Agent:
         self.xplain.drop('looking')
 
     def has_subject(self):
-        if not self.xplain.is_belief('has_subject'):
-            self.xplain.adopt('has_subject', 'percept')
-            self.has_subject_semaphore.release()
+
+        self.xplain.adopt('has_subject', 'percept')
+        if self.xplain.is_belief('listening_looking'):
+            print('release hassubcet')
+            self.listening_looking_semaphore.release()
 
     def load_topics(self):
         topics = ['general',
@@ -234,7 +235,8 @@ class Agent:
 
     # says goodbye, drops any active beliefs, stops SIC, and breaks out the life loop
     def dropall_and_sleep(self):
-        self.say(self.get_sentence('general', 'sleep_order_taken'))
+        self.sic.stop_listening()
+        self.sic.say(self.get_sentence('general', 'sleep_order_taken'))
         self.xplain.adopt('abandon_and_sleep', 'action')
         self.xplain.dropall()
         self.sic.stop()

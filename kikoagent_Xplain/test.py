@@ -1,4 +1,7 @@
+from threading import Semaphore
+sem = Semaphore(0)
+print(sem._value)
 
 
-s = 'vai se foder {}'
-print(s.format(*['no']))
+if(sem.acquire(blocking=False)):
+    print('blokcs')

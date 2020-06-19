@@ -15,4 +15,5 @@ belief               belieftype             meaning
 "contact_attempt"  action               "agent is trying to verbally contact the subject"
 "helping"	       action               "agent is performing help to subject, after offer has been made "
 "looking"	       action               "agent is using the camera to look around"
+"listening_looking" action              "agent is both using the camera and the microphone"
 "sleep_order"      percept              "subject has given a sleep order: magic sentence known by developer"

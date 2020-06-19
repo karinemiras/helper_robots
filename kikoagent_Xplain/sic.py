@@ -76,5 +76,8 @@ class SIC(AbstractSICConnector):
             self.agent.has_subject()
         else:
             if self.agent.xplain.is_belief('listening'):
+                print('release listening')
                 self.agent.listening_semaphore.release()
+            if self.agent.xplain.is_belief('listening_looking'):
+                self.agent.listening_looking_semaphore.release()
 
