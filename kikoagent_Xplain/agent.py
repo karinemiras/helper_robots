@@ -1,4 +1,3 @@
-from social_interaction_cloud.abstract_connector import AbstractSICConnector
 from xplain import Xplain
 from sic import SIC
 from find_employee import FindEmployee
@@ -11,18 +10,20 @@ from threading import Semaphore
 
 class Agent:
 
-    def __init__(self, parameters, log):
+    def __init__(self, parameters, log, postgres):
 
         self.parameters = parameters
         self.log = log
+        self.postgres = postgres
         self.sleeping = False
 
         self.speaking_semaphore = Semaphore(0)
         self.looking_semaphore = Semaphore(0)
         self.listening_semaphore = Semaphore(0)
         self.listening_looking_semaphore = Semaphore(0)
+       # self.gesturing_semaphore = Semaphore(0)
 
-        self.xplain = Xplain(parameters)
+        self.xplain = Xplain(self.postgres)
         self.topics = {}
         self.load_topics()
 
@@ -74,9 +75,7 @@ class Agent:
                 self.say(self.get_sentence('general', 'rejection_taken'))
                 self.xplain.drop('type_of_help')
                 self.xplain.drop('has_subject')
-                # TODO: rotate_randomly() -/+ 45 90 135 180, or maybe just left and right 61 degres
-                # use semaphore, but for now sleep
-                sleep(5)
+                self.turn()
 
     # say something and wait for a response; includes fallback;
     def say_and_wait(self,
@@ -104,7 +103,7 @@ class Agent:
                 self.clear_answer_beliefs()
                 self.xplain.drop('has_subject')
                 self.say(self.get_sentence('general', 'no_answer_limit'))
-                # rotate_for_subject (use same method for subject rejection)
+                self.turn()
 
         # answer is unexpected
         if self.xplain.is_belief('input.unknown'):
@@ -147,7 +146,6 @@ class Agent:
         else:
             self.listening_semaphore.acquire()
 
-        print('came to stop listenting')
         self.sic.stop_listening()
         self.xplain.drop('listening')
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
@@ -165,7 +163,6 @@ class Agent:
             else:
                 self.listening_looking_semaphore.acquire()
 
-            print('saiu lock has subject')
             self.sic.stop_listening()
             self.sic.stop_looking()
             self.xplain.drop('listening_looking')
@@ -182,11 +179,21 @@ class Agent:
         self.sic.stop_looking()
         self.xplain.drop('looking')
 
+    def turn(self):
+        turn = random.choice(['left', 'right'])
+        print(turn)
+        #self.sic.wake_up()
+        if turn == 'left':
+            self.sic.do_gesture('turn/turn_left')
+        if turn == 'right':
+            self.sic.do_gesture('turn/turn_right')
+        # self.gesturing_semaphore.acquire()
+        #self.sic.rest()
+
     def has_subject(self):
 
         self.xplain.adopt('has_subject', 'percept')
         if self.xplain.is_belief('listening_looking'):
-            print('release hassubcet')
             self.listening_looking_semaphore.release()
 
     def load_topics(self):
@@ -240,6 +247,8 @@ class Agent:
         self.xplain.adopt('abandon_and_sleep', 'action')
         self.xplain.dropall()
         self.sic.stop()
+        # TODO: add cleaning of face encodings here
+        self.postgres.close()
         self.sleeping = True
         sys.exit()
 

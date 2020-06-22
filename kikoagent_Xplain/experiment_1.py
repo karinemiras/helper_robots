@@ -1,17 +1,19 @@
 from agent import Agent
 from log import Log
-
+from postgres import Postgres
+import sys
 
 class Main:
 
     def __init__(self, parameters):
 
         self.log = Log(parameters)
-        self.agent = Agent(parameters, self.log)
+        self.postgres = Postgres(parameters)
+        self.agent = Agent(parameters, self.log, self.postgres)
 
         # magic_beliefs are for testing only:
         # use it to provide a particular state of mind for Kiko in his awakening
-        # {'belief': ['belieftype', 'params']}
+        #{'belief': ['belieftype', 'params']}
         # magic_beliefs = {'has_subject': ['percept', '']}
         # self.agent.load_magic_beliefs(magic_beliefs)
 
@@ -28,7 +30,7 @@ class Main:
 
 
 parameters = {
-            'server_ip': '192.168.1.19',
+            'server_ip': '192.168.0.104',
             'robot': 'nao',
             'dialogflow_key_file': 'miscellaneous/kikoagent-iajdfl-9d037d057933.json',
             'dialogflow_agent_id': 'kikoagent-iajdfl',
@@ -37,7 +39,7 @@ parameters = {
             'postgres_host': '127.0.0.1',
             'postgres_port': '5432',
             'postgres_database': 'kikoagent',
-            'timeout_listening': 5,
+            'timeout_listening': 10,
             'experiment_name': 'test',
             'contact_attempts': 3
             }

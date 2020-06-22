@@ -1,5 +1,4 @@
 from social_interaction_cloud.abstract_connector import AbstractSICConnector
-from xplain import Xplain
 from time import sleep
 
 
@@ -28,19 +27,22 @@ class SIC(AbstractSICConnector):
         if event == 'TextDone':
             self.agent.speaking_semaphore.release()
 
-        # always listening to touch sensors; uses touch to identify that there is a subject
-        touch_sensors = ['RightBumperPressed',
-                         'LeftBumperPressed',
-                         'BackBumperPressed',
-                         'FrontTactilTouched',
-                         'MiddleTactilTouched',
-                         'RearTactilTouched',
-                         'HandRightBackTouched',
-                         'HandRightLeftTouched',
-                         'HandRightRightTouched',
-                         'HandLeftBackTouched',
-                         'HandLeftLeftTouched',
-                         'HandLeftRightTouched']
+        # if event == 'GestureDone':
+        #     self.agent.gesturing_semaphore.release()
+
+        # always listening to touch sensors, and uses touch to identify that there is a subject?
+        # touch_sensors = ['RightBumperPressed',
+        #                  'LeftBumperPressed',
+        #                  'BackBumperPressed',
+        #                  'FrontTactilTouched',
+        #                  'MiddleTactilTouched',
+        #                  'RearTactilTouched',
+        #                  'HandRightBackTouched',
+        #                  'HandRightLeftTouched',
+        #                  'HandRightRightTouched',
+        #                  'HandLeftBackTouched',
+        #                  'HandLeftLeftTouched',
+        #                  'HandLeftRightTouched']
         # if event in touch_sensors:
         #     self.agent.xplain.adopt('subject_touched', 'percept')
         #     #self.agent.has_subject(True)
@@ -52,6 +54,9 @@ class SIC(AbstractSICConnector):
         if self.agent.xplain.is_belief('looking'):
             self.agent.looking_semaphore.release()
         self.agent.has_subject()
+
+    def on_face_recognized(self):
+        print('\n on_face_recognized')
 
     def on_speech_text(self, text):
         print('\n on_speech_text', text)
@@ -76,7 +81,6 @@ class SIC(AbstractSICConnector):
             self.agent.has_subject()
         else:
             if self.agent.xplain.is_belief('listening'):
-                print('release listening')
                 self.agent.listening_semaphore.release()
             if self.agent.xplain.is_belief('listening_looking'):
                 self.agent.listening_looking_semaphore.release()

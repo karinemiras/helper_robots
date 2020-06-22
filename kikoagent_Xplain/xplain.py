@@ -1,47 +1,20 @@
-import psycopg2
-
 # Xplain manages the BDI of the agent.
 # Everything the agent knows is a belief.
 # Desires and intentions are implicit, while this agent for now only desires and intends to always be helping.
 # The agent knows its own deeds, each represented by a belief called 'action'.
 # The agent knows beliefs about its environment and itself, represented by beliefs of type 'percept' and 'inference'.
 
+
 class Xplain:
 
-    def __init__(self, parameters):
+    def __init__(self, postgres):
 
-        self.user = parameters['postgres_user']
-        self.password = parameters['postgres_password']
-        self.host = parameters['postgres_host']
-        self.port = parameters['postgres_port']
-        self.database = parameters['postgres_database']
-
-        self.open()
-
-    def open(self):
-
-        try:
-            self.connection = psycopg2.connect(user=self.user,
-                                               password=self.password,
-                                               host=self.host,
-                                               port=self.port,
-                                               database=self.database)
-        except Exception as error:
-            self.log.write('\nERROR db open: {}'.format(error))
-
-    def close(self):
-        try:
-            # closing database connection.
-            if self.connection:
-                self.connection.close()
-                print("PostgreSQL connection is closed")
-        except Exception as error:
-            self.log.write('\nERROR db close: {}'.format(error))
+        self.postgres = postgres
 
     # registers active beliefs when an action starts
     def register_beliefs_of_action(self, id_belief):
 
-        cursor = self.connection.cursor()
+        cursor = self.postgres.connection.cursor()
         query = "select id from beliefs where active = True and id != %s"
         cursor.execute(query, (id_belief, ))
         records = cursor.fetchall()
@@ -56,18 +29,18 @@ class Xplain:
             params = (id_belief, -1)
             cursor.execute(query, params)
 
-        self.connection.commit()
+        self.postgres.connection.commit()
         cursor.close()
 
     def adopt(self, belief, belieftype, params=''):
         try:
             if not(self.is_belief(belief)):
-                cursor = self.connection.cursor()
+                cursor = self.postgres.connection.cursor()
                 query = """ INSERT INTO beliefs (belief, time_started, active, belieftype, params) 
                                    VALUES (%s, now(), %s,%s, %s) returning id """
                 params = (belief, True, belieftype, params)
                 cursor.execute(query, params)
-                self.connection.commit()
+                self.postgres.connection.commit()
 
                 if belieftype == 'action':
                     self.register_beliefs_of_action(cursor.fetchone()[0])
@@ -78,20 +51,20 @@ class Xplain:
 
     def drop(self, belief):
         try:
-            cursor = self.connection.cursor()
+            cursor = self.postgres.connection.cursor()
             query = """ Update beliefs set active = False, time_finished = now() where belief = %s and active = True"""
             cursor.execute(query, (belief,))
-            self.connection.commit()
+            self.postgres.connection.commit()
             cursor.close()
         except Exception as error:
             print('\nERROR db drop: ', error)
 
     def increment(self, belief, value):
         try:
-            cursor = self.connection.cursor()
+            cursor = self.postgres.connection.cursor()
             query = """ Update beliefs set params=CONCAT(params,'|',%s) where belief = %s and active = True"""
             cursor.execute(query, (value, belief) )
-            self.connection.commit()
+            self.postgres.connection.commit()
             cursor.close()
         except Exception as error:
             print('\nERROR db increment: ', error)
@@ -99,7 +72,7 @@ class Xplain:
     # fetches parameters
     def belief_params(self, belief):
         try:
-            cursor = self.connection.cursor()
+            cursor = self.postgres.connection.cursor()
             query = "select params from beliefs where belief = %s and active = %s"
             param = (belief, True)
             cursor.execute(query, param)
@@ -121,7 +94,7 @@ class Xplain:
 
     def is_belief(self, belief):
         try:
-            cursor = self.connection.cursor()
+            cursor = self.postgres.connection.cursor()
             query = "select * from beliefs where belief = %s and active = %s"
             param = (belief, True)
             cursor.execute(query, param)
@@ -136,17 +109,17 @@ class Xplain:
 
     def dropall(self):
         try:
-            cursor = self.connection.cursor()
+            cursor = self.postgres.connection.cursor()
             query = "update beliefs set active=False, time_finished = now() where active = True"
             cursor.execute(query)
-            self.connection.commit()
+            self.postgres.connection.commit()
             cursor.close()
         except Exception as error:
             self.log.write('\nERROR db dropall: {}'.format(error))
 
     def summary_active_beliefs(self):
         try:
-            cursor = self.connection.cursor()
+            cursor = self.postgres.connection.cursor()
             query = "select belieftype, belief, params from beliefs where active = True order by belieftype, belief"
             cursor.execute(query)
             records = cursor.fetchall()

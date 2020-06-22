@@ -1,6 +1,4 @@
-from bs4 import BeautifulSoup
-import numpy
-import requests
+import numpy as np
 
 
 class FreestylePoetry:
@@ -11,8 +9,7 @@ class FreestylePoetry:
     def act(self):
 
         print('\n> freestyling poetry')
-        if not (self.agent.xplain.is_belief('helping')):
-            self.agent.xplain.adopt('helping', 'action', 'freestyle poetry')
+        self.agent.xplain.adopt('helping', 'action', 'freestyle poetry')
         self.agent.say_and_wait(belief_type='given_word',
                                 say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
                                 unexpected_answer_topic='freestyle_poetry',
@@ -22,25 +19,53 @@ class FreestylePoetry:
 
             self.agent.clear_answer_beliefs()
 
-            word = self.agent.xplain.belief_params('given_word')
+            # TODO: check if word is in bad words dic
+            word = self.agent.xplain.belief_params('given_word').strip()
 
-            response = requests.get(
-                'https://www.rhymezone.com/r/rhyme.cgi?Word=' + word + '&typeofrhyme=perfect').text
+            try:
+                cursor = self.agent.postgres.connection.cursor()
+                query = "select * from rhymes where title = %s "
+                cursor.execute(query, (word,))
+                records = cursor.fetchall()
+                cursor.close()
 
-            soup = BeautifulSoup(response)
-            rhymes = []
-            for a in soup.find_all('a'):
-                if a.get('class') is not None:
-                    rhymes.append(a.get_text().replace(u'\xa0', u' '))
-            rhymes = numpy.array(rhymes)
+            except Exception as error:
+                self.agent.log.write('\nERROR db get_rhymes: {}'.format(error))
 
-            if len(rhymes) > 0:
+            if len(records) > 0:
+                syllables1 = records[0][2].split(',') if records[0][2] is not None else []
+                syllables2 = records[0][3].split(',') if records[0][3] is not None else []
+                syllables3 = records[0][4].split(',') if records[0][4] is not None else []
+                syllables4 = records[0][5].split(',') if records[0][5] is not None else []
+                syllables5 = records[0][6].split(',') if records[0][6] is not None else []
+                syllables6 = records[0][7].split(',') if records[0][7] is not None else []
+                syllables7 = records[0][8].split(',') if records[0][8] is not None else []
+                syllables8 = records[0][9].split(',') if records[0][9] is not None else []
+                syllables9 = records[0][10].split(',') if records[0][10] is not None else []
+                syllables10 = records[0][11].split(',') if records[0][11] is not None else []
+
+            rhymes = syllables1 + \
+                     syllables2 + \
+                     syllables3 + \
+                     syllables4 + \
+                     syllables5 + \
+                     syllables6 + \
+                     syllables7 + \
+                     syllables8 + \
+                     syllables9 + \
+                     syllables10
+
+            rhymes = np.array([item.strip() for item in rhymes])
+            rhymes = np.delete(rhymes,  np.argwhere(rhymes == word))
+            # TODO: remove rhymes that are in bad words dic
+            selected_rhymes = np.random.choice(rhymes, 3, replace=False)
+
+            if len(selected_rhymes) > 0:
                 sentense = '\\rspd=60\\' + word + ', rhymes with ' \
-                           + rhymes[numpy.random.choice(len(rhymes), 1)][0] \
-                           + ' \\pau=300\\ ' + rhymes[numpy.random.choice(len(rhymes), 1)][0] \
-                           + '\\pau=300\\ and ' + rhymes[numpy.random.choice(len(rhymes), 1)][0] + '.'
+                           + selected_rhymes[0] \
+                           + ' \\pau=300\\ ' + selected_rhymes[1] \
+                           + '\\pau=300\\ and ' + selected_rhymes[2] + '.'
 
-                print(sentense)
                 self.agent.say(sentense)
 
                 self.agent.drop_helping_beliefs()
