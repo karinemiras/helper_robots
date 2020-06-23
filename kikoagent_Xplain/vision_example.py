@@ -16,8 +16,6 @@ class Example:
         action_runner = ActionRunner(self.sic)
 
         action_runner.run_waiting_action('set_language', 'en-US')
-        action_runner.run_vision_listener('people', self.i_spy_with_my_little_eye, False)
-       # action_runner.run_waiting_action('say', 'Hello, I see you')
 
         action_runner.run_vision_listener('face', self.face_recognition, True)
         time.sleep(10)

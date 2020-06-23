@@ -101,6 +101,7 @@ class Agent:
                 self.xplain.increment('contact_attempt', str(attempts+1))
             else:
                 self.clear_answer_beliefs()
+                self.drop_helping_beliefs()
                 self.xplain.drop('has_subject')
                 self.say(self.get_sentence('general', 'no_answer_limit'))
                 self.turn()
@@ -181,12 +182,12 @@ class Agent:
 
     def turn(self):
         turn = random.choice(['left', 'right'])
-        print(turn)
+        #print(turn)
         #self.sic.wake_up()
-        if turn == 'left':
-            self.sic.do_gesture('turn/turn_left')
-        if turn == 'right':
-            self.sic.do_gesture('turn/turn_right')
+        # if turn == 'left':
+        #     self.sic.do_gesture('turn/turn_left')
+        # if turn == 'right':
+        #     self.sic.do_gesture('turn/turn_right')
         # self.gesturing_semaphore.acquire()
         #self.sic.rest()
 

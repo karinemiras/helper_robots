@@ -8,6 +8,8 @@ class FreestylePoetry:
 
     def act(self):
 
+        number_rhymes = 4
+
         print('\n> freestyling poetry')
         self.agent.xplain.adopt('helping', 'action', 'freestyle poetry')
         self.agent.say_and_wait(belief_type='given_word',
@@ -32,6 +34,7 @@ class FreestylePoetry:
             except Exception as error:
                 self.agent.log.write('\nERROR db get_rhymes: {}'.format(error))
 
+            selected_rhymes = []
             if len(records) > 0:
                 syllables1 = records[0][2].split(',') if records[0][2] is not None else []
                 syllables2 = records[0][3].split(',') if records[0][3] is not None else []
@@ -44,33 +47,29 @@ class FreestylePoetry:
                 syllables9 = records[0][10].split(',') if records[0][10] is not None else []
                 syllables10 = records[0][11].split(',') if records[0][11] is not None else []
 
-            rhymes = syllables1 + \
-                     syllables2 + \
-                     syllables3 + \
-                     syllables4 + \
-                     syllables5 + \
-                     syllables6 + \
-                     syllables7 + \
-                     syllables8 + \
-                     syllables9 + \
-                     syllables10
+                rhymes = syllables1+syllables2+syllables3+syllables4+syllables5 + \
+                         syllables6+syllables7+syllables8+syllables9+syllables10
 
-            rhymes = np.array([item.strip() for item in rhymes])
-            rhymes = np.delete(rhymes,  np.argwhere(rhymes == word))
-            # TODO: remove rhymes that are in bad words dic
-            selected_rhymes = np.random.choice(rhymes, 3, replace=False)
+                rhymes = np.array([item.strip() for item in rhymes])
+                rhymes = np.delete(rhymes, np.argwhere(rhymes == word))
+                # TODO: remove rhymes that are in bad words dic
+
+                if len(rhymes) > 0:
+                    number_rhymes = min(len(rhymes), number_rhymes)
+                    selected_rhymes = np.random.choice(rhymes, number_rhymes, replace=False)
 
             if len(selected_rhymes) > 0:
-                sentense = '\\rspd=60\\' + word + ', rhymes with ' \
-                           + selected_rhymes[0] \
-                           + ' \\pau=300\\ ' + selected_rhymes[1] \
-                           + '\\pau=300\\ and ' + selected_rhymes[2] + '.'
+                sentense = '\\rspd=60\\' + word + ', rhymes with '
+                for rhyme in selected_rhymes:
+                    sentense += rhyme + ', '
 
                 self.agent.say(sentense)
 
                 self.agent.drop_helping_beliefs()
                 self.agent.xplain.drop('given_word')
                 self.agent.xplain.drop('has_subject')
+
+            # found no rhymes for the word, so asks for a second chance
             else:
                 self.agent.say(self.agent.get_sentence('freestyle_poetry', 'excuse'))
                 self.agent.xplain.drop('given_word')

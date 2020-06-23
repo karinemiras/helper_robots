@@ -298,6 +298,7 @@ class AbstractSICConnector(object):
     def __listen(self, message):
         channel = message['channel'].decode()
         data = message['data'].decode()
+
         if channel == 'events_robot':
             self.on_robot_event(event=data)
         elif channel == 'detected_person':

@@ -55,8 +55,16 @@ class SIC(AbstractSICConnector):
             self.agent.looking_semaphore.release()
         self.agent.has_subject()
 
-    def on_face_recognized(self):
-        print('\n on_face_recognized')
+    def on_face_recognized(self, identifier):
+        print('\n on_face_recognized', identifier)
+
+        if identifier != '0':
+            self.agent.xplain.adopt('familiar_subject', 'percept')
+
+    def on_emotion_detected(self, emotion: str):
+        print('\n on_emotion_detected', emotion)
+
+        self.agent.xplain.adopt('emotion_detected', 'percept', emotion)
 
     def on_speech_text(self, text):
         print('\n on_speech_text', text)
