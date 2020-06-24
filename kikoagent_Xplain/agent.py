@@ -1,9 +1,10 @@
 from xplain import Xplain
 from sic import SIC
 from find_employee import FindEmployee
-from freestyle_poetry import FreestylePoetry
+from entertainment import Entertainment
 import random
 import sys
+import os
 from time import sleep
 from threading import Semaphore
 
@@ -61,21 +62,18 @@ class Agent:
         if self.xplain.is_belief('type_of_help'):
             print('\n> trying to help')
 
-            if not (self.xplain.is_belief('helping')):
-                self.clear_answer_beliefs()
-
             if self.xplain.belief_params('type_of_help') == 'find employee':
                 FindEmployee(self).act()
 
-            elif self.xplain.belief_params('type_of_help') == 'freestyle poetry':
-                FreestylePoetry(self).act()
+            elif self.xplain.belief_params('type_of_help') == 'entertainment':
+                Entertainment(self).act()
 
             # when offer is rejected, agent abandons the subject
             elif self.xplain.belief_params('type_of_help') == 'nothing':
                 self.say(self.get_sentence('general', 'rejection_taken'))
                 self.xplain.drop('type_of_help')
                 self.xplain.drop('has_subject')
-                self.turn()
+                #self.turn()
 
     # say something and wait for a response; includes fallback;
     def say_and_wait(self,
@@ -88,6 +86,8 @@ class Agent:
                      unexpected_answer_subtopic='unexpected_answer',
                      unexpected_answer_params=None,
                      timeout=None):
+
+        try_listen = True
 
         # no answer received
         if self.xplain.is_belief('waiting_answer') and \
@@ -104,13 +104,19 @@ class Agent:
                 self.drop_helping_beliefs()
                 self.xplain.drop('has_subject')
                 self.say(self.get_sentence('general', 'no_answer_limit'))
-                self.turn()
+                try_listen = False
+                #self.turn()
 
         # answer is unexpected
         if self.xplain.is_belief('input.unknown'):
             self.xplain.drop('contact_attempt')
             self.xplain.adopt('contact_attempt', 'action', '1')
-            sentence = self.get_sentence(unexpected_answer_topic, unexpected_answer_subtopic)
+
+            if self.postgres.check_badwords(self.xplain.belief_params('speech_text')):
+                sentence = self.get_sentence('general', 'badwords')
+            else:
+                sentence = self.get_sentence(unexpected_answer_topic, unexpected_answer_subtopic)
+
             self.say(sentence, unexpected_answer_params)
             self.xplain.drop('input.unknown')
             self.xplain.drop('speech_text')
@@ -121,7 +127,8 @@ class Agent:
             self.say(say_text)
             self.xplain.adopt('waiting_answer', 'action')
 
-        self.listen(belief_type, timeout)
+        if try_listen:
+            self.listen(belief_type, timeout)
 
     def say(self, text, params=None, say_animated=True):
 
@@ -182,14 +189,14 @@ class Agent:
 
     def turn(self):
         turn = random.choice(['left', 'right'])
-        #print(turn)
-        #self.sic.wake_up()
-        # if turn == 'left':
-        #     self.sic.do_gesture('turn/turn_left')
-        # if turn == 'right':
-        #     self.sic.do_gesture('turn/turn_right')
-        # self.gesturing_semaphore.acquire()
-        #self.sic.rest()
+        print(turn)
+        self.sic.wake_up()
+        if turn == 'left':
+            self.sic.do_gesture('turn/turn_left')
+        if turn == 'right':
+            self.sic.do_gesture('turn/turn_right')
+        self.gesturing_semaphore.acquire()
+        self.sic.rest()
 
     def has_subject(self):
 
@@ -198,14 +205,14 @@ class Agent:
             self.listening_looking_semaphore.release()
 
     def load_topics(self):
-        topics = ['general',
-                  'find_employee',
-                  'freestyle_poetry']
+
+        topics = os.listdir('topics')
 
         for topic in topics:
+            topic = topic.split('.')[0]
             self.topics[topic] = {}
 
-        for topic in topics:
+        for topic in self.topics:
             file = open('topics/{}.txt'.format(topic), 'r')
             lines = file.readlines()
             sentence_name = 0

@@ -3,13 +3,14 @@ import psycopg2
 
 class Postgres:
 
-    def __init__(self, parameters):
+    def __init__(self, parameters, log):
 
         self.user = parameters['postgres_user']
         self.password = parameters['postgres_password']
         self.host = parameters['postgres_host']
         self.port = parameters['postgres_port']
         self.database = parameters['postgres_database']
+        self.log = log
 
         self.open()
 
@@ -32,3 +33,24 @@ class Postgres:
                 print("PostgreSQL connection is closed")
         except Exception as error:
             self.log.write('\nERROR db close: {}'.format(error))
+
+    def check_badwords(self, text):
+
+        text = text.replace("'", "''")
+        words = text.split(' ')
+        words = ', '.join(["'%s'" % x for x in words])
+
+        try:
+            cursor = self.connection.cursor()
+            query = "select word from badwords where word in ("+words+")"
+            cursor.execute(query)
+            records = cursor.fetchall()
+            cursor.close()
+            if len(records) > 0:
+                return True
+            else:
+                return False
+        except Exception as error:
+            self.log.write('\nERROR db check_badword: {}'.format(error))
+
+

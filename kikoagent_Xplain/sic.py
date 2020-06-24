@@ -60,11 +60,11 @@ class SIC(AbstractSICConnector):
 
         if identifier != '0':
             self.agent.xplain.adopt('familiar_subject', 'percept')
-
-    def on_emotion_detected(self, emotion: str):
-        print('\n on_emotion_detected', emotion)
-
-        self.agent.xplain.adopt('emotion_detected', 'percept', emotion)
+    #
+    # def on_emotion_detected(self, emotion: str):
+    #     print('\n on_emotion_detected', emotion)
+    #
+    #     self.agent.xplain.adopt('emotion_detected', 'percept', emotion)
 
     def on_speech_text(self, text):
         print('\n on_speech_text', text)
@@ -79,6 +79,8 @@ class SIC(AbstractSICConnector):
         for param in args:
             params += param+'|'
         self.agent.xplain.adopt(intent_name, 'percept', params[0:-1])
+        if intent_name != 'input.unknown':
+            self.agent.clear_answer_beliefs()
 
         # magic sentence to stop Kiko safely:
         # Kiko, you have to stop, sleep immediately, and have nice dreams.

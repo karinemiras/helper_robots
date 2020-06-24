@@ -67,6 +67,7 @@ class FreestylePoetry:
 
                 self.agent.drop_helping_beliefs()
                 self.agent.xplain.drop('given_word')
+                self.agent.xplain.drop('type_of_entertainment')
                 self.agent.xplain.drop('has_subject')
 
             # found no rhymes for the word, so asks for a second chance

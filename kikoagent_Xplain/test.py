@@ -1,4 +1,7 @@
-import numpy as np
-rhymes = []
-rhymes = np.array([item.strip() for item in rhymes])
-print(len(rhymes))
+
+
+text = "cu I'm"
+
+text = text.replace("'", "\\'")
+
+print(text)

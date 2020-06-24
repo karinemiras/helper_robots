@@ -10,7 +10,7 @@ class Xplain:
     def __init__(self, postgres):
 
         self.postgres = postgres
-
+        
     # registers active beliefs when an action starts
     def register_beliefs_of_action(self, id_belief):
 
@@ -47,7 +47,7 @@ class Xplain:
                 cursor.close()
 
         except Exception as error:
-            self.log.write('\nERROR db adopt: {}'.format(error))
+            self.postgres.log.write('\nERROR db adopt: {}'.format(error))
 
     def drop(self, belief):
         try:
@@ -90,7 +90,7 @@ class Xplain:
             else:
                 return ''
         except Exception as error:
-            self.log.write('\nERROR db belieftype_params: {}'.format(error))
+            self.postgres.log.write('\nERROR db belieftype_params: {}'.format(error))
 
     def is_belief(self, belief):
         try:
@@ -105,7 +105,7 @@ class Xplain:
             else:
                 return False
         except Exception as error:
-            self.log.write('\nERROR db is_belief: {}'.format(error))
+            self.postgres.log.write('\nERROR db is_belief: {}'.format(error))
 
     def dropall(self):
         try:
@@ -115,7 +115,7 @@ class Xplain:
             self.postgres.connection.commit()
             cursor.close()
         except Exception as error:
-            self.log.write('\nERROR db dropall: {}'.format(error))
+            self.postgres.log.write('\nERROR db dropall: {}'.format(error))
 
     def summary_active_beliefs(self):
         try:
@@ -127,7 +127,7 @@ class Xplain:
             for row in records:
                 print(row)
         except Exception as error:
-            self.log.write('\nERROR db summary_active_beliefs: {}'.format(error))
+            self.postgres.log.write('\nERROR db summary_active_beliefs: {}'.format(error))
 
 
 

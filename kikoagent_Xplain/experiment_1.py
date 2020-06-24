@@ -8,13 +8,15 @@ class Main:
     def __init__(self, parameters):
 
         self.log = Log(parameters)
-        self.postgres = Postgres(parameters)
+        self.postgres = Postgres(parameters, self.log)
         self.agent = Agent(parameters, self.log, self.postgres)
 
         # magic_beliefs are for testing only:
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
-        # magic_beliefs = {'given_word': ['percept', "abbott's"]}
+        # magic_beliefs = {'has_subject': ['percept', '']}
+        #                  # 'input.unknown': ['percept', ''],
+        #                  # 'speech_text': ['percept', "I'm dick also"]}
         # self.agent.load_magic_beliefs(magic_beliefs)
 
     def run(self):
