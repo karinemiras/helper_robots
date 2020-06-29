@@ -10,6 +10,7 @@ class Xplain:
     def __init__(self, postgres):
 
         self.postgres = postgres
+        self.dropall()
         
     # registers active beliefs when an action starts
     def register_beliefs_of_action(self, id_belief):

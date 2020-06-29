@@ -1,4 +1,3 @@
-import numpy as np
 
 
 class TellJoke:
@@ -23,10 +22,10 @@ class TellJoke:
         except Exception as error:
             self.agent.log.write('\nERROR db get_rhymes: {}'.format(error))
 
-        joke = joke.replace('?', '\\pau=1000\\')
+        joke = joke.replace('?', '? \\pau=800\\ ')
+        joke = joke.replace('.', '. \\pau=800\\ ')
+
         text = self.agent.get_sentence('tell_joke', 'warn_start') + ' \\pau=1000\\ \\rspd=70\\ ' + joke
         self.agent.say(text)
 
-        self.agent.drop_helping_beliefs()
-        self.agent.xplain.drop('type_of_entertainment')
-        self.agent.xplain.drop('has_subject')
+        self.agent.xplain.dropall()

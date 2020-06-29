@@ -2,6 +2,7 @@ from xplain import Xplain
 from sic import SIC
 from find_employee import FindEmployee
 from entertainment import Entertainment
+from corona_monitor import CoronaMonitor
 import random
 import sys
 import os
@@ -27,12 +28,14 @@ class Agent:
         self.xplain = Xplain(self.postgres)
         self.topics = {}
         self.load_topics()
+        CoronaMonitor(self).clean_floor_occupations()
 
         self.sic = SIC(self, parameters)
 
     def life_loop(self):
         self.search_subject()
-        self.offer_help()
+        CoronaMonitor(self).act()
+        # TODO: if proactive then offerhelp() ?
         self.help()
 
     def search_subject(self):
@@ -43,17 +46,14 @@ class Agent:
             self.xplain.drop('speech_text')
             self.xplain.drop('input.unknown')
 
-    def offer_help(self):
+    def offer_help(self, greetings=['Hi']):
 
-        # if a person is believed to be near and there is NOT a current offer of help
-        if self.xplain.is_belief('has_subject') and \
-                not (self.xplain.is_belief('type_of_help')):
+        if not (self.xplain.is_belief('type_of_help')):
+
             print('\n> offering help')
 
-            self.drop_perception_of_subject()
-
             self.say_and_wait(belief_type='type_of_help',
-                              say_text=self.get_sentence('general', 'contact_attempt'),
+                              say_text=self.get_sentence('general', 'offer_help', greetings),
                               unexpected_answer_params=[self.xplain.belief_params('speech_text')],
                               timeout=self.parameters['timeout_listening'])
 
@@ -71,8 +71,7 @@ class Agent:
             # when offer is rejected, agent abandons the subject
             elif self.xplain.belief_params('type_of_help') == 'nothing':
                 self.say(self.get_sentence('general', 'rejection_taken'))
-                self.xplain.drop('type_of_help')
-                self.xplain.drop('has_subject')
+                self.xplain.dropall()
                 #self.turn()
 
     # say something and wait for a response; includes fallback;
@@ -97,12 +96,10 @@ class Agent:
             # after X attempts, assumes subject is gone
             attempts = int(self.xplain.belief_params('contact_attempt')[-1])
             if attempts < self.parameters['contact_attempts']:
-                self.say(self.get_sentence(no_answer_topic, no_answer_subtopic), no_answer_params)
+                self.say(self.get_sentence(no_answer_topic, no_answer_subtopic, no_answer_params))
                 self.xplain.increment('contact_attempt', str(attempts+1))
             else:
-                self.clear_answer_beliefs()
-                self.drop_helping_beliefs()
-                self.xplain.drop('has_subject')
+                self.xplain.dropall()
                 self.say(self.get_sentence('general', 'no_answer_limit'))
                 try_listen = False
                 #self.turn()
@@ -115,9 +112,9 @@ class Agent:
             if self.postgres.check_badwords(self.xplain.belief_params('speech_text')):
                 sentence = self.get_sentence('general', 'badwords')
             else:
-                sentence = self.get_sentence(unexpected_answer_topic, unexpected_answer_subtopic)
+                sentence = self.get_sentence(unexpected_answer_topic, unexpected_answer_subtopic, unexpected_answer_params)
 
-            self.say(sentence, unexpected_answer_params)
+            self.say(sentence)
             self.xplain.drop('input.unknown')
             self.xplain.drop('speech_text')
 
@@ -130,10 +127,7 @@ class Agent:
         if try_listen:
             self.listen(belief_type, timeout)
 
-    def say(self, text, params=None, say_animated=True):
-
-        if params is not None:
-            text = text.format(*params)
+    def say(self, text, say_animated=True):
 
         self.xplain.adopt('speaking', 'action', text)
         if say_animated:
@@ -200,7 +194,7 @@ class Agent:
 
     def has_subject(self):
 
-        self.xplain.adopt('has_subject', 'percept')
+        self.xplain.adopt('has_subject', 'cognition')
         if self.xplain.is_belief('listening_looking'):
             self.listening_looking_semaphore.release()
 
@@ -227,17 +221,17 @@ class Agent:
                 self.topics[topic][line[sentence_name]].append(line[sentence_text])
             file.close()
 
-    def get_sentence(self, topic, sentence_name):
-        return random.choice(self.topics[topic][sentence_name])
+    def get_sentence(self, topic, sentence_name, params=None):
+        text = random.choice(self.topics[topic][sentence_name])
+        if params is not None:
+            text = text.format(*params)
+
+        return text
 
     def clear_answer_beliefs(self):
         self.xplain.drop('waiting_answer')
         self.xplain.drop('speech_text')
         self.xplain.drop('contact_attempt')
-
-    def drop_helping_beliefs(self):
-        self.xplain.drop('type_of_help')
-        self.xplain.drop('helping')
 
     def drop_perception_of_subject(self):
         self.xplain.drop('proactive_subject')

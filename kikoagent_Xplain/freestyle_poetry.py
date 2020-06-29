@@ -65,15 +65,12 @@ class FreestylePoetry:
 
                 self.agent.say(sentense)
 
-                self.agent.drop_helping_beliefs()
-                self.agent.xplain.drop('given_word')
-                self.agent.xplain.drop('type_of_entertainment')
-                self.agent.xplain.drop('has_subject')
+                self.agent.xplain.dropall()
 
             # found no rhymes for the word, so asks for a second chance
             else:
                 self.agent.say(self.agent.get_sentence('freestyle_poetry', 'excuse'))
                 self.agent.xplain.drop('given_word')
                 self.agent.xplain.drop('speech_text')
-                self.agent.xplain.adopt('input.unknown', 'inference')
+                self.agent.xplain.adopt('input.unknown', 'cognition')
                 self.agent.xplain.adopt('waiting_answer', 'action')

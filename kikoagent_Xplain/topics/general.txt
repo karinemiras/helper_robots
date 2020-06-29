@@ -1,5 +1,4 @@
-contact_attempt|1|Hi, I'm Kiko. Say one the following words to choose what I can help you with. Employee, entertainment, or nothing.
-contact_attempt|2|Hi, My name is Kiko. Do you need any help? Say employee, entertainment, or nothing.
+offer_help|1|{} Do you need any help? Say employee, entertainment, or nothing.
 no_answer|1|Did you say anything? I did not hear you.
 no_answer|2|Can you please repeat louder? I did not understand you.
 unexpected_answer|1|Can you please reformulate? I don't know what you mean by {}.

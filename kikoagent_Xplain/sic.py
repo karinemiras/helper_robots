@@ -44,13 +44,13 @@ class SIC(AbstractSICConnector):
         #                  'HandLeftLeftTouched',
         #                  'HandLeftRightTouched']
         # if event in touch_sensors:
-        #     self.agent.xplain.adopt('subject_touched', 'percept')
+        #     self.agent.xplain.adopt('subject_touched', 'cognition')
         #     #self.agent.has_subject(True)
 
     def on_person_detected(self):
         print('\n on_person_detected')
 
-        self.agent.xplain.adopt('seen_subject', 'percept')
+        self.agent.xplain.adopt('seen_subject', 'cognition')
         if self.agent.xplain.is_belief('looking'):
             self.agent.looking_semaphore.release()
         self.agent.has_subject()
@@ -59,18 +59,18 @@ class SIC(AbstractSICConnector):
         print('\n on_face_recognized', identifier)
 
         if identifier != '0':
-            self.agent.xplain.adopt('familiar_subject', 'percept')
+            self.agent.xplain.adopt('familiar_subject', 'cognition')
     #
     # def on_emotion_detected(self, emotion: str):
     #     print('\n on_emotion_detected', emotion)
     #
-    #     self.agent.xplain.adopt('emotion_detected', 'percept', emotion)
+    #     self.agent.xplain.adopt('emotion_detected', 'cognition', emotion)
 
     def on_speech_text(self, text):
         print('\n on_speech_text', text)
 
         self.agent.xplain.drop('speech_text')
-        self.agent.xplain.adopt('speech_text', 'percept', text)
+        self.agent.xplain.adopt('speech_text', 'cognition', text)
 
     def on_audio_intent(self, *args, intent_name):
         print('\n on_audio_intent', intent_name, args)
@@ -78,7 +78,7 @@ class SIC(AbstractSICConnector):
         params = ''
         for param in args:
             params += param+'|'
-        self.agent.xplain.adopt(intent_name, 'percept', params[0:-1])
+        self.agent.xplain.adopt(intent_name, 'cognition', params[0:-1])
         if intent_name != 'input.unknown':
             self.agent.clear_answer_beliefs()
 

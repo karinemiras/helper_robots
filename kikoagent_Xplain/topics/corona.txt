@@ -1,0 +1,10 @@
+ask_inout|1|Hello you! Are you going in or out of the building?
+ask_inout|2|Good day human being! Are you going in or out of the building?
+checkout|1|All right, thank you and see you next time. Do not forget to check out!
+checkout|2|Ok, thank you! Have a nice rest, and please, remember to check out!
+ask_floor_in|1|To which floor are you going?
+ask_floor_out|1|In which floor were you in?
+checkin_reminder|1|Please, do not forget to checkin and wash your hands.
+checkin_reminder|2|Please, remember to checkin and wash your hands.
+inform_occupation|1|All right, thank you! I estimate that there are {} people there.
+inform_occupation|2|Ok, thanks lot! I estimate that {} people are there.

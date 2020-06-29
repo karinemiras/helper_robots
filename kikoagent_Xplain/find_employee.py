@@ -17,8 +17,6 @@ class FindEmployee:
 
         if self.agent.xplain.is_belief('employee_name'):
 
-            self.agent.clear_answer_beliefs()
-
             if self.agent.xplain.belief_params('employee_name') == 'Charlie Brown':
                 self.agent.say('Charlie Brown works on the third floor, T345.')
             if self.agent.xplain.belief_params('employee_name') == 'Bob Dylan':
@@ -26,8 +24,6 @@ class FindEmployee:
             if self.agent.xplain.belief_params('employee_name') == '':
                 self.agent.say('I could not find '+self.agent.xplain.belief_params('speech_text'))
 
-            self.agent.drop_helping_beliefs()
-            self.agent.xplain.drop('employee_name')
-            self.agent.xplain.drop('has_subject')
+            self.agent.xplain.dropall()
 
 
