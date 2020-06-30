@@ -1,7 +1,5 @@
 
 
-text = "cu I'm"
-
-text = text.replace("'", "\\'")
-
-print(text)
+t = {'h':1, 'o':9}
+if 'yhfg' in t:
+    print('sim')

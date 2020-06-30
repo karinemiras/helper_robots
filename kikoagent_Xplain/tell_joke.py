@@ -12,8 +12,7 @@ class TellJoke:
 
         try:
             cursor = self.agent.postgres.connection.cursor()
-            # TODO: check if appropriate=True
-            query = "select * from jokes order by random() limit 1"
+            query = "select * from jokes where appropriate=True order by random() limit 1"
             cursor.execute(query)
             records = cursor.fetchall()
             cursor.close()

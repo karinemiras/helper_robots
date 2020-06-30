@@ -1,4 +1,12 @@
 offer_help|1|{} Do you need any help? Say employee, entertainment, or nothing.
+offer_help|2|{} Can I help you with anything? Say employee, entertainment, or nothing.
+offer_help_intro_react|1|Hi,
+offer_help_intro_react|2|Hello,
+offer_help_intro_react|3|Good day,
+offer_help_intro_btw|1|By the way,
+offer_help_intro_btw|2|In a meanwhile,
+offer_help_intro_anw|1|Additionally,
+offer_help_intro_anw|2|Furthermore,
 no_answer|1|Did you say anything? I did not hear you.
 no_answer|2|Can you please repeat louder? I did not understand you.
 unexpected_answer|1|Can you please reformulate? I don't know what you mean by {}.

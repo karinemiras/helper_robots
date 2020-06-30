@@ -64,7 +64,7 @@ class Xplain:
         try:
             cursor = self.postgres.connection.cursor()
             query = """ Update beliefs set params=CONCAT(params,'|',%s) where belief = %s and active = True"""
-            cursor.execute(query, (value, belief) )
+            cursor.execute(query, (value, belief))
             self.postgres.connection.commit()
             cursor.close()
         except Exception as error:

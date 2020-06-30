@@ -22,69 +22,97 @@ class CoronaMonitor:
 
                 if self.agent.xplain.belief_params('in_or_out') == 'out':
 
-                    if not self.agent.xplain.is_belief('floor'):
-                        self.agent.say_and_wait(belief_type='floor',
+                    if not self.agent.xplain.is_belief('which_floor'):
+                        self.agent.say_and_wait(belief_type='which_floor',
                                                 say_text=self.agent.get_sentence('corona', 'ask_floor_out'),
                                                 unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
                                                 timeout=self.agent.parameters['timeout_listening'])
 
-                    if self.agent.xplain.is_belief('floor'):
+                    if self.agent.xplain.is_belief('which_floor') and not self.agent.xplain.is_belief('which_wing'):
+                        self.agent.say_and_wait(belief_type='which_wing',
+                                                say_text=self.agent.get_sentence('corona', 'ask_wing_out'),
+                                                unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
+                                                timeout=self.agent.parameters['timeout_listening'])
+
+                    if self.agent.xplain.is_belief('which_floor') and self.agent.xplain.is_belief('which_wing'):
                         self.agent.say(self.agent.get_sentence('corona', 'checkout'))
-                        # TODO: calculate checkout
+                        self.update_occupation()
                         self.agent.xplain.dropall()
 
                 if self.agent.xplain.belief_params('in_or_out') == 'in':
 
-                    if not self.agent.xplain.is_belief('floor'):
-                        self.agent.say_and_wait(belief_type='floor',
+                    if not self.agent.xplain.is_belief('which_floor'):
+                        self.agent.say_and_wait(belief_type='which_floor',
                                                 say_text=self.agent.get_sentence('corona', 'ask_floor_in'),
                                                 unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
                                                 timeout=self.agent.parameters['timeout_listening'])
 
-                    if self.agent.xplain.is_belief('floor'):
+                    if self.agent.xplain.is_belief('which_floor') and not self.agent.xplain.is_belief('which_wing'):
+                        self.agent.say_and_wait(belief_type='which_wing',
+                                                say_text=self.agent.get_sentence('corona', 'ask_wing_in'),
+                                                unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
+                                                timeout=self.agent.parameters['timeout_listening'])
 
+                    if self.agent.xplain.is_belief('which_floor') and self.agent.xplain.is_belief('which_wing'):
+
+                        occupation = 0
                         if not self.agent.xplain.is_belief('checkin_info'):
 
-                            presence = self.check_occupation()
-                            if presence == 0:
-                                presence_aux = 'no'
+                            occupation = self.check_occupation()
+                            if occupation == 0:
+                                presence_aux = 'are no people'
+                            elif occupation == 1:
+                                presence_aux = 'is '+str(occupation)+' person'
                             else:
-                                presence_aux = str(presence)
+                                presence_aux = 'are '+str(occupation)+' people'
 
                             self.agent.say(self.agent.get_sentence('corona', 'inform_occupation', [presence_aux]))
-                            # TODO: inform estimation and maybe wait warning
+
+                            if occupation >= self.agent.parameters['corona_max_occupation']:
+                                self.agent.say(self.agent.get_sentence('corona', 'wait_advice'))
+
                             self.agent.say(self.agent.get_sentence('corona', 'checkin_reminder'))
-
                             self.agent.xplain.adopt('checkin_info', 'action')
-                            # TODO: calculate checkin
 
-                        if self.agent.xplain.is_belief('checkin_info'):
-                            self.agent.offer_help(['By the way, '])
+                            self.update_occupation()
+
+                        if self.agent.xplain.is_belief('checkin_info') and \
+                           occupation < self.agent.parameters['corona_max_occupation']:
+                            self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_anw')])
+
+                        if self.agent.xplain.is_belief('checkin_info') and \
+                           occupation >= self.agent.parameters['corona_max_occupation']:
+                            self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_btw')])
 
     def check_occupation(self):
 
         try:
             cursor = self.agent.postgres.connection.cursor()
-            query = "select occupation from occupation_building where floor=%s"
-            cursor.execute(query, (self.agent.xplain.belief_params('floor'),))
+            query = "select occupation from occupation_building where floor=%s and wing=%s"
+            cursor.execute(query, (self.agent.xplain.belief_params('which_floor'),
+                                   self.agent.xplain.belief_params('which_wing').split(' ')[1]))
             records = cursor.fetchall()
             cursor.close()
-            return records[0][1]
+
+            return records[0][0]
 
         except Exception as error:
             self.agent.log.write('\nERROR db check_occupation: {}'.format(error))
 
-    def update_occupation(self, in_or_out):
+    def update_occupation(self):
 
-        if in_or_out == 'in':
+        if self.agent.xplain.belief_params('in_or_out') == 'in':
             new_occupation = self.check_occupation() + 1
         else:
             new_occupation = max(0, self.check_occupation() - 1)
 
         try:
             cursor = self.agent.postgres.connection.cursor()
-            query = "update occupation_building set occupation=%s where floor=%s"
-            cursor.execute(query, (self.agent.xplain.belief_params('floor'), new_occupation))
+            query = "update occupation_building set occupation=%s where floor=%s and wing=%s"
+            cursor.execute(query, (new_occupation,
+                                   self.agent.xplain.belief_params('which_floor'),
+                                   self.agent.xplain.belief_params('which_wing').split(' ')[1]))
+            self.agent.postgres.connection.commit()
             cursor.close()
 
         except Exception as error:

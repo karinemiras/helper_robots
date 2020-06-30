@@ -28,25 +28,25 @@ class Agent:
         self.xplain = Xplain(self.postgres)
         self.topics = {}
         self.load_topics()
-        CoronaMonitor(self).clean_floor_occupations()
+        #CoronaMonitor(self).clean_floor_occupations()
 
         self.sic = SIC(self, parameters)
 
     def life_loop(self):
         self.search_subject()
         CoronaMonitor(self).act()
-        # TODO: if proactive then offerhelp() ?
+        # TODO: if proactive then offerhelp([self.agent.get_sentence('general', 'offer_help_intro_react')]) ?
         self.help()
 
     def search_subject(self):
         # if it doesnt believe to have a subject, keeps searching for it
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
-            self.listen_and_look('proactive_subject')
+            self.listen_and_look('proactive_subject', self.parameters['timeout_watchlook'], False)
             self.xplain.drop('speech_text')
             self.xplain.drop('input.unknown')
 
-    def offer_help(self, greetings=['Hi']):
+    def offer_help(self, greetings):
 
         if not (self.xplain.is_belief('type_of_help')):
 
@@ -153,9 +153,11 @@ class Agent:
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
         sleep(1)
 
-    def listen_and_look(self, context='', timeout=None):
+    def listen_and_look(self, context='', timeout=None, register=True):
 
-            self.xplain.adopt('listening_looking', 'action')
+            if register:
+                self.xplain.adopt('listening_looking', 'action')
+
             self.sic.set_audio_context(context)
             self.sic.start_listening()
             self.sic.start_looking()
@@ -167,7 +169,10 @@ class Agent:
 
             self.sic.stop_listening()
             self.sic.stop_looking()
-            self.xplain.drop('listening_looking')
+
+            if register:
+                self.xplain.drop('listening_looking')
+
             # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
             sleep(1)
 

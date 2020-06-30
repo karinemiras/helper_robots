@@ -14,9 +14,12 @@ class Main:
         # magic_beliefs are for testing only:
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
-        magic_beliefs = {'has_subject': ['percept', '']}
-                         # 'input.unknown': ['percept', ''],
-                         # 'speech_text': ['percept', "I'm dick also"]}
+        magic_beliefs = {'has_subject': ['percept', ''],
+                         'in_or_out': ['percept', 'in'],
+                         'which_floor': ['percept', 'first'],
+                         'which_wing': ['percept', 'wing A']
+                         }
+
         self.agent.load_magic_beliefs(magic_beliefs)
 
     def run(self):
@@ -41,9 +44,11 @@ parameters = {
             'postgres_host': '127.0.0.1',
             'postgres_port': '5432',
             'postgres_database': 'kikoagent',
-            'timeout_listening': 10,
+            'timeout_listening': 15,
+            'timeout_watchlook': 15,
             'experiment_name': 'test',
-            'contact_attempts': 3
+            'contact_attempts': 3,
+            'corona_max_occupation': 2
             }
 
 

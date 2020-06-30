@@ -14,6 +14,12 @@ class SIC(AbstractSICConnector):
         self.set_dialogflow_key(parameters['dialogflow_key_file'])
         self.set_dialogflow_agent(parameters['dialogflow_agent_id'])
         self.agent = agent
+        self.intents_n_params = {'type_of_help': 1,
+                                 'employee_name': 1,
+                                 'given_word': 1,
+                                 'which_floor': 1,
+                                 'which_wing': 1,
+                                 'in_or_out': 1}
 
         self.start()
         self.set_language('en-US')
@@ -79,8 +85,26 @@ class SIC(AbstractSICConnector):
         for param in args:
             params += param+'|'
         self.agent.xplain.adopt(intent_name, 'cognition', params[0:-1])
+
+        missing_params = False
+        if intent_name in self.intents_n_params:
+            if len(args) != self.intents_n_params[intent_name]:
+                missing_params = True
+
+        # intents that miss due params should be dropped
+        if missing_params:
+            self.agent.xplain.drop(intent_name)
+
+        # due intents
         if intent_name != 'input.unknown':
-            self.agent.clear_answer_beliefs()
+            self.agent.xplain.drop('waiting_answer')
+            self.agent.xplain.drop('contact_attempt')
+
+            # due intents with missing params: force new request of params
+            if missing_params:
+                self.agent.xplain.adopt('input.unknown', 'cognition')
+            else:
+                self.agent.xplain.drop('speech_text')
 
         # magic sentence to stop Kiko safely:
         # Kiko, you have to stop, sleep immediately, and have nice dreams.
