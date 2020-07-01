@@ -9,9 +9,11 @@ class FreestylePoetry:
     def act(self):
 
         number_rhymes = 4
+        selected_rhymes = []
+        records = []
 
         print('\n> freestyling poetry')
-        self.agent.xplain.adopt('helping', 'action', 'freestyle poetry')
+
         self.agent.say_and_wait(belief_type='given_word',
                                 say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
                                 unexpected_answer_topic='freestyle_poetry',
@@ -21,20 +23,19 @@ class FreestylePoetry:
 
             self.agent.clear_answer_beliefs()
 
-            # TODO: check if word is in bad words dic
             word = self.agent.xplain.belief_params('given_word').strip()
 
-            try:
-                cursor = self.agent.postgres.connection.cursor()
-                query = "select * from rhymes where title = %s "
-                cursor.execute(query, (word,))
-                records = cursor.fetchall()
-                cursor.close()
+            if not self.agent.postgres.check_badwords(word):
+                try:
+                    cursor = self.agent.postgres.connection.cursor()
+                    query = "select * from rhymes where lower(title) = lower(%s) "
+                    cursor.execute(query, (word,))
+                    records = cursor.fetchall()
+                    cursor.close()
 
-            except Exception as error:
-                self.agent.log.write('\nERROR db get_rhymes: {}'.format(error))
+                except Exception as error:
+                    self.agent.log.write('\nERROR db get_rhymes: {}'.format(error))
 
-            selected_rhymes = []
             if len(records) > 0:
                 syllables1 = records[0][2].split(',') if records[0][2] is not None else []
                 syllables2 = records[0][3].split(',') if records[0][3] is not None else []
@@ -65,9 +66,12 @@ class FreestylePoetry:
 
                 self.agent.say(sentense)
 
-                self.agent.xplain.dropall()
+                self.agent.xplain.drop('type_of_entertainment')
+                self.agent.xplain.drop('given_word')
+                self.agent.clear_answer_beliefs()
+                self.agent.xplain.drop('helping')
 
-            # found no rhymes for the word, so asks for a second chance
+            # found no due rhymes for the word or word in undue:so asks for a second chance
             else:
                 self.agent.say(self.agent.get_sentence('freestyle_poetry', 'excuse'))
                 self.agent.xplain.drop('given_word')

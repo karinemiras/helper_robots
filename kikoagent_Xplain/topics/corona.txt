@@ -2,13 +2,13 @@ ask_inout|1|Hello you! Are you going in or out of the building? Say going in or 
 ask_inout|2|Good day human being! Are you going in or out of the building? Say going in or going out.
 checkout|1|All right, thank you and see you next time. Do not forget to check out!
 checkout|2|Ok, thank you! Have a nice rest, and please, remember to check out!
-ask_floor_in|1|To which floor are you going? For example, first floor.
-ask_wing_in|1|To which wing are you going? For example, wing A.
-ask_floor_out|1|In which floor were you in? For example, ground floor.
-ask_wing_out|1|In which wing were you in? For example, wing B.
-checkin_reminder|1|Please, do not forget to checkin and wash your hands.
-checkin_reminder|2|Please, remember to checkin and wash your hands.
+ask_floor_in|1|Ok. And to which floor are you going? For example, first floor.
+ask_wing_in|1|Ok. And to which wing \\pau=40\\ are you going? Say apple for wing \\pau=80\\ a, and banana for wing \\pau=40\\ b.
+ask_floor_out|1|Ok. And in which floor were you in? For example, ground floor.
+ask_wing_out|1|Ok, and in which wing \\pau=40\\ were you in? Say apple for wing \\pau=80\\ a, and banana for wing \\pau=40\\ b.
+checkin_reminder|1|Please, do not forget to checkin and wash your hands before you go in.
+checkin_reminder|2|Please, remember to checkin and wash your hands before you go in.
 inform_occupation|1|All right, thank you! I estimate that there {} there.
-inform_occupation|2|Ok, thanks lot! I estimate that there {} there.
+inform_occupation|2|Ok, thanks a lot! I estimate that there {} there.
 wait_advice|1|It could be risky going up now, perhaps you should wait here a little bit.
 wait_advice|2|Going up now could be dangerous, maybe you should wait here for a while.

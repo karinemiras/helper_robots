@@ -10,6 +10,7 @@ class Xplain:
     def __init__(self, postgres):
 
         self.postgres = postgres
+        self.intents_entities = self.get_intents_entities()
         self.dropall()
         
     # registers active beliefs when an action starts
@@ -53,7 +54,12 @@ class Xplain:
     def drop(self, belief):
         try:
             cursor = self.postgres.connection.cursor()
-            query = """ Update beliefs set active = False, time_finished = now() where belief = %s and active = True"""
+
+            # because listening_looking is constantly renewed when in search_subject loop, it gets wiped out
+            if belief == 'listening_looking':
+                query = "Delete from beliefs where belief = %s"
+            else:
+                query = "Update beliefs set active = False, time_finished = now() where belief = %s and active = True"
             cursor.execute(query, (belief,))
             self.postgres.connection.commit()
             cursor.close()
@@ -118,17 +124,17 @@ class Xplain:
         except Exception as error:
             self.postgres.log.write('\nERROR db dropall: {}'.format(error))
 
-    def summary_active_beliefs(self):
+    def get_intents_entities(self):
         try:
+            intents = {}
             cursor = self.postgres.connection.cursor()
-            query = "select belieftype, belief, params from beliefs where active = True order by belieftype, belief"
+            query = "select belief, entities from beliefs_dictionary where entities IS NOT NULL"
             cursor.execute(query)
             records = cursor.fetchall()
             cursor.close()
-            for row in records:
-                print(row)
+            for intent in records:
+                intents[intent[0]] = intent[1].split('|')
+
+            return intents
         except Exception as error:
-            self.postgres.log.write('\nERROR db summary_active_beliefs: {}'.format(error))
-
-
-
+            self.postgres.log.write('\nERROR db get_domain_intents: {}'.format(error))

@@ -28,34 +28,42 @@ class Agent:
         self.xplain = Xplain(self.postgres)
         self.topics = {}
         self.load_topics()
-        #CoronaMonitor(self).clean_floor_occupations()
+        CoronaMonitor(self).clean_floor_occupations()
 
         self.sic = SIC(self, parameters)
 
     def life_loop(self):
         self.search_subject()
         CoronaMonitor(self).act()
-        # TODO: if proactive then offerhelp([self.agent.get_sentence('general', 'offer_help_intro_react')]) ?
         self.help()
 
     def search_subject(self):
         # if it doesnt believe to have a subject, keeps searching for it
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
-            self.listen_and_look('proactive_subject', self.parameters['timeout_watchlook'], False)
+
+            self.listen_and_look('proactive_subject', self.parameters['timeout_watchlook'])
             self.xplain.drop('speech_text')
             self.xplain.drop('input.unknown')
 
     def offer_help(self, greetings):
 
-        if not (self.xplain.is_belief('type_of_help')):
+            if self.xplain.is_belief('type_of_help') and not self.xplain.is_belief('helping'):
+                print('\n> offering more help')
 
-            print('\n> offering help')
+                self.xplain.drop('type_of_help')
+                self.say_and_wait(belief_type='type_of_help',
+                                  say_text=self.get_sentence('general', 'offer_more_help'),
+                                  unexpected_answer_params=[self.xplain.belief_params('speech_text')],
+                                  timeout=self.parameters['timeout_listening'])
 
-            self.say_and_wait(belief_type='type_of_help',
-                              say_text=self.get_sentence('general', 'offer_help', greetings),
-                              unexpected_answer_params=[self.xplain.belief_params('speech_text')],
-                              timeout=self.parameters['timeout_listening'])
+            if not self.xplain.is_belief('type_of_help'):
+                print('\n> offering help')
+
+                self.say_and_wait(belief_type='type_of_help',
+                                  say_text=self.get_sentence('general', 'offer_help', greetings),
+                                  unexpected_answer_params=[self.xplain.belief_params('speech_text')],
+                                  timeout=self.parameters['timeout_listening'])
 
     def help(self):
 
@@ -99,8 +107,8 @@ class Agent:
                 self.say(self.get_sentence(no_answer_topic, no_answer_subtopic, no_answer_params))
                 self.xplain.increment('contact_attempt', str(attempts+1))
             else:
-                self.xplain.dropall()
                 self.say(self.get_sentence('general', 'no_answer_limit'))
+                self.xplain.dropall()
                 try_listen = False
                 #self.turn()
 
@@ -153,10 +161,9 @@ class Agent:
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
         sleep(1)
 
-    def listen_and_look(self, context='', timeout=None, register=True):
+    def listen_and_look(self, context='', timeout=None):
 
-            if register:
-                self.xplain.adopt('listening_looking', 'action')
+            self.xplain.adopt('listening_looking', 'action')
 
             self.sic.set_audio_context(context)
             self.sic.start_listening()
@@ -170,8 +177,7 @@ class Agent:
             self.sic.stop_listening()
             self.sic.stop_looking()
 
-            if register:
-                self.xplain.drop('listening_looking')
+            self.xplain.drop('listening_looking')
 
             # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
             sleep(1)

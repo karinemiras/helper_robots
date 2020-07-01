@@ -76,24 +76,21 @@ class CoronaMonitor:
 
                             self.update_occupation()
 
-                        if self.agent.xplain.is_belief('checkin_info') and \
-                           occupation < self.agent.parameters['corona_max_occupation']:
-                            self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_anw')])
-
-                        if self.agent.xplain.is_belief('checkin_info') and \
-                           occupation >= self.agent.parameters['corona_max_occupation']:
-                            self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_btw')])
+                        # after giving checkin info, may or my not provide full occupation warning
+                        if self.agent.xplain.is_belief('checkin_info'):
+                            if occupation < self.agent.parameters['corona_max_occupation']:
+                                self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_more')])
+                            else:
+                                self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_while')])
 
     def check_occupation(self):
-
         try:
             cursor = self.agent.postgres.connection.cursor()
             query = "select occupation from occupation_building where floor=%s and wing=%s"
             cursor.execute(query, (self.agent.xplain.belief_params('which_floor'),
-                                   self.agent.xplain.belief_params('which_wing').split(' ')[1]))
+                                   self.agent.xplain.belief_params('which_wing')))
             records = cursor.fetchall()
             cursor.close()
-
             return records[0][0]
 
         except Exception as error:
@@ -111,7 +108,7 @@ class CoronaMonitor:
             query = "update occupation_building set occupation=%s where floor=%s and wing=%s"
             cursor.execute(query, (new_occupation,
                                    self.agent.xplain.belief_params('which_floor'),
-                                   self.agent.xplain.belief_params('which_wing').split(' ')[1]))
+                                   self.agent.xplain.belief_params('which_wing')))
             self.agent.postgres.connection.commit()
             cursor.close()
 

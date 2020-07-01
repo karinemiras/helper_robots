@@ -24,6 +24,10 @@ class FindEmployee:
             if self.agent.xplain.belief_params('employee_name') == '':
                 self.agent.say('I could not find '+self.agent.xplain.belief_params('speech_text'))
 
-            self.agent.xplain.dropall()
+            self.agent.xplain.drop('employee_name')
+            self.agent.clear_answer_beliefs()
+            self.agent.xplain.drop('helping')
+
+
 
 

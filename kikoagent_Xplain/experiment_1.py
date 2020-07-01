@@ -14,13 +14,19 @@ class Main:
         # magic_beliefs are for testing only:
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
-        magic_beliefs = {'has_subject': ['percept', ''],
-                         'in_or_out': ['percept', 'in'],
-                         'which_floor': ['percept', 'first'],
-                         'which_wing': ['percept', 'wing A']
-                         }
-
-        self.agent.load_magic_beliefs(magic_beliefs)
+        # magic_beliefs = {'has_subject': ['cogtition', ''],
+        #                  'in_or_out': ['cogtition', 'in']
+        #                ,'which_floor': ['cogtition', 'first']
+        #                  ,'which_wing': ['cogtition', 'Wing A']
+        #     , 'checkin_info': ['cogtition', '']
+        #     , 'type_of_help': ['cogtition', 'entertainment']
+        #     , 'type_of_entertainment': ['cogtition', 'poetry']
+        #     , 'waiting_answer': ['cogtition', '']
+        #     , 'contact_attempt': ['cogtition', '1']
+        #
+        #                  }
+        #
+        # self.agent.load_magic_beliefs(magic_beliefs)
 
     def run(self):
 
@@ -35,7 +41,7 @@ class Main:
 
 
 parameters = {
-            'server_ip': '192.168.1.18',
+            'server_ip': '192.168.1.19',
             'robot': 'nao',
             'dialogflow_key_file': 'miscellaneous/kikoagent-iajdfl-9d037d057933.json',
             'dialogflow_agent_id': 'kikoagent-iajdfl',
@@ -44,11 +50,12 @@ parameters = {
             'postgres_host': '127.0.0.1',
             'postgres_port': '5432',
             'postgres_database': 'kikoagent',
-            'timeout_listening': 15,
+            'timeout_listening': 10,
             'timeout_watchlook': 15,
             'experiment_name': 'test',
             'contact_attempts': 3,
-            'corona_max_occupation': 2
+            'corona_max_occupation': 2,
+            'wait_to_approach_again': 3
             }
 
 

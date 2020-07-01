@@ -1,6 +1,5 @@
 from freestyle_poetry import FreestylePoetry
 from tell_joke import TellJoke
-import numpy as np
 
 
 class Entertainment:
@@ -11,6 +10,8 @@ class Entertainment:
     def act(self):
 
         print('\n> proposing entertainment')
+
+        self.agent.xplain.adopt('helping', 'action', 'entertainment')
 
         if self.agent.xplain.is_belief('type_of_entertainment'):
 
