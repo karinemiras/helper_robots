@@ -33,8 +33,26 @@ class Agent:
         self.sic = SIC(self, parameters)
 
     def life_loop(self):
+
         self.search_subject()
-        CoronaMonitor(self).act()
+
+        if not self.xplain.is_belief('disclaimer_visible'):
+            self.say_and_wait(belief_type='disclaimer_visible',
+                              say_text=self.get_sentence('general', 'disclaimer_ask'),
+                              unexpected_answer_params=[self.xplain.belief_params('speech_text')],
+                              timeout=self.parameters['timeout_listening'])
+
+        if self.xplain.is_belief('disclaimer_visible'):
+
+            if self.xplain.belief_params('disclaimer_visible') == 'no' \
+                    and not self.xplain.is_belief('disclaimer_given'):
+                self.say(self.get_sentence('general', 'disclaimer_content'))
+
+            else:
+                CoronaMonitor(self).act()
+
+            self.xplain.adopt('disclaimer_given', 'cognition')
+
         self.help()
 
     def search_subject(self):

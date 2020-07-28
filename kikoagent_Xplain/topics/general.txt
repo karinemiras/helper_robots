@@ -21,3 +21,6 @@ no_answer_limit|1|I guess I lost you. Come back later!
 no_answer_limit|2|Oh, I see you left me talking to myself. All right, see you next time!
 badwords|1|Oh, I don't know why you're being mean to me. Can we try again?
 badwords|2|Uh, you used badwords. Can you say something else?
+disclaimer_ask|1|Are you able to visualize the disclaimer on my screen? Say yes or no.
+disclaimer_ask|2|Do you see the disclaimer on my screen? Say yes or no.
+disclaimer_content|1|I will not collect any personal data from you.

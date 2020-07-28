@@ -69,6 +69,7 @@ class CoronaMonitor:
                             self.agent.say(self.agent.get_sentence('corona', 'inform_occupation', [presence_aux]))
 
                             if occupation >= self.agent.parameters['corona_max_occupation']:
+                                self.agent.xplain.adopt('max_occupation', 'belief')
                                 self.agent.say(self.agent.get_sentence('corona', 'wait_advice'))
 
                             self.agent.say(self.agent.get_sentence('corona', 'checkin_reminder'))

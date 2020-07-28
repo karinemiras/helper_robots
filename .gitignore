@@ -3,3 +3,5 @@ __pycache__
 *.pyc
 goal_kiko
 *.json
+/*.json
+temp
