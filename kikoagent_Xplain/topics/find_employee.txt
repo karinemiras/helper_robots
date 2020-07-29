@@ -1,3 +1,8 @@
-ask_name|1|What is the name of the employee?
-ask_name|2|Please inform me the employee name.
-ask_name|3|What is the name of this person?
+ask_name|1|Please inform me the name and surname of the the employee by spelling it in moderate speed. For instance, for Bob Lee, say, b, o, b, l, e, e.
+ask_name|2|Please tell me the name and surname of the the employee by spelling it in moderate speed. For example, for Bob Lee, say, b, o, b, l, e, e.
+social_distancing|1|Please, remember to keep a one and a half meters distance.
+social_distancing|2|Please, do not forget to keep a one and a half meters distance.
+not_found|1|I could not find {}.
+not_found|2|I did not find {}.
+unexpected_answer|1|Can you please spell it again?
+unexpected_answer|2|Can you please spell one more time?
