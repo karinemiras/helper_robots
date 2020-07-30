@@ -98,6 +98,9 @@ class Agent:
             elif self.xplain.belief_params('type_of_help') == 'nothing':
                 self.say(self.get_sentence('general', 'rejection_taken'))
                 self.xplain.dropall()
+
+                # wait a bit for subject to leave
+                sleep(15)
                 #self.turn()
 
     # say something and wait for a response; includes fallback;

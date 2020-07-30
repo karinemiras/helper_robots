@@ -16,7 +16,7 @@ class FindEmployee:
                                 timeout=self.agent.parameters['timeout_listening'])
 
         if self.agent.xplain.is_belief('employee_name'):
-           
+
             similarity_threshold = 0.4
             try:
                 cursor = self.agent.postgres.connection.cursor()
@@ -31,7 +31,28 @@ class FindEmployee:
 
             if len(records) > 0:
 
-                self.agent.say('I found this person!')
+                name = records[0][0]
+                location = records[0][2]
+                title = records[0][3]
+                email = records[0][4]
+                telefone = records[0][5]
+                group = records[0][6]
+
+                info = ''
+                if name is not None:
+                    info += name
+                if title is not None:
+                    info += ' is a '+title
+                if group is not None:
+                    info += ' who works in the '+group+'.'
+                if location is not None:
+                    info += ' \\pau=300\\ You can find this person at the '+location+'.'
+                if email is not None:
+                    info += ' \\pau=300\\ Or by the e-mail, '+email+'.'
+                if telefone is not None:
+                    info += ' \\pau=300\\ Or through the telephone, \\readmode=char\\ '+telefone+''
+
+                self.agent.say(info)
                 # give and show info
 
                 self.agent.xplain.drop('employee_name')

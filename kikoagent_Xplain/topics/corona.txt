@@ -1,14 +1,14 @@
-ask_inout|1|Hello you! Are you going in or out of the building? Say going in or going out.
-ask_inout|2|Good day human being! Are you going in or out of the building? Say going in or going out.
+ask_inout|1|Ok. Are you going in \\pau=40\\ or out of the building. Say going in or going out.
+ask_inout|2|Ok. Are you going in \\pau=40\\ or out of the building. Say going in or going out.
 checkout|1|All right, thank you and see you next time. Do not forget to check out!
 checkout|2|Ok, thank you! Have a nice rest, and please, remember to check out!
 ask_floor_in|1|Ok. And to which floor are you going? For example, first floor.
 ask_wing_in|1|Ok. And to which wing \\pau=40\\ are you going? Say \\pau=80\\ east, or \\pau=40\\ west.
 ask_floor_out|1|Ok. And in which floor were you in? For example, ground floor.
 ask_wing_out|1|Ok, and in which wing \\pau=40\\ were you in? Say \\pau=80\\ east, or \\pau=40\\ west.
-checkin_reminder|1|Please, do not forget to checkin and wash your hands before you go in.
-checkin_reminder|2|Please, remember to checkin and wash your hands before you go in.
+checkin_reminder|1|Please, do not forget to check in and wash your hands before you go in.
+checkin_reminder|2|Please, remember to check in and wash your hands before you go in.
 inform_occupation|1|All right, thank you! I estimate that there {} there.
 inform_occupation|2|Ok, thanks a lot! I estimate that there {} there.
-wait_advice|1|It could be risky going up now, perhaps you should wait here a little bit.
-wait_advice|2|Going up now could result in violation of the social distancing guidelines, maybe you should wait here for a while.
+wait_advice|1|Going up now could result in violation of the guidelines of social distancing. Perhaps you should wait here a little bit.
+wait_advice|2|Going up now may result in violation of the guidelines of social distancing. Maybe you should wait here for a while.

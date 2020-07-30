@@ -1,7 +1,7 @@
-offer_help|1|{} Do you need any help? Say employee, entertainment, or nothing.
-offer_help|2|{} Can I help you with anything? Say employee, entertainment, or nothing.
-offer_more_help|1| \\pau=3000\\ Is there anything else I can do to help? Say employee, entertainment, or nothing.
-offer_more_help|2| \\pau=3000\\ Can I help you with anything else? Say employee, entertainment, or nothing.
+offer_help|1|{} Do you need any help? Say find employee, entertainment, or nothing.
+offer_help|2|{} Can I help you with anything? Say find employee, entertainment, or nothing.
+offer_more_help|1| \\pau=3000\\ Is there anything else I can do to help? Say find employee, entertainment, or nothing.
+offer_more_help|2| \\pau=3000\\ Can I help you with anything else? Say find employee, entertainment, or nothing.
 offer_help_intro_react|1|Hi,
 offer_help_intro_react|2|Hello,
 offer_help_intro_react|3|Good day,
@@ -20,7 +20,7 @@ rejection_taken|2|Ok, Let me know if you need anything. See you another time!
 no_answer_limit|1|I guess I lost you. Come back later!
 no_answer_limit|2|Oh, I see you left me talking to myself. All right, see you next time!
 badwords|1|Oh, I don't know why you're being mean to me. Can we try again?
-badwords|2|Uh, you used badwords. Can you say something else?
-disclaimer_ask|1|Are you able to visualize the disclaimer on my screen? Say yes or no.
-disclaimer_ask|2|Do you see the disclaimer on my screen? Say yes or no.
-disclaimer_content|1|I will not collect any personal data from you.
+badwords|2|Uh, you used bad words. Can you please say something else?
+disclaimer_ask|1|Good day human being! Before I start: Are you able to visualize the disclaimer on my screen? Say yes or no.
+disclaimer_ask|2|Hello you! Before I start: Do you see the disclaimer on my screen? Say yes or no.
+disclaimer_content|1|You should know that I will not collect or distribute any personal data from you.

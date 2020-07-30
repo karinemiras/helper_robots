@@ -1,2 +1,2 @@
-ask_type|1|What do you wanna hear, a freestyle rapped by me, or a human-made joke? Say freestyle or joke.
-ask_type|2|Do you prefer to hear a human-made joke, or a rap freestyled by me? Say joke or freestyle.
+ask_type|1|What do you wanna hear? A poem freestyled by me, or a human-made joke? Say freestyle or joke.
+ask_type|2|Do you prefer to hear a human-made joke? Or a poem freestyled by me? Say joke or freestyle.

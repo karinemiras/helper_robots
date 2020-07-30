@@ -1,3 +1,4 @@
+from time import sleep
 
 class CoronaMonitor:
 
@@ -38,6 +39,9 @@ class CoronaMonitor:
                         self.agent.say(self.agent.get_sentence('corona', 'checkout'))
                         self.update_occupation()
                         self.agent.xplain.dropall()
+
+                    # wait a bit for subject to leave
+                    sleep(15)
 
                 if self.agent.xplain.belief_params('in_or_out') == 'in':
 
