@@ -1,3 +1,5 @@
+import smtplib, ssl
+
 
 class FindEmployee:
 
@@ -8,14 +10,17 @@ class FindEmployee:
 
         print('\n> finding employee')
 
+        records = []
+        email = ''
         self.agent.xplain.adopt('helping', 'action', 'find employee')
 
-        self.agent.say_and_wait(belief_type='employee_name',
-                                say_text=self.agent.get_sentence('find_employee', 'ask_name'),
-                                unexpected_answer_topic='find_employee',
-                                timeout=self.agent.parameters['timeout_listening'])
+        if not self.agent.xplain.is_belief('employee_name'):
+            self.agent.say_and_wait(belief_type='employee_name',
+                                    say_text=self.agent.get_sentence('find_employee', 'ask_name'),
+                                    unexpected_answer_topic='find_employee',
+                                    timeout=self.agent.parameters['timeout_listening'])
 
-        if self.agent.xplain.is_belief('employee_name'):
+        if self.agent.xplain.is_belief('employee_name') and not self.agent.xplain.is_belief('employee_info_given'):
 
             similarity_threshold = 0.4
             try:
@@ -53,11 +58,8 @@ class FindEmployee:
                     info += ' \\pau=300\\ Or through the telephone, \\readmode=char\\ '+telefone+''
 
                 self.agent.say(info)
-                # give and show info
 
-                self.agent.xplain.drop('employee_name')
-                self.agent.clear_answer_beliefs()
-                self.agent.xplain.drop('helping')
+                self.agent.xplain.adopt('employee_info_given', 'cognition')
 
             else:
                 self.agent.say(self.agent.get_sentence('find_employee', 'not_found',
@@ -67,7 +69,46 @@ class FindEmployee:
                 self.agent.xplain.adopt('input.unknown', 'cognition')
                 self.agent.xplain.adopt('waiting_answer', 'action')
 
+        if self.agent.xplain.is_belief('employee_info_given') and not self.agent.xplain.is_belief('visitor_name'):
 
+            self.agent.say_and_wait(belief_type='visitor_name',
+                                    say_text=self.agent.get_sentence('find_employee', 'offer_email'),
+                                    unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
+                                    timeout=self.agent.parameters['timeout_listening'])
 
+        if self.agent.xplain.is_belief('visitor_name'):
 
+            if self.agent.xplain.belief_params('visitor_name') in ['no', 'nope', 'not']:
+                self.agent.say(self.agent.get_sentence('find_employee', 'ok_no'))
+
+            else:
+                visitor_name = self.agent.xplain.belief_params('visitor_name')
+                visitor_name = visitor_name.replace(' ', '')
+                visitor_name = visitor_name.capitalize()
+
+                self.send_email(email,
+                                self.agent.get_sentence('find_employee', 'email', [visitor_name]))
+
+                self.agent.say(self.agent.get_sentence('find_employee', 'ok_yes'))
+
+            self.agent.xplain.drop('employee_name')
+            self.agent.xplain.drop('visitor_name')
+            self.agent.xplain.drop('employee_info_given')
+            self.agent.clear_answer_beliefs()
+            self.agent.xplain.drop('helping')
+
+    def send_email(self, email_to, email_text):
+
+        try:
+            sender_email = "kikorobotsteward@gmail.com"
+            password = "kikobabybot"
+            subject = 'Visitor coming'
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            server.ehlo()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, email_to, 'Subject: {}\n\n{}'.format(subject, email_text))
+            server.close()
+
+        except:
+            print('email error')
 

@@ -1,7 +1,7 @@
 offer_help|1|{} Do you need any help? Say find employee, entertainment, or nothing.
 offer_help|2|{} Can I help you with anything? Say find employee, entertainment, or nothing.
-offer_more_help|1| \\pau=3000\\ Is there anything else I can do to help? Say find employee, entertainment, or nothing.
-offer_more_help|2| \\pau=3000\\ Can I help you with anything else? Say find employee, entertainment, or nothing.
+offer_more_help|1| \\pau=1000\\ Is there anything else I can do to help? Say find employee, entertainment, or nothing.
+offer_more_help|2| \\pau=1000\\ Can I help you with anything else? Say find employee, entertainment, or nothing.
 offer_help_intro_react|1|Hi,
 offer_help_intro_react|2|Hello,
 offer_help_intro_react|3|Good day,
