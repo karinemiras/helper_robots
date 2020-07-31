@@ -286,4 +286,9 @@ class Agent:
         self.sleeping = True
         sys.exit()
 
+    def try_get_input_again(self, input_belief):
+        self.xplain.drop(input_belief)
+        self.xplain.drop('speech_text')
+        self.xplain.adopt('input.unknown', 'cognition')
+        self.xplain.adopt('waiting_answer', 'action')
 

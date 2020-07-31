@@ -74,7 +74,5 @@ class FreestylePoetry:
             # found no due rhymes for the word or word in undue:so asks for a second chance
             else:
                 self.agent.say(self.agent.get_sentence('freestyle_poetry', 'excuse'))
-                self.agent.xplain.drop('given_word')
-                self.agent.xplain.drop('speech_text')
-                self.agent.xplain.adopt('input.unknown', 'cognition')
-                self.agent.xplain.adopt('waiting_answer', 'action')
+                self.agent.try_get_input_again('given_word')
+

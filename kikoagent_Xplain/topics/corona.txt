@@ -3,9 +3,9 @@ ask_inout|2|Ok. Are you going in \\pau=40\\ or out of the building. Say going in
 checkout|1|All right, thank you and see you next time. Do not forget to check out!
 checkout|2|Ok, thank you! Have a nice rest, and please, remember to check out!
 ask_floor_in|1|Ok. And to which floor are you going? For example, first floor.
-ask_wing_in|1|Ok. And to which wing \\pau=40\\ are you going? Say \\pau=80\\ east, or \\pau=40\\ west.
+ask_wing_in|1|Ok. And to which wing \\pau=40\\ are you going? Say apple for Wing \\pau=40\\ A, and banana for Wing \\pau=40\\ B.
 ask_floor_out|1|Ok. And in which floor were you in? For example, ground floor.
-ask_wing_out|1|Ok, and in which wing \\pau=40\\ were you in? Say \\pau=80\\ east, or \\pau=40\\ west.
+ask_wing_out|1|Ok, and in which wing \\pau=40\\ were you in? Say apple for Wing \\pau=40\\ A, and banana for Wing \\pau=40\\ B.
 checkin_reminder|1|Please, do not forget to check in and wash your hands before you go in.
 checkin_reminder|2|Please, remember to check in and wash your hands before you go in.
 inform_occupation|1|All right, thank you! I estimate that there {} there.

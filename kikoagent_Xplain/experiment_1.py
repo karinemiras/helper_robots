@@ -23,10 +23,11 @@ class Main:
              , 'type_of_help': ['cogtition', 'find employee']
             , 'disclaimer_visible': ['cogtition', '']
             , 'disclaimer_given': ['cogtition', '']
+            , 'employee_name': ['cogtition', 'k a r i n e']
             , 'helping': ['cogtition', '']
+            , 'employee_info_given': ['cogtition', '']
 
-
-                         }
+        }
 
         self.agent.load_magic_beliefs(magic_beliefs)
 

@@ -1,5 +1,6 @@
 from time import sleep
 
+
 class CoronaMonitor:
 
     def __init__(self, agent):

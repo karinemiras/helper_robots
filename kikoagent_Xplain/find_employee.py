@@ -1,4 +1,4 @@
-import smtplib, ssl
+import smtplib
 
 
 class FindEmployee:
@@ -60,20 +60,17 @@ class FindEmployee:
                 self.agent.say(info)
 
                 self.agent.xplain.adopt('employee_info_given', 'cognition')
+                self.agent.xplain.adopt('employee_email', 'cognition', email)
 
             else:
                 self.agent.say(self.agent.get_sentence('find_employee', 'not_found',
                                                        [self.agent.xplain.belief_params('employee_name')]))
-                self.agent.xplain.drop('employee_name')
-                self.agent.xplain.drop('speech_text')
-                self.agent.xplain.adopt('input.unknown', 'cognition')
-                self.agent.xplain.adopt('waiting_answer', 'action')
+                self.agent.try_get_input_again('employee_name')
 
         if self.agent.xplain.is_belief('employee_info_given') and not self.agent.xplain.is_belief('visitor_name'):
-
             self.agent.say_and_wait(belief_type='visitor_name',
                                     say_text=self.agent.get_sentence('find_employee', 'offer_email'),
-                                    unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
+                                    unexpected_answer_topic='find_employee',
                                     timeout=self.agent.parameters['timeout_listening'])
 
         if self.agent.xplain.is_belief('visitor_name'):
@@ -82,33 +79,51 @@ class FindEmployee:
                 self.agent.say(self.agent.get_sentence('find_employee', 'ok_no'))
 
             else:
-                visitor_name = self.agent.xplain.belief_params('visitor_name')
-                visitor_name = visitor_name.replace(' ', '')
-                visitor_name = visitor_name.capitalize()
 
-                self.send_email(email,
-                                self.agent.get_sentence('find_employee', 'email', [visitor_name]))
+                if not self.agent.xplain.is_belief('correct_name'):
+                    self.agent.say_and_wait(belief_type='correct_name',
+                                            say_text=self.agent.get_sentence('find_employee', 'check_visitor',
+                                                         [self.agent.xplain.belief_params('visitor_name')]),
+                                            unexpected_answer_topic='find_employee',
+                                            timeout=self.agent.parameters['timeout_listening'])
 
-                self.agent.say(self.agent.get_sentence('find_employee', 'ok_yes'))
+                else:
+                    if self.agent.xplain.belief_params('correct_name') == 'yes':
 
-            self.agent.xplain.drop('employee_name')
-            self.agent.xplain.drop('visitor_name')
-            self.agent.xplain.drop('employee_info_given')
-            self.agent.clear_answer_beliefs()
-            self.agent.xplain.drop('helping')
+                        visitor_name = self.agent.xplain.belief_params('visitor_name')
+                        visitor_name = visitor_name.replace(' ', '')
+                        visitor_name = visitor_name.capitalize()
+
+                        self.send_email(self.agent.xplain.belief_params('employee_email'),
+                                        self.agent.get_sentence('find_employee', 'email', [visitor_name]))
+
+                        self.agent.say(self.agent.get_sentence('find_employee', 'ok_yes') +
+                                       self.agent.get_sentence('find_employee', 'social_distancing'))
+
+                        # ends this particular help
+                        self.agent.xplain.drop('employee_name')
+                        self.agent.xplain.drop('visitor_name')
+                        self.agent.xplain.drop('employee_info_given')
+                        self.agent.clear_answer_beliefs()
+                        self.agent.xplain.drop('helping')
+
+                    else:
+                        self.agent.try_get_input_again('visitor_name')
+                        self.agent.xplain.drop('correct_name')
 
     def send_email(self, email_to, email_text):
 
-        try:
-            sender_email = "kikorobotsteward@gmail.com"
-            password = "kikobabybot"
-            subject = 'Visitor coming'
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            server.ehlo()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, email_to, 'Subject: {}\n\n{}'.format(subject, email_text))
-            server.close()
+       # try:
+        print(email_to)
+        sender_email = "kikorobotsteward@gmail.com"
+        password = "kikobabybot"
+        subject = 'Visitor coming'
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.ehlo()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, email_to, 'Subject: {}\n\n{}'.format(subject, email_text))
+        server.close()
 
-        except:
-            print('email error')
-
+        # except:
+        #     print('email error')
+        #
