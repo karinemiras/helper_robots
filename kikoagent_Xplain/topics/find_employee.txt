@@ -11,5 +11,6 @@ ok_no|2|Ok.
 check_visitor|1|You spelt \\readmode=char\\ {}. Is this correct? Say yes or no.
 ok_yes|1|All right, e-mail sent!
 ok_yes|2|Ok, e-mail sent!
+email_fail|1|Oh...I tried to send the e-mail, but something went wrong.
 email|1|{} is looking for you in the lobby and intends to go to your office.
 offer_email|1|Should I send an e-mail to this person to inform that you're coming? \\pau=500\\ Importantly, I can not guarantee that this person will be available. To send an e-mail, please spell your surname. Otherwise, please say no.

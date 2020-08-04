@@ -77,7 +77,7 @@ class FindEmployee:
 
             if self.agent.xplain.belief_params('visitor_name') in ['no', 'nope', 'not']:
                 self.agent.say(self.agent.get_sentence('find_employee', 'ok_no'))
-
+                self.end_help()
             else:
 
                 if not self.agent.xplain.is_belief('correct_name'):
@@ -94,36 +94,43 @@ class FindEmployee:
                         visitor_name = visitor_name.replace(' ', '')
                         visitor_name = visitor_name.capitalize()
 
-                        self.send_email(self.agent.xplain.belief_params('employee_email'),
-                                        self.agent.get_sentence('find_employee', 'email', [visitor_name]))
+                        status = self.send_email(self.agent.xplain.belief_params('employee_email'),
+                                 self.agent.get_sentence('find_employee', 'email', [visitor_name]))
 
-                        self.agent.say(self.agent.get_sentence('find_employee', 'ok_yes') +
-                                       self.agent.get_sentence('find_employee', 'social_distancing'))
+                        if status:
+                            self.agent.say(self.agent.get_sentence('find_employee', 'ok_yes') +
+                                           self.agent.get_sentence('find_employee', 'social_distancing'))
+                        else:
+                            self.agent.say(self.agent.get_sentence('find_employee', 'email_fail'))
 
-                        # ends this particular help
-                        self.agent.xplain.drop('employee_name')
-                        self.agent.xplain.drop('visitor_name')
-                        self.agent.xplain.drop('employee_info_given')
-                        self.agent.clear_answer_beliefs()
-                        self.agent.xplain.drop('helping')
+                        self.end_help()
 
                     else:
                         self.agent.try_get_input_again('visitor_name')
                         self.agent.xplain.drop('correct_name')
 
+    def end_help(self):
+        # ends this particular help
+        self.agent.xplain.drop('employee_name')
+        self.agent.xplain.drop('visitor_name')
+        self.agent.xplain.drop('employee_info_given')
+        self.agent.clear_answer_beliefs()
+        self.agent.xplain.drop('helping')
+
     def send_email(self, email_to, email_text):
 
-       # try:
-        print(email_to)
-        sender_email = "kikorobotsteward@gmail.com"
-        password = "kikobabybot"
-        subject = 'Visitor coming'
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.ehlo()
-        server.login(sender_email, password)
-        server.sendmail(sender_email, email_to, 'Subject: {}\n\n{}'.format(subject, email_text))
-        server.close()
+        try:
+            sender_email = "kikorobotsteward@gmail.com"
+            password = "kikobabybot"
+            subject = 'Visitor coming'
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            server.ehlo()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, email_to, 'Subject: {}\n\n{}'.format(subject, email_text))
+            server.close()
 
-        # except:
-        #     print('email error')
-        #
+            return True
+
+        except:
+            return False
+
