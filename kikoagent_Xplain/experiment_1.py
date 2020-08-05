@@ -11,7 +11,6 @@ class Main:
         self.postgres = Postgres(parameters, self.log)
         self.agent = Agent(parameters, self.log, self.postgres)
 
-
         # magic_beliefs are for testing only:
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
@@ -20,13 +19,14 @@ class Main:
                        ,'which_floor': ['cogtition', 'second']
                          ,'which_wing': ['cogtition', 'east']
             , 'checkin_info': ['cogtition', '']
-             , 'type_of_help': ['cogtition', 'find employee']
+             , 'type_of_help': ['cogtition', 'entertainment']
             , 'disclaimer_visible': ['cogtition', '']
             , 'disclaimer_given': ['cogtition', '']
             , 'employee_name': ['cogtition', 'k a r i n e']
             , 'helping': ['cogtition', '']
             , 'employee_info_given': ['cogtition', '']
-
+            , 'type_of_entertainment': ['cogtition', 'poetry']
+            , 'given_word': ['cogtition', 'table']
         }
 
         self.agent.load_magic_beliefs(magic_beliefs)

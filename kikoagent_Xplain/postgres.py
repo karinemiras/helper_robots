@@ -53,4 +53,3 @@ class Postgres:
         except Exception as error:
             self.log.write('\nERROR db check_badword: {}'.format(error))
 
-

@@ -8,9 +8,19 @@ class FreestylePoetry:
     def __init__(self, agent):
         self.agent = agent
 
+        self.to_be_dict = {'I': ['am', 'am not', 'was', 'was not', 'will be', 'will not be'],
+                      'you': ['are', 'are not', 'were', 'were not', 'will be', 'will not be'],
+                      'we': ['are', 'are not', 'were', 'were not', 'will be', 'will not be'],
+                      'they': ['are', 'are not', 'were', 'were not', 'will be', 'will not be'],
+                      'he': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
+                      'she': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
+                      'it': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
+                      'this': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
+                      }
+        
     def act(self):
 
-        number_rhymes = 4
+        number_verses = 4
         selected_rhymes = []
         records = []
 
@@ -28,13 +38,30 @@ class FreestylePoetry:
             word = self.agent.xplain.belief_params('given_word').strip()
 
             if not self.agent.postgres.check_badwords(word):
+
+                try:
+                    cursor = self.agent.postgres.connection.cursor()
+                    query = "select word, category from all_words where lower(word) = lower(%s) " \
+                            "and category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
+                    cursor.execute(query, (word,))
+                    records = cursor.fetchall()
+                    cursor.close()
+                except Exception as error:
+                    self.agent.log.write('\nERROR db checkword: {}'.format(error))
+
+                print(records)
+                if len(records) > 0:
+                    self.write_sentence(word, records[0][1])
+                    self.write_sentence()
+                    self.write_sentence()
+                    self.write_sentence()
+
                 try:
                     cursor = self.agent.postgres.connection.cursor()
                     query = "select * from rhymes where lower(title) = lower(%s) "
                     cursor.execute(query, (word,))
                     records = cursor.fetchall()
                     cursor.close()
-
                 except Exception as error:
                     self.agent.log.write('\nERROR db get_rhymes: {}'.format(error))
 
@@ -58,17 +85,15 @@ class FreestylePoetry:
                 # TODO: remove rhymes that are in bad words dic
 
                 if len(rhymes) > 0:
-                    number_rhymes = min(len(rhymes), number_rhymes)
+                    number_rhymes = min(len(rhymes), number_verses)
                     selected_rhymes = np.random.choice(rhymes, number_rhymes, replace=False)
 
             if len(selected_rhymes) > 0:
-                sentense = '\\rspd=60\\' + word + ', rhymes with '
+                poem = '\\rspd=60\\' + word + ', rhymes with '
                 for rhyme in selected_rhymes:
-                    sentense += rhyme + ', '
+                    poem += rhyme + ', '
 
-                for i in range(0, 100):
-                    self.write_sentence()
-                self.agent.say(sentense)
+                self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready') + poem)
                 self.agent.sic.play_audio('audio/aplauses.wav')
 
                 self.agent.xplain.drop('type_of_entertainment')
@@ -84,35 +109,30 @@ class FreestylePoetry:
     def sample_word(self, category, subcategory=None):
         cursor = self.agent.postgres.connection.cursor()
         if subcategory is not None:
-            query = "select word from words where category=%s and subcategory=%s and active=TRUE order by random() limit 1"
+            query = "select word from words_rhymes where " \
+                    "category=%s and subcategory=%s and active=TRUE order by random() limit 1"
             cursor.execute(query, (category, subcategory))
         else:
-            query = "select word from words where category=%s and active=TRUE order by random() limit 1"
+            query = "select word from words_rhymes where category=%s and active=TRUE order by random() limit 1"
             cursor.execute(query, (category,))
         records = cursor.fetchall()
         cursor.close()
         word = records[0][0]
         return word
 
-    def write_sentence(self):
+    def write_sentence(self, word='', category=None):
 
         verse = ''
         adv = ''
         adj = ''
 
-        to_be_dict = {'I': ['am', 'am not', 'was', 'was not', 'will be', 'will not be'],
-                      'you': ['are', 'are not', 'were', 'were not', 'will be', 'will not be'],
-                      'we': ['are', 'are not', 'were', 'were not', 'will be', 'will not be'],
-                      'they': ['are', 'are not', 'were', 'were not', 'will be', 'will not be'],
-                      'he': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
-                      'she': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
-                      'it': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
-                      'this': ['is', 'is not', 'was', 'was not', 'will be', 'will not be'],
-                      }
-
         articles = ['a', 'the']
 
-        verse_type = random.choice(['subject_adj', 'subject_noun', 'subject_adv', 'subject_verb'])
+        if category is None:
+            verse_type = random.choice(['subject_adj', 'subject_noun', 'subject_adv', 'subject_verb'])
+        else:
+            verse_type = 'subject_{}'.format(category)
+
         to_be = random.choice(range(0, 6))
         junctions = articles + [self.sample_word('pron', 'poss')]
         plu = inflect.engine()
@@ -121,11 +141,11 @@ class FreestylePoetry:
 
         if random.uniform(0, 1) > 0.5:
             subject = self.sample_word('pron', 'subj_pers')
-            to_be_ = to_be_dict[subject][to_be]
+            to_be_ = self.to_be_dict[subject][to_be]
         else:
             ref = random.choice(articles) if random.uniform(0, 1) > 0.5 else self.sample_word('pron', 'poss')
             subject = ref + ' ' + self.sample_word('noun')
-            to_be_ = to_be_dict['it'][to_be]
+            to_be_ = self.to_be_dict['it'][to_be]
 
         # subject to-be (adverb) adjective
         if verse_type == 'subject_adj':
@@ -133,7 +153,7 @@ class FreestylePoetry:
             if random.uniform(0, 1) > 0.5:
                 adv = self.sample_word('adv')
 
-            adj = self.sample_word('adj')
+            adj = self.sample_word('adj') if category is None else word
             molecules = [subject, to_be_, adv, adj]
             verse = ' '.join(molecules)
 
@@ -146,16 +166,16 @@ class FreestylePoetry:
                 if random.uniform(0, 1) > 0.5:
                     adv = self.sample_word('adv')
 
-            noun2 = self.sample_word('noun')
+            noun = self.sample_word('noun') if category is None else word
 
-            molecules = [subject, to_be_, junction, adv, adj, noun2]
+            molecules = [subject, to_be_, junction, adv, adj, noun]
             verse = ' '.join(molecules)
 
         if verse_type == 'subject_adv':
 
             junction = random.choice(junctions)
             noun = self.sample_word('noun')
-            adv = self.sample_word('adv')
+            adv = self.sample_word('adv') if category is None else word
             verb = self.sample_word('verb')
 
             plural = random.choice([True, False])
@@ -171,7 +191,7 @@ class FreestylePoetry:
 
             junction = random.choice(junctions)
             noun = self.sample_word('noun')
-            verb = self.sample_word('verb')
+            verb = self.sample_word('verb') if category is None else word
 
             if random.uniform(0, 1) > 0.5:
                 ending = ' to ' + self.sample_word('verb')
