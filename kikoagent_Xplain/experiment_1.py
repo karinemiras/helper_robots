@@ -26,7 +26,7 @@ class Main:
             , 'helping': ['cogtition', '']
             , 'employee_info_given': ['cogtition', '']
             , 'type_of_entertainment': ['cogtition', 'poetry']
-            , 'given_word': ['cogtition', 'table']
+            , 'given_word': ['cogtition', 'craft']
         }
 
         self.agent.load_magic_beliefs(magic_beliefs)
