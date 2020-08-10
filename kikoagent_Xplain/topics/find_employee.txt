@@ -1,16 +1,16 @@
-ask_name|1|Please, inform me the name \\pau=100\\ and surname of the employee by spelling it in moderate speed. For instance, for Bob Lee, say, b, o, b, l, e, e.
-ask_name|2|Please, tell me the name \\pau=100\\ and surname of the employee by spelling it in moderate speed. For example, for Bob Lee, say, b, o, b, l, e, e.
+ask_name|1|Please, inform me the name \pau=100\ and surname of the employee by spelling it in moderate speed. For instance, for Bob Lee, say, b, o, b, l, e, e.
+ask_name|2|Please, tell me the name \pau=100\ and surname of the employee by spelling it in moderate speed. For example, for Bob Lee, say, b, o, b, l, e, e.
 social_distancing|1|Please, remember to keep a distance of one and a half meters.
 social_distancing|2|Please, do not forget to keep a distance of one and a half meters.
-not_found|1|I could not find {}.
-not_found|2|I did not find {}.
-unexpected_answer|1|Oh, I'm sorry. Can you please spell it again?
-unexpected_answer|2|Oh, I'm sorry. Can you please spell it one more time?
+not_found|1|I'm sorry, I could not find {}.
+not_found|2|I'm sorry, I did not find {}.
+unexpected_answer|1|Hum... Can you please spell it again?
+unexpected_answer|2|Hum... Can you please spell it one more time?
 ok_no|1|All right.
 ok_no|2|Ok.
-check_visitor|1|You spelt \\readmode=char\\ {}. Is this correct? Say yes or no.
+check_visitor|1|You spelt \readmode=char\ {} \readmode=sent\ Is this correct? Say yes or no.
 ok_yes|1|All right, e-mail sent!
 ok_yes|2|Ok, e-mail sent!
 email_fail|1|Oh...I tried to send the e-mail, but something went wrong.
 email|1|{} is looking for you in the lobby and intends to go to your office.
-offer_email|1|Should I send an e-mail to this person to inform that you're coming? \\pau=500\\ Importantly, I can not guarantee that this person will be available. To send an e-mail, please spell your surname. Otherwise, please say no.
+offer_email|1|Should I send an e-mail to this person to inform that you're coming? \pau=500\ Importantly, I can not guarantee that this person will be available. To send an e-mail, please spell your surname. Otherwise, please say no.

@@ -31,6 +31,7 @@ class Agent:
         CoronaMonitor(self).clean_floor_occupations()
 
         self.sic = SIC(self, parameters)
+        #self.sic.tablet_open()
 
     def life_loop(self):
 
@@ -163,10 +164,30 @@ class Agent:
             self.sic.say_animated(text)
         else:
             self.sic.say(text)
-        print(text)
+
+        #self.sic.tablet_show(self.make_speech_html(text))
+
+        print('Say: ', text)
 
         self.speaking_semaphore.acquire()
         self.xplain.drop('speaking')
+
+    def make_speech_html(self, text):
+
+        html = '<nav class="navbar mb-5">' \
+               '<div class="navbar-brand listening_icon"></div>' \
+               '<div class="navbar-nav vu_logo"></div>' \
+               '</nav>' \
+               '<main class="container text-center"><h1>'
+
+        html += text
+
+        html += '</h1></main>' \
+                '<footer class="fixed-bottom">' \
+                '<p class="lead bg-light text-center speech_text"></p>' \
+                '</footer>'
+
+        return html
 
     def listen(self, context='', timeout=None):
         self.xplain.adopt('listening', 'action')

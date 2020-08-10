@@ -14,10 +14,10 @@ class FreestylePoetry:
 
         print('\n> freestyling poetry')
 
-        # self.agent.say_and_wait(belief_type='given_word',
-        #                         say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
-        #                         unexpected_answer_topic='freestyle_poetry',
-        #                         timeout=self.agent.parameters['timeout_listening'])
+        self.agent.say_and_wait(belief_type='given_word',
+                                say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
+                                unexpected_answer_topic='freestyle_poetry',
+                                timeout=self.agent.parameters['timeout_listening'])
 
         if self.agent.xplain.is_belief('given_word'):
 
@@ -29,16 +29,17 @@ class FreestylePoetry:
 
                 try:
                     cursor = self.agent.postgres.connection.cursor()
-                    # query = "select word, category from words_rhymes where lower(word) = lower(%s) " \
-                    #         "and category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
-                    query = "select word, category from words_rhymes where  " \
-                            " category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
+                    query = "select word, category from words_rhymes where lower(word) = lower(%s) " \
+                            "and category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
+                    # query = "select word, category from words_rhymes where  " \
+                    #         " category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
                     cursor.execute(query, (word,))
                     records = cursor.fetchall()
                     cursor.close()
                 except Exception as error:
                     self.agent.log.write('\nERROR db check suggested word: {}'.format(error))
-            print(records)
+            #print(records)
+            # if suggested word exists in the dictionary
             if len(records) > 0:
                 # fist verse uses word from user
                 ending, verse1 = self.write_verse(suggested_word=records[0][0], suggested_word_category=records[0][1])
@@ -46,17 +47,12 @@ class FreestylePoetry:
                 ending, verse3 = self.write_verse()
                 ending, verse4 = self.write_verse(rhyming=True, rhyming_word=ending)
 
-                # poem = ' \\pau=300\\ \\rspd=60\\ '
-                # poem += verse1 + '. '
-                # poem += verse2 + '. '
-                # poem += verse3 + '. '
-                # poem += verse4 + '.'
-                # self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]) + poem)
-
-                self.agent.say(verse1)
-                self.agent.say(verse2)
-                self.agent.say(verse3)
-                self.agent.say(verse4)
+                poem = ' \\pau=800\\ \\rspd=60\\ '
+                poem += verse1 + '. \\pau=300\\  '
+                poem += verse2 + '. \\pau=300\\ '
+                poem += verse3 + '. \\pau=300\\ '
+                poem += verse4 + '. \\pau=300\\ '
+                self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]) + poem)
 
                 self.agent.sic.play_audio('audio/aplauses.wav')
 
@@ -107,7 +103,8 @@ class FreestylePoetry:
 
         if rhyming:
             try:
-                print('rhyming_word',rhyming_word)
+
+                #print('rhyming_word',rhyming_word)
 
                 cursor = self.agent.postgres.connection.cursor()
                 query = "select syllable1,syllables2,syllables3,syllables4,syllables5, \
@@ -140,6 +137,7 @@ class FreestylePoetry:
                     cursor.execute(query)
                     records = cursor.fetchall()
 
+                    # if there are rhymes for that word
                     if len(records) > 0:
                         rhyme_word = records[0][0]
                         rhyme_category = records[0][1]
@@ -149,7 +147,7 @@ class FreestylePoetry:
                 else:
                     rhyming = False
 
-                print(records)
+                #print(records)
                 cursor.close()
 
             except Exception as error:
@@ -158,6 +156,7 @@ class FreestylePoetry:
             if suggested_word_category is not None:
                 verse_type = 'subject_{}'.format(suggested_word_category)
 
+        # if it is not rhyming or using a user's word, any category (sentence structure) is ok
         if verse_type == '':
             verse_type = random.choice(['subject_adj', 'subject_noun', 'subject_adv', 'subject_verb'])
 
@@ -165,17 +164,18 @@ class FreestylePoetry:
         junctions = articles + [self.sample_word('pron', 'poss')]
         plu = inflect.engine()
 
-        print('\n'+verse_type)
+        #print('\n'+verse_type)
 
-        if random.uniform(0, 1) > 0.5:
+        # uses a subject personal pronoun as subject
+        if random.uniform(0, 1) > 0.9:
             subject = self.sample_word('pron', 'subj_pers')
             to_be_ = to_be_dict[subject][to_be]
+        # a noun as subject
         else:
             ref = random.choice(junctions)
             subject = ref + ' ' + self.sample_word('noun')
             to_be_ = to_be_dict['it'][to_be]
 
-        # subject to-be (adverb) adjective
         if verse_type == 'subject_adj':
 
             if random.uniform(0, 1) > 0.5:
@@ -261,9 +261,9 @@ class FreestylePoetry:
             molecules = [noun, verb, ending_local]
             verse = ' '.join(molecules)
 
-        print(ending)
-        print(molecules)
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',verse)
+        #print(ending)
+        #print(molecules)
+        #print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',verse)
         return ending, verse
 
 

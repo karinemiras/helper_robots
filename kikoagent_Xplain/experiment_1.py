@@ -15,18 +15,19 @@ class Main:
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
         magic_beliefs = {'has_subject': ['cogtition', '']
-                         , 'in_or_out': ['cogtition', 'in']
-                       ,'which_floor': ['cogtition', 'second']
-                         ,'which_wing': ['cogtition', 'east']
-            , 'checkin_info': ['cogtition', '']
-             , 'type_of_help': ['cogtition', 'entertainment']
-            , 'disclaimer_visible': ['cogtition', '']
-            , 'disclaimer_given': ['cogtition', '']
-            , 'employee_name': ['cogtition', 'k a r i n e']
-            , 'helping': ['cogtition', '']
-            , 'employee_info_given': ['cogtition', '']
-            , 'type_of_entertainment': ['cogtition', 'poetry']
-            , 'given_word': ['cogtition', 'craft']
+                          , 'disclaimer_visible': ['cogtition', 'yes']
+                          , 'in_or_out': ['cogtition', 'in']
+                        ,'which_floor': ['cogtition', 'second']
+                          ,'which_wing': ['cogtition', 'east']
+             , 'checkin_info': ['cogtition', '']
+              , 'type_of_help': ['cogtition', 'find employee']
+             , 'disclaimer_given': ['cogtition', '']
+             , 'employee_name': ['cogtition', 'k a r i n e']
+             , 'helping': ['cogtition', '']
+            #  , 'employee_info_given': ['cogtition', '']
+            # , 'visitor_name': ['cogtition', 'an n a']
+            # , 'type_of_entertainment': ['cogtition', 'poetry']
+           # , 'given_word': ['cogtition', 'craft']
         }
 
         self.agent.load_magic_beliefs(magic_beliefs)
@@ -44,7 +45,7 @@ class Main:
 
 
 parameters = {
-            'server_ip': '192.168.1.35',
+            'server_ip': '192.168.0.105',
             'robot': 'nao',
             'dialogflow_key_file': 'miscellaneous/kikoagent-iajdfl-9d037d057933.json',
             'dialogflow_agent_id': 'kikoagent-iajdfl',

@@ -36,27 +36,8 @@ class FindEmployee:
 
             if len(records) > 0:
 
-                name = records[0][0]
-                location = records[0][2]
-                title = records[0][3]
-                email = records[0][4]
-                telefone = records[0][5]
-                group = records[0][6]
-
-                info = ''
-                if name is not None:
-                    info += name
-                if title is not None:
-                    info += ' is a '+title
-                if group is not None:
-                    info += ' who works in the '+group+'.'
-                if location is not None:
-                    info += ' \\pau=300\\ You can find this person at the '+location+'.'
-                if email is not None:
-                    info += ' \\pau=300\\ Or by the e-mail, '+email+'.'
-                if telefone is not None:
-                    info += ' \\pau=300\\ Or through the telephone, \\readmode=char\\ '+telefone+''
-
+                info, html = self.make_info(records)
+                #self.sic.tablet_show(html)
                 self.agent.say(info)
 
                 self.agent.xplain.adopt('employee_info_given', 'cognition')
@@ -109,6 +90,56 @@ class FindEmployee:
                         self.agent.try_get_input_again('visitor_name')
                         self.agent.xplain.drop('correct_name')
 
+    def make_info(self, records):
+
+        name = records[0][0]
+        location = records[0][2]
+        title = records[0][3]
+        email = records[0][4]
+        telefone = records[0][5]
+        group = records[0][6]
+
+        info = ''
+        content = ''
+        if name is not None:
+            info += name
+            content += ' <b>Name</b>' + name
+
+        if title is not None:
+            info += ' is a ' + title
+            content += '  </br> <b>Title</b>: ' + title
+
+        if group is not None:
+            info += ' who works in the ' + group + '.'
+            content += '  </br> <b>Group</b>: ' + group
+
+        if location is not None:
+            info += ' \\pau=300\\ You can find this person at the ' + location + '.'
+            content += ' </br> <b>Location</b>: ' + location
+
+        if email is not None:
+            info += ' \\pau=300\\ Or by the e-mail, ' + email + '.'
+            content += ' </br> <b>E-mail</b>: ' + email
+
+        if telefone is not None:
+            info += ' \\pau=300\\ Or through the telephone, \\readmode=char\\ ' + telefone
+            content += ' </br> <b>Telephone</b>: ' + telefone
+
+        html = '<nav class="navbar mb-5">' \
+               '<div class="navbar-brand listening_icon"></div>' \
+               '<div class="navbar-nav vu_logo"></div>' \
+               '</nav>' \
+               '<main class="container text-center"><p>'
+
+        html += content
+
+        html += '</p></main>' \
+                '<footer class="fixed-bottom">' \
+                '<p class="lead bg-light text-center speech_text"></p>' \
+                '</footer>'
+
+        return info, html
+
     def end_help(self):
         # ends this particular help
         self.agent.xplain.drop('employee_name')
@@ -129,8 +160,10 @@ class FindEmployee:
             server.sendmail(sender_email, email_to, 'Subject: {}\n\n{}'.format(subject, email_text))
             server.close()
 
+            self.agent.xplain.adopt('send_email', 'action', 'success')
             return True
 
         except:
+            self.agent.xplain.adopt('send_email', 'action', 'fail')
             return False
 
