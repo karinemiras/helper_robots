@@ -13,6 +13,7 @@ class SIC(AbstractSICConnector):
 
         self.set_dialogflow_key(parameters['dialogflow_key_file'])
         self.set_dialogflow_agent(parameters['dialogflow_agent_id'])
+        self.set_dialogflow_language('en-US')
         self.agent = agent
 
         self.start()

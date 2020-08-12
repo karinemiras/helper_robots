@@ -4,8 +4,8 @@ social_distancing|1|Please, remember to keep a distance of one and a half meters
 social_distancing|2|Please, do not forget to keep a distance of one and a half meters.
 not_found|1|I'm sorry, I could not find {}.
 not_found|2|I'm sorry, I did not find {}.
-unexpected_answer|1|Hum... \pau=300\  Can you please spell it again?
-unexpected_answer|2|Hum... \pau=300\  Can you please spell it one more time?
+unexpected_answer|1|\pau=100\ umm... \pau=300\  Can you please spell it again?
+unexpected_answer|2|\pau=100\umm... \pau=300\  Can you please spell it one more time?
 ok_no|1|All right.
 ok_no|2|Ok.
 check_visitor|1|You spelt \readmode=char\ {} \readmode=sent\ Is this correct? Say yes or no.

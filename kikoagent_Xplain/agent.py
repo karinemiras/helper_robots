@@ -31,6 +31,8 @@ class Agent:
 
         self.sic = SIC(self, parameters)
         self.sic.tablet_open()
+        self.sic.tablet_show('<p> fsdjnfkdsjfnskjfnskdjfnskd </p>')
+        print('>>>>>>passou')
         self.sic.enable_service('people_detection')
         self.sic.enable_service('intent_detection')
 

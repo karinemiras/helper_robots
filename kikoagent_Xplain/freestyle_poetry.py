@@ -29,8 +29,13 @@ class FreestylePoetry:
 
                 try:
                     cursor = self.agent.postgres.connection.cursor()
-                    query = "select word, category from words_rhymes where lower(word) = lower(%s) " \
-                            "and category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
+
+                    if word == 'anything':
+                        query = "select word, category from words_rhymes where  " \
+                                " category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
+                    else:
+                        query = "select word, category from words_rhymes where lower(word) = lower(%s) " \
+                                "and category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
 
                     cursor.execute(query, (word,))
                     records = cursor.fetchall()
@@ -38,32 +43,36 @@ class FreestylePoetry:
                 except Exception as error:
                     self.agent.log.write('\nERROR db check suggested word: {}'.format(error))
 
-            # if suggested word exists in the dictionary
-            if len(records) > 0:
-                # fist verse uses word from user
-                ending, verse1 = self.write_verse(suggested_word=records[0][0], suggested_word_category=records[0][1])
-                ending, verse2 = self.write_verse(rhyming=True, rhyming_word=ending)
-                ending, verse3 = self.write_verse()
-                ending, verse4 = self.write_verse(rhyming=True, rhyming_word=ending)
+                # if suggested word exists in the dictionary
+                if len(records) > 0:
+                    # fist verse uses word from user
+                    ending, verse1 = self.write_verse(suggested_word=records[0][0], suggested_word_category=records[0][1])
+                    ending, verse2 = self.write_verse(rhyming=True, rhyming_word=ending)
+                    ending, verse3 = self.write_verse()
+                    ending, verse4 = self.write_verse(rhyming=True, rhyming_word=ending)
 
-                poem = ' \\pau=800\\ \\rspd=85\\ '
-                poem += verse1 + '. \\pau=300\\  '
-                poem += verse2 + '. \\pau=300\\ '
-                poem += verse3 + '. \\pau=300\\ '
-                poem += verse4 + '. \\pau=300\\ '
-                self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]) + poem)
+                    poem = ' \\pau=800\\ \\rspd=85\\ '
+                    poem += verse1 + '. \\pau=300\\  '
+                    poem += verse2 + '. \\pau=300\\ '
+                    poem += verse3 + '. \\pau=300\\ '
+                    poem += verse4 + '. \\pau=300\\ '
+                    self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]) + poem)
 
-                self.agent.sic.play_audio('audio/aplauses.wav')
-                sleep(5)
+                    self.agent.sic.play_audio('audio/aplauses.wav')
+                    sleep(5)
 
-                self.agent.xplain.drop('type_of_entertainment')
-                self.agent.xplain.drop('given_word')
-                self.agent.clear_answer_beliefs()
-                self.agent.xplain.drop('helping')
+                    self.agent.xplain.drop('type_of_entertainment')
+                    self.agent.xplain.drop('given_word')
+                    self.agent.clear_answer_beliefs()
+                    self.agent.xplain.drop('helping')
 
-            # found no due rhymes for the word or word in undue:so asks for a second chance
+                # found no due rhymes for the word or word in undue:so asks for a second chance
+                else:
+                    self.agent.say(self.agent.get_sentence('freestyle_poetry', 'excuse', [word]))
+                    self.agent.try_get_input_again('given_word')
+
             else:
-                self.agent.say(self.agent.get_sentence('freestyle_poetry', 'excuse'))
+                self.agent.say(self.agent.get_sentence('general', 'badwords'))
                 self.agent.try_get_input_again('given_word')
 
     def sample_word(self, category, subcategory=None):
@@ -89,7 +98,7 @@ class FreestylePoetry:
         adv = ''
         adj = ''
 
-        articles = ['a', 'the']
+        articles = ['the'] #'a'
         
         to_be_dict = {'I': ['am', 'am not', 'was', 'was not', 'will be', 'will not be'],
                       'you': ['are', 'are not', 'were', 'were not', 'will be', 'will not be'],
@@ -130,7 +139,6 @@ class FreestylePoetry:
 
                     query = "select word,category from words_rhymes where word !='"+rhyming_word + \
                             "' and word in("+rhymes+") order by random() limit 1"
-
                     cursor.execute(query)
                     records = cursor.fetchall()
 
@@ -255,6 +263,7 @@ class FreestylePoetry:
             molecules = [noun, verb, ending_local]
             verse = ' '.join(molecules)
 
+        print(verse_type)
         return ending, verse
 
 

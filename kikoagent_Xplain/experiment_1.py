@@ -3,6 +3,7 @@ from log import Log
 from postgres import Postgres
 import sys
 
+
 class Main:
 
     def __init__(self, parameters):
@@ -23,13 +24,13 @@ class Main:
               , 'checkin_info': ['cogtition', '']
                , 'type_of_help': ['cogtition', 'entertainment']
 
-              , 'employee_name': ['cogtition', 'k a r i n e']
-              , 'helping': ['cogtition', '']
-            #  , 'employee_info_given': ['cogtition', '']
-            # , 'visitor_name': ['cogtition', 'an n a']
-            # , 'type_of_entertainment': ['cogtition', 'poetry']
+             , 'employee_name': ['cogtition', 'k a r i n e']
+            , 'helping': ['cogtition', '']
+             , 'employee_info_given': ['cogtition', '']
+        , 'visitor_name': ['cogtition', 'an n a']
+            , 'type_of_entertainment': ['cogtition', 'poetry']
 
-           # , 'given_word': ['cogtition', 'craft']
+         #   , 'given_word': ['cogtition', 'you']
         }
 
         self.agent.load_magic_beliefs(magic_beliefs)
