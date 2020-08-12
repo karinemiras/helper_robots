@@ -16,17 +16,19 @@ class Main:
         #{'belief': ['belieftype', 'params']}
         magic_beliefs = {'has_subject': ['cogtition', '']
                           , 'disclaimer_visible': ['cogtition', 'yes']
+            , 'disclaimer_given': ['cogtition', '']
                           , 'in_or_out': ['cogtition', 'in']
-                        ,'which_floor': ['cogtition', 'second']
-                          ,'which_wing': ['cogtition', 'east']
-             , 'checkin_info': ['cogtition', '']
-              , 'type_of_help': ['cogtition', 'find employee']
-             , 'disclaimer_given': ['cogtition', '']
-             , 'employee_name': ['cogtition', 'k a r i n e']
-             , 'helping': ['cogtition', '']
+                         ,'which_floor': ['cogtition', 'second']
+                           ,'which_wing': ['cogtition', 'east']
+              , 'checkin_info': ['cogtition', '']
+               , 'type_of_help': ['cogtition', 'entertainment']
+
+              , 'employee_name': ['cogtition', 'k a r i n e']
+              , 'helping': ['cogtition', '']
             #  , 'employee_info_given': ['cogtition', '']
             # , 'visitor_name': ['cogtition', 'an n a']
             # , 'type_of_entertainment': ['cogtition', 'poetry']
+
            # , 'given_word': ['cogtition', 'craft']
         }
 
@@ -37,15 +39,15 @@ class Main:
         while not self.agent.sleeping:
 
             print('>> life loop')
-            self.agent.life_loop()
-            # try:
-            #     self.agent.life_loop()
-            # except Exception as error:
-            #     self.log.write('ERROR loop: {}'.format(error))
+            #self.agent.life_loop()
+            try:
+                self.agent.life_loop()
+            except Exception as error:
+                self.log.write('ERROR loop: {}'.format(error))
 
 
 parameters = {
-            'server_ip': '192.168.0.105',
+            'server_ip': 'localhost',
             'robot': 'nao',
             'dialogflow_key_file': 'miscellaneous/kikoagent-iajdfl-9d037d057933.json',
             'dialogflow_agent_id': 'kikoagent-iajdfl',

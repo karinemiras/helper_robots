@@ -1,4 +1,4 @@
-import numpy as np
+from time import sleep
 import random
 import inflect
 
@@ -31,14 +31,13 @@ class FreestylePoetry:
                     cursor = self.agent.postgres.connection.cursor()
                     query = "select word, category from words_rhymes where lower(word) = lower(%s) " \
                             "and category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
-                    # query = "select word, category from words_rhymes where  " \
-                    #         " category in ('adv', 'adj', 'noun', 'verb') order by random() limit 1"
+
                     cursor.execute(query, (word,))
                     records = cursor.fetchall()
                     cursor.close()
                 except Exception as error:
                     self.agent.log.write('\nERROR db check suggested word: {}'.format(error))
-            #print(records)
+
             # if suggested word exists in the dictionary
             if len(records) > 0:
                 # fist verse uses word from user
@@ -47,7 +46,7 @@ class FreestylePoetry:
                 ending, verse3 = self.write_verse()
                 ending, verse4 = self.write_verse(rhyming=True, rhyming_word=ending)
 
-                poem = ' \\pau=800\\ \\rspd=60\\ '
+                poem = ' \\pau=800\\ \\rspd=85\\ '
                 poem += verse1 + '. \\pau=300\\  '
                 poem += verse2 + '. \\pau=300\\ '
                 poem += verse3 + '. \\pau=300\\ '
@@ -55,6 +54,7 @@ class FreestylePoetry:
                 self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]) + poem)
 
                 self.agent.sic.play_audio('audio/aplauses.wav')
+                sleep(5)
 
                 self.agent.xplain.drop('type_of_entertainment')
                 self.agent.xplain.drop('given_word')
@@ -104,8 +104,6 @@ class FreestylePoetry:
         if rhyming:
             try:
 
-                #print('rhyming_word',rhyming_word)
-
                 cursor = self.agent.postgres.connection.cursor()
                 query = "select syllable1,syllables2,syllables3,syllables4,syllables5, \
                          syllables6,syllables7,syllables8,syllables9,syllables10 " \
@@ -130,10 +128,9 @@ class FreestylePoetry:
                     rhymes = str([x.strip(' ').replace("'", "''") for x in rhymes]).strip("[]")
                     rhymes = rhymes.replace('"', "'")
 
-                    #print(rhymes)
                     query = "select word,category from words_rhymes where word !='"+rhyming_word + \
                             "' and word in("+rhymes+") order by random() limit 1"
-                    #print(query)
+
                     cursor.execute(query)
                     records = cursor.fetchall()
 
@@ -147,7 +144,6 @@ class FreestylePoetry:
                 else:
                     rhyming = False
 
-                #print(records)
                 cursor.close()
 
             except Exception as error:
@@ -163,8 +159,6 @@ class FreestylePoetry:
         to_be = random.choice(range(0, 6))
         junctions = articles + [self.sample_word('pron', 'poss')]
         plu = inflect.engine()
-
-        #print('\n'+verse_type)
 
         # uses a subject personal pronoun as subject
         if random.uniform(0, 1) > 0.9:
@@ -261,9 +255,6 @@ class FreestylePoetry:
             molecules = [noun, verb, ending_local]
             verse = ' '.join(molecules)
 
-        #print(ending)
-        #print(molecules)
-        #print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',verse)
         return ending, verse
 
 

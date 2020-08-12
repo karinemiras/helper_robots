@@ -37,11 +37,11 @@ class FindEmployee:
             if len(records) > 0:
 
                 info, html = self.make_info(records)
-                #self.sic.tablet_show(html)
+                self.agent.sic.tablet_show(html)
                 self.agent.say(info)
 
                 self.agent.xplain.adopt('employee_info_given', 'cognition')
-                self.agent.xplain.adopt('employee_email', 'cognition', email)
+                self.agent.xplain.adopt('employee_email', 'cognition', records[0][4])
 
             else:
                 self.agent.say(self.agent.get_sentence('find_employee', 'not_found',
@@ -161,9 +161,12 @@ class FindEmployee:
             server.close()
 
             self.agent.xplain.adopt('send_email', 'action', 'success')
+
             return True
 
-        except:
+        except Exception as error:
+            self.postgres.log.write('\nERROR db adopt: {}'.format(error))
             self.agent.xplain.adopt('send_email', 'action', 'fail')
+
             return False
 

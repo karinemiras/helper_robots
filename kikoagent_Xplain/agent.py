@@ -23,7 +23,6 @@ class Agent:
         self.looking_semaphore = Semaphore(0)
         self.listening_semaphore = Semaphore(0)
         self.listening_looking_semaphore = Semaphore(0)
-       # self.gesturing_semaphore = Semaphore(0)
 
         self.xplain = Xplain(self.postgres)
         self.topics = {}
@@ -31,13 +30,16 @@ class Agent:
         CoronaMonitor(self).clean_floor_occupations()
 
         self.sic = SIC(self, parameters)
-        #self.sic.tablet_open()
+        self.sic.tablet_open()
+        self.sic.enable_service('people_detection')
+        self.sic.enable_service('intent_detection')
 
     def life_loop(self):
 
         self.search_subject()
 
-        if not self.xplain.is_belief('disclaimer_visible'):
+        if not self.xplain.is_belief('disclaimer_visible') and self.xplain.is_belief('has_subject'):
+
             self.say_and_wait(belief_type='disclaimer_visible',
                               say_text=self.get_sentence('general', 'disclaimer_ask'),
                               unexpected_answer_params=[self.xplain.belief_params('speech_text')],
@@ -102,7 +104,6 @@ class Agent:
 
                 # wait a bit for subject to leave
                 sleep(15)
-                #self.turn()
 
     # say something and wait for a response; includes fallback;
     def say_and_wait(self,
@@ -132,7 +133,6 @@ class Agent:
                 self.say(self.get_sentence('general', 'no_answer_limit'))
                 self.xplain.dropall()
                 try_listen = False
-                #self.turn()
 
         # answer is unexpected
         if self.xplain.is_belief('input.unknown'):
@@ -165,7 +165,7 @@ class Agent:
         else:
             self.sic.say(text)
 
-        #self.sic.tablet_show(self.make_speech_html(text))
+        self.sic.tablet_show(self.make_speech_html(text))
 
         print('Say: ', text)
 
@@ -191,8 +191,8 @@ class Agent:
 
     def listen(self, context='', timeout=None):
         self.xplain.adopt('listening', 'action')
-        self.sic.set_audio_context(context)
-        self.sic.start_listening()
+        self.sic.set_dialogflow_context(context)
+        self.sic.start_listening(0)
         if timeout is not None:
             self.listening_semaphore.acquire(timeout=timeout)
         else:
@@ -207,9 +207,9 @@ class Agent:
 
             self.xplain.adopt('listening_looking', 'action')
 
-            self.sic.set_audio_context(context)
-            self.sic.start_listening()
-            self.sic.start_looking()
+            self.sic.set_dialogflow_context(context)
+            self.sic.start_listening(0)
+            self.sic.start_looking(0)
 
             if timeout is not None:
                 self.listening_looking_semaphore.acquire(timeout=timeout)
@@ -218,7 +218,6 @@ class Agent:
 
             self.sic.stop_listening()
             self.sic.stop_looking()
-
             self.xplain.drop('listening_looking')
 
             # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.

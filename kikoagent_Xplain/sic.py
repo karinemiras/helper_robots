@@ -9,7 +9,7 @@ class SIC(AbstractSICConnector):
                  parameters
                  ):
 
-        super(SIC, self).__init__(parameters['server_ip'], parameters['robot'])
+        super(SIC, self).__init__(parameters['server_ip'])
 
         self.set_dialogflow_key(parameters['dialogflow_key_file'])
         self.set_dialogflow_agent(parameters['dialogflow_agent_id'])
@@ -21,31 +21,11 @@ class SIC(AbstractSICConnector):
 
     # events processing
 
-    def on_robot_event(self, event):
+    def on_event(self, event):
         print('\n on_robot_event', event)
 
         if event == 'TextDone':
             self.agent.speaking_semaphore.release()
-
-        # if event == 'GestureDone':
-        #     self.agent.gesturing_semaphore.release()
-
-        # always listening to touch sensors, and uses touch to identify that there is a subject?
-        # touch_sensors = ['RightBumperPressed',
-        #                  'LeftBumperPressed',
-        #                  'BackBumperPressed',
-        #                  'FrontTactilTouched',
-        #                  'MiddleTactilTouched',
-        #                  'RearTactilTouched',
-        #                  'HandRightBackTouched',
-        #                  'HandRightLeftTouched',
-        #                  'HandRightRightTouched',
-        #                  'HandLeftBackTouched',
-        #                  'HandLeftLeftTouched',
-        #                  'HandLeftRightTouched']
-        # if event in touch_sensors:
-        #     self.agent.xplain.adopt('subject_touched', 'cognition')
-        #     #self.agent.has_subject(True)
 
     def on_person_detected(self):
         print('\n on_person_detected')
@@ -60,30 +40,37 @@ class SIC(AbstractSICConnector):
 
         #self.agent.xplain.adopt('familiar_subject', 'cognition')
 
-    def on_speech_text(self, text):
-        print('\n on_speech_text', text)
+    def on_audio_intent(self, detection_result):
+        print('\n on_audio_intent',detection_result)
 
-        self.agent.xplain.drop('speech_text')
-        self.agent.xplain.adopt('speech_text', 'cognition', text)
-
-    def on_audio_intent(self, *args, intent_name):
-        print('\n on_audio_intent', intent_name, args)
-
+        intent_name = detection_result.intent
+        confidence = detection_result.confidence
+        speech_text = detection_result.text
         params = ''
-        for param in args:
-            params += param + '|'
-        params = params[0:-1]
+
+        if len(detection_result.parameters) > 0:
+            for param in detection_result.parameters:
+                print(param, detection_result.parameters[param].string_value)
+                params += detection_result.parameters[param].string_value + '|'
+            params = params[0:-1]
 
         self.agent.xplain.adopt(intent_name, 'cognition', params)
 
         missing_params = False
+        # if this intent expects params and the params received are not the expected ones
         if intent_name in self.agent.xplain.get_intents_entities():
             if params not in self.agent.xplain.get_intents_entities()[intent_name]:
                 missing_params = True
 
+        self.agent.xplain.drop('speech_text')
         # intents that miss due params or return undue values should be dropped
         if missing_params and intent_name != 'input.unknown':
             self.agent.xplain.drop(intent_name)
+            self.agent.xplain.adopt('speech_text', 'cognition', params)
+
+        # updates rhe speech to text with exact content, unless something undue was extracted as param
+        else:
+            self.agent.xplain.adopt('speech_text', 'cognition', speech_text)
 
         # due intents
         if intent_name != 'input.unknown':

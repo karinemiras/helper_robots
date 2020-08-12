@@ -12,27 +12,6 @@ class Xplain:
         self.postgres = postgres
         self.intents_entities = self.get_intents_entities()
         self.dropall()
-        
-    # registers active beliefs when an action starts
-    def register_beliefs_of_action(self, id_belief):
-
-        cursor = self.postgres.connection.cursor()
-        query = "select id from beliefs where active = True and id != %s"
-        cursor.execute(query, (id_belief, ))
-        records = cursor.fetchall()
-        query = """ INSERT INTO beliefs_of_action (action_belief_id, active_belief_id) VALUES (%s, %s) """
-
-        if len(records) > 0:
-            for belief in records:
-                params = (id_belief, belief[0])
-                cursor.execute(query, params)
-        else:
-            # actions taken when there is no beliefs are known
-            params = (id_belief, -1)
-            cursor.execute(query, params)
-
-        self.postgres.connection.commit()
-        cursor.close()
 
     def adopt(self, belief, belieftype, params=''):
         try:
@@ -44,8 +23,6 @@ class Xplain:
                 cursor.execute(query, params)
                 self.postgres.connection.commit()
 
-                if belieftype == 'action':
-                    self.register_beliefs_of_action(cursor.fetchone()[0])
                 cursor.close()
 
         except Exception as error:

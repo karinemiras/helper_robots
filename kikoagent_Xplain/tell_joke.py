@@ -1,5 +1,5 @@
 import random
-
+from time import sleep
 
 class TellJoke:
 
@@ -28,9 +28,9 @@ class TellJoke:
         text = self.agent.get_sentence('tell_joke', 'warn_start') + ' \\pau=800\\ \\rspd=85\\ ' + joke
         self.agent.say(text)
 
-        type_laugh = random.choice(['1', '2'])
-
-        self.agent.sic.play_audio('audio/laugh{}.wav'.format(type_laugh))
+        type_laugh = random.choice(['laugh1.wav', 'laugh3.mp3', 'laugh4.mp3', 'laugh5.mp3'])
+        self.agent.sic.play_audio('audio/{}'.format(type_laugh))
+        sleep(4)
 
         self.agent.xplain.drop('type_of_entertainment')
         self.agent.clear_answer_beliefs()

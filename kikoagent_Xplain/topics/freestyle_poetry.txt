@@ -2,6 +2,6 @@ ask_word|1|Give me a word that is  \pau=100\ not pronoun or preposition!
 ask_word|2|Suggest me a word that is  \pau=100\ not pronoun or preposition!
 unexpected_answer|1|Can I try again? Give me another word.
 unexpected_answer|2|Can you give me another chance? Say another word.
-excuse|1|Oh no, I'm out of ideas for this word!
-excuse|2|I'm sorry, I'm out of ideas for this word!
+excuse|1|Oh no, I don't know how to rhyme with for this word!
+excuse|2|I'm sorry, I don't know how to rhyme with for this word!
 ready|1|Ok, {}, here I go.
