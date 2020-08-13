@@ -11,10 +11,15 @@ class SIC(AbstractSICConnector):
 
         super(SIC, self).__init__(parameters['server_ip'])
 
+        self.agent = agent
+        self.enable_service('intent_detection')
+        sleep(1)  # give the service some time to load
+        self.set_dialogflow_language('en-US')
         self.set_dialogflow_key(parameters['dialogflow_key_file'])
         self.set_dialogflow_agent(parameters['dialogflow_agent_id'])
-        self.set_dialogflow_language('en-US')
-        self.agent = agent
+        self.tablet_open()
+        sleep(1)
+        self.enable_service('people_detection')
 
         self.start()
         self.set_language('en-US')

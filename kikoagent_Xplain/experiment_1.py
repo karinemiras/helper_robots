@@ -16,19 +16,18 @@ class Main:
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
         magic_beliefs = {'has_subject': ['cogtition', '']
-                          , 'disclaimer_visible': ['cogtition', 'yes']
-            , 'disclaimer_given': ['cogtition', '']
-                          , 'in_or_out': ['cogtition', 'in']
-                         ,'which_floor': ['cogtition', 'second']
-                           ,'which_wing': ['cogtition', 'east']
-              , 'checkin_info': ['cogtition', '']
-               , 'type_of_help': ['cogtition', 'entertainment']
-
-             , 'employee_name': ['cogtition', 'k a r i n e']
-            , 'helping': ['cogtition', '']
-             , 'employee_info_given': ['cogtition', '']
-        , 'visitor_name': ['cogtition', 'an n a']
-            , 'type_of_entertainment': ['cogtition', 'poetry']
+       #                    , 'disclaimer_visible': ['cogtition', 'yes']
+       #      , 'disclaimer_given': ['cogtition', '']
+       #                    , 'in_or_out': ['cogtition', 'in']
+       #                   ,'which_floor': ['cogtition', 'second']
+       #                     ,'which_wing': ['cogtition', 'east']
+       #        , 'checkin_info': ['cogtition', '']
+       #         , 'type_of_help': ['cogtition', 'find employee']
+       #       , 'employee_name': ['cogtition', 'k a r i n e']
+       #      , 'helping': ['cogtition', '']
+       # #      , 'employee_info_given': ['cogtition', '']
+      #  , 'visitor_name': ['cogtition', 'an n a']
+         #   , 'type_of_entertainment': ['cogtition', 'poetry']
 
          #   , 'given_word': ['cogtition', 'you']
         }

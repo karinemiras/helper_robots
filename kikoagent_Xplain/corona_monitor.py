@@ -13,6 +13,7 @@ class CoronaMonitor:
             print('\n> carrying out corona monitor')
 
             self.agent.drop_perception_of_subject()
+            self.agent.tablet.reset_extras()
 
             if not self.agent.xplain.is_belief('in_or_out'):
                 self.agent.say_and_wait(belief_type='in_or_out',
@@ -92,7 +93,7 @@ class CoronaMonitor:
     def check_occupation(self):
         try:
             cursor = self.agent.postgres.connection.cursor()
-            query = "select occupation from occupation_building where floor=%s and wing=%s"
+            query = "select occupation from occupation_building_history where active=True and floor=%s and wing=%s"
             cursor.execute(query, (self.agent.xplain.belief_params('which_floor'),
                                    self.agent.xplain.belief_params('which_wing')))
             records = cursor.fetchall()
@@ -111,7 +112,7 @@ class CoronaMonitor:
 
         try:
             cursor = self.agent.postgres.connection.cursor()
-            query = "update occupation_building set occupation=%s where floor=%s and wing=%s"
+            query = "update occupation_building_history set occupation=%s where active=True and floor=%s and wing=%s"
             cursor.execute(query, (new_occupation,
                                    self.agent.xplain.belief_params('which_floor'),
                                    self.agent.xplain.belief_params('which_wing')))
@@ -125,7 +126,10 @@ class CoronaMonitor:
 
         try:
             cursor = self.agent.postgres.connection.cursor()
-            query = "update occupation_building set occupation=0"
+            query = "update occupation_building_history set active=False where active=True"
+            cursor.execute(query)
+            query = "insert into occupation_building_history (datetime, floor, occupation, wing, active) \
+                        (select now(), floor, occupation, wing, True   from occupation_building)"
             cursor.execute(query)
             cursor.close()
 

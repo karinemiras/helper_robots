@@ -36,8 +36,8 @@ class FindEmployee:
 
             if len(records) > 0:
 
-                info, html = self.make_info(records)
-                self.agent.sic.tablet_show(html)
+                info = self.make_info(records)
+                self.agent.sic.tablet_show(self.agent.tablet.get_body(extras_type='employee', extras_params=records))
                 self.agent.say(info)
 
                 self.agent.xplain.adopt('employee_info_given', 'cognition')
@@ -100,45 +100,25 @@ class FindEmployee:
         group = records[0][6]
 
         info = ''
-        content = ''
         if name is not None:
             info += name
-            content += ' <b>Name</b>' + name
 
         if title is not None:
             info += ' is a ' + title
-            content += '  </br> <b>Title</b>: ' + title
 
         if group is not None:
             info += ' who works in the ' + group + '.'
-            content += '  </br> <b>Group</b>: ' + group
 
         if location is not None:
             info += ' \\pau=300\\ You can find this person at the ' + location + '.'
-            content += ' </br> <b>Location</b>: ' + location
 
         if email is not None:
             info += ' \\pau=300\\ Or by the e-mail, ' + email + '.'
-            content += ' </br> <b>E-mail</b>: ' + email
 
         if telefone is not None:
             info += ' \\pau=300\\ Or through the telephone, \\readmode=char\\ ' + telefone
-            content += ' </br> <b>Telephone</b>: ' + telefone
 
-        html = '<nav class="navbar mb-5">' \
-               '<div class="navbar-brand listening_icon"></div>' \
-               '<div class="navbar-nav vu_logo"></div>' \
-               '</nav>' \
-               '<main class="container text-center"><p>'
-
-        html += content
-
-        html += '</p></main>' \
-                '<footer class="fixed-bottom">' \
-                '<p class="lead bg-light text-center speech_text"></p>' \
-                '</footer>'
-
-        return info, html
+        return info
 
     def end_help(self):
         # ends this particular help
@@ -165,7 +145,7 @@ class FindEmployee:
             return True
 
         except Exception as error:
-            self.postgres.log.write('\nERROR db adopt: {}'.format(error))
+            self.agent.postgres.log.write('\nERROR db sendemail: {}'.format(error))
             self.agent.xplain.adopt('send_email', 'action', 'fail')
 
             return False

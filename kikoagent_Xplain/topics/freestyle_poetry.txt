@@ -1,4 +1,4 @@
-ask_word|1|Suggest me a word, or say the word \pau=50\. Anything \pau=100\ if you have no suggestions.
+ask_word|1|Suggest me a word, or say the word \pau=100\ anything \pau=100\ if you have no suggestions.
 unexpected_answer|1|Can I try again? Give me another word.
 unexpected_answer|2|Can you give me another chance? Say another word.
 excuse|1|Oh no, I'm out of ideas for {}!

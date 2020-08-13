@@ -1,5 +1,6 @@
 from xplain import Xplain
 from sic import SIC
+from tablet import Tablet
 from find_employee import FindEmployee
 from entertainment import Entertainment
 from corona_monitor import CoronaMonitor
@@ -28,13 +29,10 @@ class Agent:
         self.topics = {}
         self.load_topics()
         CoronaMonitor(self).clean_floor_occupations()
+        self.tablet = Tablet(self)
 
         self.sic = SIC(self, parameters)
-        self.sic.tablet_open()
-        self.sic.tablet_show('<p> fsdjnfkdsjfnskjfnskdjfnskd </p>')
-        print('>>>>>>passou')
-        self.sic.enable_service('people_detection')
-        self.sic.enable_service('intent_detection')
+        self.sic.tablet_show(self.tablet.get_body(extras_type='disclaimer'))
 
     def life_loop(self):
 
@@ -71,8 +69,12 @@ class Agent:
 
     def offer_help(self, greetings):
 
+            self.tablet.extras_type = None
+
             if self.xplain.is_belief('type_of_help') and not self.xplain.is_belief('helping'):
                 print('\n> offering more help')
+
+                self.tablet.reset_extras()
 
                 self.xplain.drop('type_of_help')
                 self.say_and_wait(belief_type='type_of_help',
@@ -162,45 +164,29 @@ class Agent:
     def say(self, text, say_animated=True):
 
         self.xplain.adopt('speaking', 'action', text)
+        self.sic.tablet_show(self.tablet.get_body(dialog=text))
+        print('Say: ', text)
+
         if say_animated:
             self.sic.say_animated(text)
         else:
             self.sic.say(text)
 
-        self.sic.tablet_show(self.make_speech_html(text))
-
-        print('Say: ', text)
-
         self.speaking_semaphore.acquire()
         self.xplain.drop('speaking')
-
-    def make_speech_html(self, text):
-
-        html = '<nav class="navbar mb-5">' \
-               '<div class="navbar-brand listening_icon"></div>' \
-               '<div class="navbar-nav vu_logo"></div>' \
-               '</nav>' \
-               '<main class="container text-center"><h1>'
-
-        html += text
-
-        html += '</h1></main>' \
-                '<footer class="fixed-bottom">' \
-                '<p class="lead bg-light text-center speech_text"></p>' \
-                '</footer>'
-
-        return html
 
     def listen(self, context='', timeout=None):
         self.xplain.adopt('listening', 'action')
         self.sic.set_dialogflow_context(context)
         self.sic.start_listening(0)
+        print('listenting...')
         if timeout is not None:
             self.listening_semaphore.acquire(timeout=timeout)
         else:
             self.listening_semaphore.acquire()
 
         self.sic.stop_listening()
+        print('stop listenting...')
         self.xplain.drop('listening')
         # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
         sleep(1)
@@ -212,6 +198,7 @@ class Agent:
             self.sic.set_dialogflow_context(context)
             self.sic.start_listening(0)
             self.sic.start_looking(0)
+            print('listenting and looking...')
 
             if timeout is not None:
                 self.listening_looking_semaphore.acquire(timeout=timeout)
@@ -220,6 +207,7 @@ class Agent:
 
             self.sic.stop_listening()
             self.sic.stop_looking()
+            print('stoped listenting and looking...')
             self.xplain.drop('listening_looking')
 
             # 1 second additional wait to give dialogflow some time to return a result after closing the audio stream.
@@ -234,17 +222,6 @@ class Agent:
             self.look_semaphore.acquire()
         self.sic.stop_looking()
         self.xplain.drop('looking')
-
-    def turn(self):
-        turn = random.choice(['left', 'right'])
-        print(turn)
-        self.sic.wake_up()
-        if turn == 'left':
-            self.sic.do_gesture('turn/turn_left')
-        if turn == 'right':
-            self.sic.do_gesture('turn/turn_right')
-        self.gesturing_semaphore.acquire()
-        self.sic.rest()
 
     def has_subject(self):
 

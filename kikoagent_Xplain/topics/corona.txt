@@ -1,5 +1,5 @@
-ask_inout|1|Ok. Are you going in \pau=40\ or out of the building. Say going in or going out.
-ask_inout|2|Ok. Are you going in \pau=40\ or out of the building. Say going in or going out.
+ask_inout|1|Ok. \pau=40\ Are you going in \pau=40\ or out of the building. Say going in or going out.
+ask_inout|2|All right. \pau=40\ Are you going in \pau=40\ or out of the building. Say going in or going out.
 checkout|1|All right, thank you and see you next time. Do not forget to check out!
 checkout|2|Ok, thank you! Have a nice rest, and please, remember to check out!
 ask_floor_in|1|Ok. And to which floor are you going? For example, first floor.

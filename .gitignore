@@ -5,3 +5,5 @@ goal_kiko
 *.json
 /*.json
 temp
+../old
+../docker
