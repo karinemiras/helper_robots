@@ -40,9 +40,9 @@ class Tablet:
         return footer
 
     def get_disclaimer(self):
-        disclaimer = '<p style="font-color:green">'
+        disclaimer = ' <h2 style="color: #009900;">Disclaimer</h2> '
         disclaimer += re.sub(r"\\[a-z]*=[a-z]*[0-9]*\\", '', self.agent.get_sentence('general', 'disclaimer_content'))
-        disclaimer += '</p>'
+
         return disclaimer
 
     def get_employee(self):
@@ -54,7 +54,7 @@ class Tablet:
         telefone = self.extras_params[0][5]
         group = self.extras_params[0][6]
 
-        employee = ''
+        employee = ' <h2 style="color: #009900;">Employee info</h2> '
         if name is not None:
             employee += ' <b>Name</b>: ' + name
 
@@ -75,31 +75,57 @@ class Tablet:
 
         return employee
 
+    def get_joke(self):
+
+        joke = ' <h2 style="color: #009900;">Human-made joke</h2> '
+        joke += re.sub(r"\\[a-z]*=[a-z]*[0-9]*\\", '', self.extras_params[1])
+        if self.extras_params[0] == 'laugh':
+            joke += '</br> <img src="img/laugh1.png" style="width: 180px; height: 180px;">'
+
+        return joke
+
+    def get_poetry(self):
+
+        poetry = ' <h2 style="color: #009900;">My freestyle</h2> '
+        for verse in self.extras_params[1]:
+            poetry += verse + '</br>'
+
+        if self.extras_params[0] == 'think':
+            poetry += '</br> <img src="img/think.png" style="width: 100px; height: 80px;">'
+
+        return poetry
+
     def reset_extras(self):
         self.extras = ''
         self.extras_type = None
 
     def get_dialog_div(self):
-        div = '<div style="width: 90%; height: 10%; font-size: 3vw;' \
+        # 'padding: 8px 12px; background-image: url(img/ballon.png");>' \
+        div = '<div style="width: 90%; height: 10%; font-size: 2vw;' \
                   'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
-                  'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
+                  'padding: 8px 12px;'\
+                  ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
                   ' {} ' \
               '</div> </br>'.format(self.dialog)
         return div
 
     def get_content(self):
-        print(self.extras_type )
-        print(self.extras )
         if self.extras_type == 'disclaimer':
             self.extras = self.get_disclaimer()
         if self.extras_type == 'employee':
             self.extras = self.get_employee()
+        if self.extras_type == 'joke':
+            self.extras = self.get_joke()
+        if self.extras_type == 'poetry':
+            self.extras = self.get_poetry()
 
-        content = '<div style="width: 90%; height: 30%; font-size: 14px;' \
-                      'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
-                      'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-                      ' {} ' \
-                  '</div>'.format(self.extras)
+        content = ''
+        if self.extras != '':
+            content = '<div style="width: 90%; height: 10%; font-color: green; font-size: 2.5vw;' \
+                          'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
+                          'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
+                          ' {} ' \
+                      '</div>'.format(self.extras)
 
         return self.get_dialog_div() + content
 

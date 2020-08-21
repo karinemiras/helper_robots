@@ -21,13 +21,17 @@ class TellJoke:
         except Exception as error:
             self.agent.log.write('\nERROR db get_rhymes: {}'.format(error))
 
+        self.agent.sic.tablet_show(self.agent.tablet.get_body(extras_type='joke', extras_params=['not_laugh', joke]))
+
         joke = joke.replace('?', '? \\pau=800\\ ')
         joke = joke.replace('.', '. \\pau=300\\ ')
         joke = joke.replace('"', ' \\pau=300\\ ')
 
         text = self.agent.get_sentence('tell_joke', 'warn_start') + ' \\pau=800\\ \\rspd=85\\ ' + joke
+
         self.agent.say(text)
 
+        self.agent.sic.tablet_show(self.agent.tablet.get_body(extras_type='joke', extras_params=['laugh', joke]))
         type_laugh = random.choice(['laugh1.wav', 'laugh3.mp3', 'laugh4.mp3', 'laugh5.mp3'])
         self.agent.sic.play_audio('audio/{}'.format(type_laugh))
         sleep(4)

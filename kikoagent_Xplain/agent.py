@@ -32,7 +32,6 @@ class Agent:
         self.tablet = Tablet(self)
 
         self.sic = SIC(self, parameters)
-        self.sic.tablet_show(self.tablet.get_body(extras_type='disclaimer'))
 
     def life_loop(self):
 
@@ -40,6 +39,7 @@ class Agent:
 
         if not self.xplain.is_belief('disclaimer_visible') and self.xplain.is_belief('has_subject'):
 
+            self.sic.tablet_show(self.tablet.get_body(extras_type='disclaimer'))
             self.say_and_wait(belief_type='disclaimer_visible',
                               say_text=self.get_sentence('general', 'disclaimer_ask'),
                               unexpected_answer_params=[self.xplain.belief_params('speech_text')],

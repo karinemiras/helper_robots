@@ -11,7 +11,6 @@ class FindEmployee:
         print('\n> finding employee')
 
         records = []
-        email = ''
         self.agent.xplain.adopt('helping', 'action', 'find employee')
 
         if not self.agent.xplain.is_belief('employee_name'):

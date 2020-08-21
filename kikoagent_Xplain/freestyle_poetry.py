@@ -45,18 +45,29 @@ class FreestylePoetry:
 
                 # if suggested word exists in the dictionary
                 if len(records) > 0:
+
+                    verses = []
                     # fist verse uses word from user
-                    ending, verse1 = self.write_verse(suggested_word=records[0][0], suggested_word_category=records[0][1])
-                    ending, verse2 = self.write_verse(rhyming=True, rhyming_word=ending)
-                    ending, verse3 = self.write_verse()
-                    ending, verse4 = self.write_verse(rhyming=True, rhyming_word=ending)
+                    ending, verse = self.write_verse(suggested_word=records[0][0], suggested_word_category=records[0][1])
+                    self.format_verse(verse, verses)
+                    ending, verse = self.write_verse(rhyming=True, rhyming_word=ending)
+                    self.format_verse(verse, verses)
+                    ending, verse = self.write_verse()
+                    self.format_verse(verse, verses)
+                    ending, verse = self.write_verse(rhyming=True, rhyming_word=ending)
+                    self.format_verse(verse, verses)
+
+                    self.agent.sic.tablet_show(
+                        self.agent.tablet.get_body(extras_type='poetry', extras_params=['not_think', verses]))
 
                     poem = ' \\pau=800\\ \\rspd=85\\ '
-                    poem += verse1 + '. \\pau=300\\  '
-                    poem += verse2 + '. \\pau=300\\ '
-                    poem += verse3 + '. \\pau=300\\ '
-                    poem += verse4 + '. \\pau=300\\ '
+                    for verse in verses:
+                        poem += verse + '. \\pau=300\\ '
+
                     self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]) + poem)
+
+                    self.agent.sic.tablet_show(
+                        self.agent.tablet.get_body(extras_type='poetry', extras_params=['think', verses]))
 
                     self.agent.sic.play_audio('audio/aplauses.wav')
                     sleep(5)
@@ -74,6 +85,10 @@ class FreestylePoetry:
             else:
                 self.agent.say(self.agent.get_sentence('general', 'badwords'))
                 self.agent.try_get_input_again('given_word')
+
+    def format_verse(self, verse, verses):
+        verse = verse.capitalize() + '.'
+        verses.append(verse)
 
     def sample_word(self, category, subcategory=None):
         cursor = self.agent.postgres.connection.cursor()

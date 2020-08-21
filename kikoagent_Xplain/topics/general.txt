@@ -23,4 +23,4 @@ badwords|1|Oh, I don't know why you're being mean to me. Can we try again?
 badwords|2|Uh, you used bad words. Can you please say something else?
 disclaimer_ask|1|Good day human being! Before I start: Are you able to visualize the disclaimer on my screen? Say yes or no.
 disclaimer_ask|2|Hello you! Before I start: Do you see the disclaimer on my screen? Say yes or no.
-disclaimer_content|1|You should know that I will not collect or distribute any personal data from you. \pau=500\
+disclaimer_content|1|I'm Kiko, a corona control staff. You should know that I will not collect or distribute any personal data from you. \pau=500\
