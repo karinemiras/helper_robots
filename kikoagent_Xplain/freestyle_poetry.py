@@ -25,6 +25,10 @@ class FreestylePoetry:
 
             word = self.agent.xplain.belief_params('given_word').strip()
 
+            plu = inflect.engine()
+            if plu.singular_noun(word):
+                word = plu.singular_noun(word)
+
             if not self.agent.postgres.check_badwords(word):
 
                 try:
@@ -64,12 +68,13 @@ class FreestylePoetry:
                     for verse in verses:
                         poem += verse + '. \\pau=300\\ '
 
-                    self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]) + poem)
+                    self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]))
+                    self.agent.say(poem, extra_text=True)
 
+                    self.agent.sic.play_audio('audio/aplauses.wav')
                     self.agent.sic.tablet_show(
                         self.agent.tablet.get_body(extras_type='poetry', extras_params=['think', verses]))
 
-                    self.agent.sic.play_audio('audio/aplauses.wav')
                     sleep(5)
 
                     self.agent.xplain.drop('type_of_entertainment')

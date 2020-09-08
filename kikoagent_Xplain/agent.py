@@ -49,7 +49,9 @@ class Agent:
 
             if self.xplain.belief_params('disclaimer_visible') == 'no' \
                     and not self.xplain.is_belief('disclaimer_given'):
-                self.say(self.get_sentence('general', 'disclaimer_content'))
+
+                self.sic.tablet_show(self.tablet.get_body(dialog=''))
+                self.say(self.get_sentence('general', 'disclaimer_content'), extra_text=True)
 
             else:
                 CoronaMonitor(self).act()
@@ -105,6 +107,8 @@ class Agent:
             elif self.xplain.belief_params('type_of_help') == 'nothing':
                 self.say(self.get_sentence('general', 'rejection_taken'))
                 self.xplain.dropall()
+                sleep(1)
+                self.sic.tablet_show(self.tablet.get_body(dialog=''))
 
                 # wait a bit for subject to leave
                 sleep(15)
@@ -137,6 +141,8 @@ class Agent:
                 self.say(self.get_sentence('general', 'no_answer_limit'))
                 self.xplain.dropall()
                 try_listen = False
+                sleep(1)
+                self.sic.tablet_show(self.tablet.get_body(dialog=''))
 
         # answer is unexpected
         if self.xplain.is_belief('input.unknown'):
@@ -161,10 +167,12 @@ class Agent:
         if try_listen:
             self.listen(belief_type, timeout)
 
-    def say(self, text, say_animated=True):
+    def say(self, text, say_animated=True, extra_text=False):
 
         self.xplain.adopt('speaking', 'action', text)
-        self.sic.tablet_show(self.tablet.get_body(dialog=text))
+        if not extra_text:
+            self.sic.tablet_show(self.tablet.get_body(dialog=text))
+
         print('Say: ', text)
 
         if say_animated:

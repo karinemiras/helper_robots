@@ -7,13 +7,19 @@ class Tablet:
         self.agent = agent
         self.dialog = None
         self.extras_type = None
+        self.you_said = None
         self.extras = ''
         self.extras_params = None
 
-    def get_body(self, dialog=None, extras_type=None, extras_params=None):
+    def get_body(self, dialog=None, you_said=None, extras_type=None, extras_params=None):
 
         if dialog is not None:
             self.dialog = re.sub(r"\\[a-z]*=[a-z]*[0-9]*\\", '', dialog)
+
+        if you_said is not None:
+            self.you_said = you_said
+        else:
+            self.you_said = None
 
         if extras_type is not None:
             self.extras_type = extras_type
@@ -80,7 +86,7 @@ class Tablet:
         joke = ' <h2 style="color: #009900;">Human-made joke</h2> '
         joke += re.sub(r"\\[a-z]*=[a-z]*[0-9]*\\", '', self.extras_params[1])
         if self.extras_params[0] == 'laugh':
-            joke += '</br> <img src="img/laugh1.png" style="width: 180px; height: 180px;">'
+            joke += '</br> <img src="img/laugh1.png" style="width: 140px; height: 140px;">'
 
         return joke
 
@@ -91,7 +97,7 @@ class Tablet:
             poetry += verse + '</br>'
 
         if self.extras_params[0] == 'think':
-            poetry += '</br> <img src="img/think.png" style="width: 100px; height: 80px;">'
+            poetry += '</br> <img src="img/think.png" style="width: 60px; height: 40px;">'
 
         return poetry
 
@@ -100,13 +106,25 @@ class Tablet:
         self.extras_type = None
 
     def get_dialog_div(self):
-        # 'padding: 8px 12px; background-image: url(img/ballon.png");>' \
-        div = '<div style="width: 90%; height: 10%; font-size: 2vw;' \
-                  'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
-                  'padding: 8px 12px;'\
-                  ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-                  ' {} ' \
-              '</div> </br>'.format(self.dialog)
+        div = ''
+        if self.dialog != '':
+            div = '<div style="width: 90%; height: 10%; font-size: 2vw;' \
+                      'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
+                      'padding: 8px 12px;'\
+                      ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
+                      ' <b>Kiko:</b> {} ' \
+                  '</div> </br>'.format(self.dialog)
+        return div
+
+    def get_yousaid_div(self):
+        div = ''
+        if self.you_said is not None:
+            div = '<div style="width: 90%; height: 10%; font-size: 2vw;' \
+                      'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
+                      'padding: 8px 12px;'\
+                      ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
+                      ' <b>You chose:</b> {} ' \
+                  '</div> </br>'.format(self.you_said)
         return div
 
     def get_content(self):
@@ -127,7 +145,7 @@ class Tablet:
                           ' {} ' \
                       '</div>'.format(self.extras)
 
-        return self.get_dialog_div() + content
+        return self.get_dialog_div() + self.get_yousaid_div() + content
 
     def update_dialog(self, text):
         self.dialog = text

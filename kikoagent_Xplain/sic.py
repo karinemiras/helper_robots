@@ -47,7 +47,7 @@ class SIC(AbstractSICConnector):
         #self.agent.xplain.adopt('familiar_subject', 'cognition')
 
     def on_audio_intent(self, detection_result):
-        print('\n on_audio_intent',detection_result)
+        print('\n on_audio_intent', detection_result)
 
         intent_name = detection_result.intent
         confidence = detection_result.confidence
@@ -59,6 +59,9 @@ class SIC(AbstractSICConnector):
                 print(param, detection_result.parameters[param].string_value)
                 params += detection_result.parameters[param].string_value + '|'
             params = params[0:-1]
+
+        if intent_name != 'input.unknown':
+            self.agent.sic.tablet_show(self.agent.tablet.get_body(you_said=params))
 
         self.agent.xplain.adopt(intent_name, 'cognition', params)
 
