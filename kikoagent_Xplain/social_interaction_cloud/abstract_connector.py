@@ -343,6 +343,9 @@ class AbstractSICConnector(object):
         A TextStarted event will be sent when the speaking starts and a TextDone event after it is finished."""
         self.__send('action_say_animated', text)
 
+    def action_stop_talking(self) -> None:
+        self.__send('action_stop_talking', '')
+
     def do_gesture(self, gesture: str) -> None:
         """Make the robot perform the given gesture. The list of available gestures (not tags!) is available on:
         http://doc.aldebaran.com/2-8/naoqi/motion/alanimationplayer-advanced.html (Nao)

@@ -24,6 +24,8 @@ class Agent:
         self.looking_semaphore = Semaphore(0)
         self.listening_semaphore = Semaphore(0)
         self.listening_looking_semaphore = Semaphore(0)
+        self.current_context = None
+        self.try_listen = False
 
         self.xplain = Xplain(self.postgres)
         self.topics = {}
@@ -40,6 +42,7 @@ class Agent:
         if not self.xplain.is_belief('disclaimer_visible') and self.xplain.is_belief('has_subject'):
 
             self.sic.tablet_show(self.tablet.get_body(extras_type='disclaimer'))
+
             self.say_and_wait(belief_type='disclaimer_visible',
                               say_text=self.get_sentence('general', 'disclaimer_ask'),
                               unexpected_answer_params=[self.xplain.belief_params('speech_text')],
@@ -75,22 +78,20 @@ class Agent:
 
             if self.xplain.is_belief('type_of_help') and not self.xplain.is_belief('helping'):
                 print('\n> offering more help')
-
                 self.tablet.reset_extras()
-
                 self.xplain.drop('type_of_help')
-                self.say_and_wait(belief_type='type_of_help',
-                                  say_text=self.get_sentence('general', 'offer_more_help'),
-                                  unexpected_answer_params=[self.xplain.belief_params('speech_text')],
-                                  timeout=self.parameters['timeout_listening'])
+                self.offer_help_flavors(self.get_sentence('general', 'offer_more_help'))
 
             if not self.xplain.is_belief('type_of_help'):
                 print('\n> offering help')
+                self.offer_help_flavors(self.get_sentence('general', 'offer_help', greetings))
 
-                self.say_and_wait(belief_type='type_of_help',
-                                  say_text=self.get_sentence('general', 'offer_help', greetings),
-                                  unexpected_answer_params=[self.xplain.belief_params('speech_text')],
-                                  timeout=self.parameters['timeout_listening'])
+    def offer_help_flavors(self, say_text):
+
+        self.say_and_wait(belief_type='type_of_help',
+                          say_text=say_text,
+                          unexpected_answer_params=[self.xplain.belief_params('speech_text')],
+                          timeout=self.parameters['timeout_listening'])
 
     def help(self):
 
@@ -106,12 +107,10 @@ class Agent:
             # when offer is rejected, agent abandons the subject
             elif self.xplain.belief_params('type_of_help') == 'nothing':
                 self.say(self.get_sentence('general', 'rejection_taken'))
-                self.xplain.dropall()
-                sleep(1)
-                self.sic.tablet_show(self.tablet.get_body(dialog=''))
+                self.give_up()
 
                 # wait a bit for subject to leave
-                sleep(15)
+                sleep(self.parameters['rejection_tryagain'])
 
     # say something and wait for a response; includes fallback;
     def say_and_wait(self,
@@ -125,7 +124,7 @@ class Agent:
                      unexpected_answer_params=None,
                      timeout=None):
 
-        try_listen = True
+        self.try_listen = True
 
         # no answer received
         if self.xplain.is_belief('waiting_answer') and \
@@ -139,10 +138,8 @@ class Agent:
                 self.xplain.increment('contact_attempt', str(attempts+1))
             else:
                 self.say(self.get_sentence('general', 'no_answer_limit'))
-                self.xplain.dropall()
-                try_listen = False
-                sleep(1)
-                self.sic.tablet_show(self.tablet.get_body(dialog=''))
+                self.try_listen = False
+                self.give_up()
 
         # answer is unexpected
         if self.xplain.is_belief('input.unknown'):
@@ -161,10 +158,16 @@ class Agent:
         # say it for the first time
         if self.xplain.is_belief('has_subject') and not(self.xplain.is_belief('waiting_answer')):
             self.xplain.adopt('contact_attempt', 'action', '1')
-            self.say(say_text)
-            self.xplain.adopt('waiting_answer', 'action')
 
-        if try_listen:
+            self.current_context = belief_type
+            if belief_type in self.xplain.get_intents_entities():
+                self.sic.tablet_show(self.tablet.get_body(buttons=self.xplain.get_intents_entities()[belief_type]))
+
+            self.say(say_text)
+            if self.try_listen:
+                self.xplain.adopt('waiting_answer', 'action')
+
+        if self.try_listen:
             self.listen(belief_type, timeout)
 
     def say(self, text, say_animated=True, extra_text=False):
@@ -188,6 +191,7 @@ class Agent:
         self.sic.set_dialogflow_context(context)
         self.sic.start_listening(0)
         print('listenting...')
+
         if timeout is not None:
             self.listening_semaphore.acquire(timeout=timeout)
         else:
@@ -299,3 +303,6 @@ class Agent:
         self.xplain.adopt('input.unknown', 'cognition')
         self.xplain.adopt('waiting_answer', 'action')
 
+    def give_up(self):
+        self.sic.tablet_show(self.tablet.resets_screen())
+        self.xplain.dropall()

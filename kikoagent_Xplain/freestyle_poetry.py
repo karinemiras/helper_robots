@@ -61,14 +61,18 @@ class FreestylePoetry:
                     ending, verse = self.write_verse(rhyming=True, rhyming_word=ending)
                     self.format_verse(verse, verses)
 
-                    self.agent.sic.tablet_show(
-                        self.agent.tablet.get_body(extras_type='poetry', extras_params=['not_think', verses]))
-
                     poem = ' \\pau=800\\ \\rspd=85\\ '
                     for verse in verses:
                         poem += verse + '. \\pau=300\\ '
 
                     self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]))
+
+                    print('before')
+                    self.agent.sic.tablet_show(
+                        self.agent.tablet.get_body(extras_type='poetry', extras_params=['not_think', verses]))
+
+                    print('after')
+
                     self.agent.say(poem, extra_text=True)
 
                     self.agent.sic.play_audio('audio/aplauses.wav')

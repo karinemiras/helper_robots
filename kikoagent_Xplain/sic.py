@@ -27,11 +27,36 @@ class SIC(AbstractSICConnector):
 
     # events processing
 
+    def on_tablet_answer(self, button):
+        print('\n on_tablet_answer', button)
+
+        button = button.strip()
+        if button == 'Leave me alone!':
+            self.action_stop_talking()
+            self.agent.give_up()
+            # wait a bit for subject to leave
+            sleep(self.agent.parameters['rejection_tryagain'])
+        else:
+
+            if button in self.agent.xplain.get_intents_entities()[self.agent.current_context]:
+                self.agent.tablet.buttons = []
+                self.agent.xplain.adopt(self.agent.current_context, 'cognition', button)
+
+                # in case listening has already started, refreshes it
+                self.agent.xplain.drop('speech_text')
+                self.agent.xplain.drop('waiting_answer')
+                self.agent.try_listen = False
+                if self.agent.xplain.is_belief('listening'):
+                    self.agent.listening_semaphore.release()
+
+            self.action_stop_talking()
+
     def on_event(self, event):
         print('\n on_robot_event', event)
 
         if event == 'TextDone':
-            self.agent.speaking_semaphore.release()
+            if self.agent.xplain.is_belief('speaking'):
+                self.agent.speaking_semaphore.release()
 
     def on_person_detected(self):
         print('\n on_person_detected')
@@ -61,7 +86,8 @@ class SIC(AbstractSICConnector):
             params = params[0:-1]
 
         if intent_name != 'input.unknown':
-            self.agent.sic.tablet_show(self.agent.tablet.get_body(you_said=params))
+            self.agent.sic.tablet_show(self.agent.tablet.get_body(you_chose=params))
+            self.agent.tablet.buttons = []
 
         self.agent.xplain.adopt(intent_name, 'cognition', params)
 

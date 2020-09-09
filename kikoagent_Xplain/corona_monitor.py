@@ -41,11 +41,7 @@ class CoronaMonitor:
                         self.agent.say(self.agent.get_sentence('corona', 'checkout'))
                         self.update_occupation()
                         self.agent.xplain.dropall()
-                        sleep(1)
-                        self.agent.sic.tablet_show(self.agent.tablet.get_body(dialog=''))
-
-                    # wait a bit for subject to leave
-                    sleep(15)
+                        self.agent.give_up()
 
                 if self.agent.xplain.belief_params('in_or_out') == 'in':
 

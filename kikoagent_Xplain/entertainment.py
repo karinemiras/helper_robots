@@ -11,11 +11,11 @@ class Entertainment:
 
         print('\n> proposing entertainment')
 
-        self.agent.xplain.adopt('helping', 'action', 'entertainment')
+        self.agent.xplain.adopt('helping', 'action')
 
         if self.agent.xplain.is_belief('type_of_entertainment'):
 
-            if self.agent.xplain.belief_params('type_of_entertainment') == 'poetry':
+            if self.agent.xplain.belief_params('type_of_entertainment') == 'freestyle':
                 FreestylePoetry(self.agent).act()
             if self.agent.xplain.belief_params('type_of_entertainment') == 'joke':
                 TellJoke(self.agent).act()

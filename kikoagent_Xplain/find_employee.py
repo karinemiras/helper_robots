@@ -11,7 +11,7 @@ class FindEmployee:
         print('\n> finding employee')
 
         records = []
-        self.agent.xplain.adopt('helping', 'action', 'find employee')
+        self.agent.xplain.adopt('helping', 'action')
 
         if not self.agent.xplain.is_belief('employee_name'):
             self.agent.say_and_wait(belief_type='employee_name',
