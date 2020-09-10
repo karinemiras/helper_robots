@@ -1,4 +1,5 @@
 import smtplib
+import string
 
 
 class FindEmployee:
@@ -6,14 +7,18 @@ class FindEmployee:
     def __init__(self, agent):
         self.agent = agent
 
+    def show_keyboard(self):
+        alphabet = list(string.ascii_lowercase)
+        self.agent.sic.tablet_show(self.agent.tablet.get_body(buttons=alphabet+['Delete']))
+
     def act(self):
 
         print('\n> finding employee')
 
-        records = []
         self.agent.xplain.adopt('helping', 'action')
 
         if not self.agent.xplain.is_belief('employee_name'):
+            self.show_keyboard()
             self.agent.say_and_wait(belief_type='employee_name',
                                     say_text=self.agent.get_sentence('find_employee', 'ask_name'),
                                     unexpected_answer_topic='find_employee',
@@ -21,23 +26,13 @@ class FindEmployee:
 
         if self.agent.xplain.is_belief('employee_name') and not self.agent.xplain.is_belief('employee_info_given'):
 
-            similarity_threshold = 0.4
-            try:
-                cursor = self.agent.postgres.connection.cursor()
-                query = "select * from (SELECT *, similarity(replace(name,' ',''), replace(%s,' ','')) AS sim " \
-                        "FROM employees order by sim desc limit 1 ) as f  where sim >= %s"
-                cursor.execute(query, (self.agent.xplain.belief_params('employee_name'), similarity_threshold))
-                records = cursor.fetchall()
-                cursor.close()
-
-            except Exception as error:
-                self.agent.log.write('\nERROR db find employee: {}'.format(error))
+            records = self.agent.postgres.query_employee(self.agent.xplain.belief_params('employee_name'))
 
             if len(records) > 0:
 
                 info = self.make_info(records)
                 self.agent.sic.tablet_show(self.agent.tablet.get_body(extras_type='employee', extras_params=records))
-                self.agent.say(info)
+                self.agent.say(info, extra_text=True)
 
                 self.agent.xplain.adopt('employee_info_given', 'cognition')
                 self.agent.xplain.adopt('employee_email', 'cognition', records[0][4])
@@ -48,6 +43,8 @@ class FindEmployee:
                 self.agent.try_get_input_again('employee_name')
 
         if self.agent.xplain.is_belief('employee_info_given') and not self.agent.xplain.is_belief('visitor_name'):
+            self.agent.tablet.reset_extras()
+            self.show_keyboard()
             self.agent.say_and_wait(belief_type='visitor_name',
                                     say_text=self.agent.get_sentence('find_employee', 'offer_email'),
                                     unexpected_answer_topic='find_employee',

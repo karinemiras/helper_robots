@@ -25,6 +25,8 @@ class Agent:
         self.listening_semaphore = Semaphore(0)
         self.listening_looking_semaphore = Semaphore(0)
         self.current_context = None
+        self.current_keyboard_search = ''
+        self.current_search_found = ''
         self.try_listen = False
 
         self.xplain = Xplain(self.postgres)
@@ -68,6 +70,7 @@ class Agent:
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
 
+            self.sic.tablet_show(self.tablet.get_body(reset=True))
             self.listen_and_look('proactive_subject', self.parameters['timeout_watchlook'])
             self.xplain.drop('speech_text')
             self.xplain.drop('input.unknown')
@@ -304,5 +307,5 @@ class Agent:
         self.xplain.adopt('waiting_answer', 'action')
 
     def give_up(self):
-        self.sic.tablet_show(self.tablet.resets_screen())
+        self.sic.tablet_show(self.tablet.get_body(reset=True))
         self.xplain.dropall()

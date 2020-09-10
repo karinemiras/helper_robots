@@ -15,14 +15,14 @@ class Main:
         # magic_beliefs are for testing only:
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
-        magic_beliefs = {'has_subject': ['cogtition', '']
-                #               , 'disclaimer_visible': ['cogtition', 'yes']
-                # , 'disclaimer_given': ['cogtition', '']
-                #               , 'in_or_out': ['cogtition', 'in']
-                #              ,'which_floor': ['cogtition', 'second']
-                #       #         ,'which_wing': ['cogtition', 'east']
-       #           , 'checkin_info': ['cogtition', '']
-       #          , 'type_of_help': ['cogtition', 'entertainment']
+        # magic_beliefs = {'has_subject': ['cogtition', '']
+        #                       , 'disclaimer_visible': ['cogtition', 'yes']
+        #         , 'disclaimer_given': ['cogtition', '']
+        #                       , 'in_or_out': ['cogtition', 'in']
+        #                      ,'which_floor': ['cogtition', 'second']
+        #                        ,'which_wing': ['cogtition', 'east']
+        #          , 'checkin_info': ['cogtition', '']
+        #         , 'type_of_help': ['cogtition', 'find employee']
        # #        , 'employee_name': ['cogtition', 'k a r i n e']
       #  , 'helping': ['cogtition', '']
        # #      , 'employee_info_given': ['cogtition', '']
@@ -30,9 +30,9 @@ class Main:
        #     , 'type_of_entertainment': ['cogtition', 'freestyle']
 
         # , 'given_word': ['cogtition', 'test']
-        }
+        #}
 
-        self.agent.load_magic_beliefs(magic_beliefs)
+        #self.agent.load_magic_beliefs(magic_beliefs)
 
     def run(self):
 

@@ -12,7 +12,7 @@ class Tablet:
         self.extras = ''
         self.extras_params = None
 
-    def get_body(self, dialog=None, you_chose=None, buttons=[], extras_type=None, extras_params=None):
+    def get_body(self, dialog=None, you_chose=None, buttons=[], extras_type=None, extras_params=None, reset=False):
 
         # previous dialog remains until there is a new dialog, but other divs get removed when switching topics
         if dialog is not None:
@@ -32,8 +32,24 @@ class Tablet:
         if extras_params is not None:
             self.extras_params = extras_params
 
-        body = self.get_header_html() + self.get_content() + self.get_footer_html()
+        body = self.get_header_html()
+
+        if not reset:
+            body += self.get_content()
+        else:
+            body += self.get_default()
+
+        body += self.get_footer_html()
+
         return body
+
+    def get_default(self):
+        div = '<div style="width: 90%; height: 10%; font-color: green; font-size: 4vw;' \
+              'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
+              'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
+              ' I am Coco, your Corona Control helper. ' \
+              '</div>'
+        return div
 
     def get_header_html(self):
         header = '<nav class="navbar mb-5">' \
@@ -51,7 +67,7 @@ class Tablet:
         return footer
 
     def get_disclaimer(self):
-        disclaimer = ' <h3 style="color: #009900;">Disclaimer</h1> '
+        disclaimer = ' <h4 style="color: #009900;">Disclaimer</h1> '
         disclaimer += re.sub(r"\\[a-z]*=[a-z]*[0-9]*\\", '', self.agent.get_sentence('general', 'disclaimer_content'))
 
         return disclaimer
@@ -59,15 +75,22 @@ class Tablet:
     def get_buttons(self):
 
         div = ''
-        if len(self.buttons) > 0:
-            div = '<div style="width: 90%; height: 10%; font-size: 2vw;' \
-                  'border: 1px solid #333; padding: 8px 12px;">'
+        div = '<div style="width: 90%; height: 10%; font-size: 1.6vw;' \
+              'border: 1px solid #333; padding: 8px 12px;">  ' \
+              '<img src="img/touch.gif" style="width: 50px; height: 50px; float:left;">'
 
-            for button in self.buttons:
-                div += '<button class="btn btn-primary btn-sm mt-2 ml-2">{}</button>'.format(button)
+        for button in self.buttons:
+            div += '<button class="btn btn-primary btn-sm mt-3 ml-3">{}</button>'.format(button)
 
-            div += '<button class="btn btn-warning btn-sm mt-2 ml-2">Leave me alone!</button>'  \
-                   '</div> </br>'
+        if self.agent.current_keyboard_search != '':
+            div += '</br><button class="btn btn-secondary btn-sm mt-3 ml-3">Typed: {}</button>'.format(self.agent.current_keyboard_search)
+
+        if self.agent.current_search_found != '':
+            div += '</br><button class="btn btn-secondary btn-sm mt-3 ml-3">Found: {}</button>'.format(self.agent.current_search_found)
+
+        div += '</br><button class="btn btn-warning btn-sm mt-3 ml-3">Skip dialog...</button>' \
+               '<button class="btn btn-warning btn-sm mt-3 ml-3">Leave me alone!</button>'  \
+               '</div> </br>'
         return div
 
     def get_employee(self):
@@ -79,7 +102,7 @@ class Tablet:
         telefone = self.extras_params[0][5]
         group = self.extras_params[0][6]
 
-        employee = ' <h3 style="color: #009900;">Employee info</h1> '
+        employee = ' <h4 style="color: #009900;">Employee info</h1> '
         if name is not None:
             employee += ' <b>Name</b>: ' + name
 
@@ -102,7 +125,7 @@ class Tablet:
 
     def get_joke(self):
 
-        joke = ' <h3 style="color: #009900;">Human-made joke</H1> '
+        joke = ' <h4 style="color: #009900;">Human-made joke</H1> '
         joke += re.sub(r"\\[a-z]*=[a-z]*[0-9]*\\", '', self.extras_params[1])
         if self.extras_params[0] == 'laugh':
             joke += '</br> <img src="img/laugh1.png" style="width: 140px; height: 140px;">'
@@ -111,7 +134,7 @@ class Tablet:
 
     def get_poetry(self):
 
-        poetry = ' <h3 style="color: #009900;">My freestyle</h1> '
+        poetry = ' <h4 style="color: #009900;">My freestyle</h1> '
         for verse in self.extras_params[1]:
             poetry += verse + '</br>'
 
@@ -123,18 +146,18 @@ class Tablet:
     def get_dialog_div(self):
         div = ''
         if self.dialog != '':
-            div = '<div style="width: 90%; height: 10%; font-size: 2vw;' \
+            div = '<div style="width: 90%; height: 10%; font-size: 1.6vw;' \
                       'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
                       'padding: 8px 12px;'\
                       ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-                      ' <b>Kiko:</b> {} ' \
+                      ' <b>Coco:</b> {} ' \
                   '</div> </br>'.format(self.dialog)
         return div
 
     def get_yousaid_div(self):
         div = ''
         if self.you_chose is not None and self.you_chose != '':
-            div = '<div style="width: 90%; height: 10%; font-size: 2vw;' \
+            div = '<div style="width: 90%; height: 10%; font-size: 1.6vw;' \
                       'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
                       'padding: 8px 12px;'\
                       ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
@@ -157,7 +180,7 @@ class Tablet:
 
         div = ''
         if self.extras != '':
-            div = '<div style="width: 90%; height: 10%; font-color: green; font-size: 2vw;' \
+            div = '<div style="width: 90%; height: 10%; font-color: green; font-size: 1.6vw;' \
                           'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
                           'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
                           ' {} ' \

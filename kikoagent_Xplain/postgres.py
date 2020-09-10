@@ -53,3 +53,17 @@ class Postgres:
         except Exception as error:
             self.log.write('\nERROR db check_badword: {}'.format(error))
 
+    def query_employee(self, name):
+        similarity_threshold = 0.4
+        try:
+            cursor = self.connection.cursor()
+            query = "select * from (SELECT *, similarity(replace(name,' ',''), replace(%s,' ','')) AS sim " \
+                    "FROM employees order by sim desc limit 1 ) as f  where sim >= %s"
+            cursor.execute(query, (name, similarity_threshold))
+            records = cursor.fetchall()
+            cursor.close()
+            return records
+
+        except Exception as error:
+            self.log.write('\nERROR db find employee: {}'.format(error))
+

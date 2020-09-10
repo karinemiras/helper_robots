@@ -1,6 +1,7 @@
 import random
 from time import sleep
 
+
 class TellJoke:
 
     def __init__(self, agent):

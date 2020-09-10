@@ -1,5 +1,6 @@
 from social_interaction_cloud.abstract_connector import AbstractSICConnector
 from time import sleep
+import string
 
 
 class SIC(AbstractSICConnector):
@@ -38,18 +39,61 @@ class SIC(AbstractSICConnector):
             sleep(self.agent.parameters['rejection_tryagain'])
         else:
 
-            if button in self.agent.xplain.get_intents_entities()[self.agent.current_context]:
-                self.agent.tablet.buttons = []
-                self.agent.xplain.adopt(self.agent.current_context, 'cognition', button)
+            # for choosing anything for poetry
+            if button == 'anything' and self.agent.current_context == 'given_word':
+                self.done_tablet_info(button)
 
-                # in case listening has already started, refreshes it
-                self.agent.xplain.drop('speech_text')
-                self.agent.xplain.drop('waiting_answer')
-                self.agent.try_listen = False
-                if self.agent.xplain.is_belief('listening'):
-                    self.agent.listening_semaphore.release()
+            # for clicking on entities of intents
+            elif self.agent.current_context in self.agent.xplain.get_intents_entities() \
+                 and self.agent.xplain.get_intents_entities()[self.agent.current_context]:
+                    self.done_tablet_info(button)
+
+            elif button == 'Skip dialog...':
+                self.action_stop_talking()
+
+            # for clicking on item found during search
+            elif button.split(':')[0] == 'Found':
+                self.done_tablet_info(self.agent.current_search_found)
+
+            # for deleting latest typed letter
+            elif button == 'Delete':
+                self.agent.current_keyboard_search = self.agent.current_keyboard_search[:-1]
+                self.agent.sic.tablet_show(self.agent.tablet.get_body())
+                self.current_search_query()
+
+            # for clicking on the typed content
+            elif button.split(':')[0] == 'Typed':
+                if self.agent.current_context == 'visitor_name':
+                    self.done_tablet_info(self.agent.current_keyboard_search)
+
+            # for typed letter
+            else:
+                self.agent.current_keyboard_search += button
+                if self.agent.current_context == 'employee_name':
+                    self.current_search_query()
+                self.agent.sic.tablet_show(self.agent.tablet.get_body())
 
             self.action_stop_talking()
+
+    def current_search_query(self):
+        records = self.agent.postgres.query_employee(self.agent.current_keyboard_search)
+        if len(records) > 0:
+            self.agent.current_search_found = records[0][0]
+        else:
+            self.agent.current_search_found = ''
+
+    def done_tablet_info(self, param):
+        self.agent.tablet.buttons = []
+        self.agent.xplain.adopt(self.agent.current_context, 'cognition', param)
+
+        # in case listening has already started, refreshes it
+        self.agent.xplain.drop('speech_text')
+        self.agent.xplain.drop('waiting_answer')
+        self.agent.try_listen = False
+        self.agent.current_keyboard_search = ''
+        self.agent.current_search_found = ''
+        if self.agent.xplain.is_belief('listening'):
+            self.agent.listening_semaphore.release()
 
     def on_event(self, event):
         print('\n on_robot_event', event)

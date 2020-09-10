@@ -14,6 +14,7 @@ class FreestylePoetry:
 
         print('\n> freestyling poetry')
 
+        self.agent.sic.tablet_show(self.agent.tablet.get_body(buttons=['anything']))
         self.agent.say_and_wait(belief_type='given_word',
                                 say_text=self.agent.get_sentence('freestyle_poetry', 'ask_word'),
                                 unexpected_answer_topic='freestyle_poetry',
@@ -24,10 +25,6 @@ class FreestylePoetry:
             self.agent.clear_answer_beliefs()
 
             word = self.agent.xplain.belief_params('given_word').strip()
-
-            plu = inflect.engine()
-            if plu.singular_noun(word):
-                word = plu.singular_noun(word)
 
             if not self.agent.postgres.check_badwords(word):
 
@@ -67,11 +64,8 @@ class FreestylePoetry:
 
                     self.agent.say(self.agent.get_sentence('freestyle_poetry', 'ready', [word]))
 
-                    print('before')
                     self.agent.sic.tablet_show(
                         self.agent.tablet.get_body(extras_type='poetry', extras_params=['not_think', verses]))
-
-                    print('after')
 
                     self.agent.say(poem, extra_text=True)
 
