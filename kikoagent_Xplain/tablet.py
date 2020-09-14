@@ -53,8 +53,9 @@ class Tablet:
         div = '<div style="width: 90%; font-color: green; font-size: 4vw;' \
               'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
               'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-              ' I am <b>Coco</b>, </br> your Corona Control helper. ' \
+              ' Please, always <b>check-in</b> and <b>check-out</b> with me. ' \
               '</div>'
+                # ' I am <b>Coco</b>, </br> your Corona Control helper. ' \
         return div
 
     def get_header_html(self):

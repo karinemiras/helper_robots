@@ -51,7 +51,7 @@ class Agent:
                               timeout=self.parameters['timeout_listening'])
 
         if self.xplain.is_belief('disclaimer_visible'):
-            
+
             if self.xplain.belief_params('disclaimer_visible') == 'no' \
                     and not self.xplain.is_belief('disclaimer_given'):
 
