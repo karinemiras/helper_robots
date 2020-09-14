@@ -9,10 +9,11 @@ class Tablet:
         self.extras_type = None
         self.you_chose = None
         self.buttons = []
+        self.button_width = None
         self.extras = ''
         self.extras_params = None
 
-    def get_body(self, dialog=None, you_chose=None, buttons=[], extras_type=None, extras_params=None, reset=False):
+    def get_body(self, dialog=None, you_chose=None, buttons=[], button_width=None, extras_type=None, extras_params=None, reset=False):
 
         # previous dialog remains until there is a new dialog, but other divs get removed when switching topics
         if dialog is not None:
@@ -29,6 +30,11 @@ class Tablet:
         if len(buttons) > 0:
             self.buttons = buttons
 
+            if button_width is not None:
+                self.button_width = button_width
+            else:
+                self.button_width = None
+
         if extras_params is not None:
             self.extras_params = extras_params
 
@@ -44,10 +50,10 @@ class Tablet:
         return body
 
     def get_default(self):
-        div = '<div style="width: 90%; height: 10%; font-color: green; font-size: 4vw;' \
+        div = '<div style="width: 90%; font-color: green; font-size: 4vw;' \
               'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
               'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-              ' I am Coco, your Corona Control helper. ' \
+              ' I am <b>Coco</b>, </br> your Corona Control helper. ' \
               '</div>'
         return div
 
@@ -67,29 +73,43 @@ class Tablet:
         return footer
 
     def get_disclaimer(self):
-        disclaimer = ' <h4 style="color: #009900;">Disclaimer</h1> '
+        disclaimer = ' <h4 style="color: #009900;">Disclaimer</h4> '
         disclaimer += re.sub(r"\\[a-z]*=[a-z]*[0-9]*\\", '', self.agent.get_sentence('general', 'disclaimer_content'))
 
         return disclaimer
 
     def get_buttons(self):
 
-        div = ''
-        div = '<div style="width: 90%; height: 10%; font-size: 1.6vw;' \
-              'border: 1px solid #333; padding: 8px 12px;">  ' \
-              '<img src="img/touch.gif" style="width: 50px; height: 50px; float:left;">'
+        div = '<div style="width: 90%; font-size: 1.6vw;' \
+              'border: 1px solid #333; padding: 8px 12px;">  '
+              # '<img src="img/touch.gif" style="width: 50px; height: 50px; float:left;">'
 
-        for button in self.buttons:
-            div += '<button class="btn btn-primary btn-sm mt-3 ml-3">{}</button>'.format(button)
+        typed_div = '<button class="btn btn-secondary btn-sm mt-3 ml-3" style="width:405px;text-align:left;">' \
+                    '{}</button>'.format(self.agent.current_keyboard_search)
+        ok_button = '<button class="btn btn-success btn-sm mt-3 ml-3"> Send </button>'
 
         if self.agent.current_keyboard_search != '':
-            div += '</br><button class="btn btn-secondary btn-sm mt-3 ml-3">Typed: {}</button>'.format(self.agent.current_keyboard_search)
+            if self.agent.current_context == 'employee_name':
+                div += typed_div
+            else:
+                div += typed_div + ok_button
 
         if self.agent.current_search_found != '':
-            div += '</br><button class="btn btn-secondary btn-sm mt-3 ml-3">Found: {}</button>'.format(self.agent.current_search_found)
+            div += '</br><button class="btn btn-success btn-sm mt-3 ml-3" style="width:530px;text-align:left;">' \
+                   'Found: {}</button>'.format(self.agent.current_search_found)
 
-        div += '</br><button class="btn btn-warning btn-sm mt-3 ml-3">Skip dialog...</button>' \
-               '<button class="btn btn-warning btn-sm mt-3 ml-3">Leave me alone!</button>'  \
+        div += '</br>' if len(self.buttons) > 0 else ''
+
+        for button in self.buttons:
+            if self.button_width is not None:
+                div += '<button class="btn btn-primary btn-sm mt-3 ml-3" style="width: {}px;">' \
+                       '{}</button>'.format(self.button_width, button)
+            else:
+                div += '<button class="btn btn-primary btn-sm mt-3 ml-5">{}</button>'.format(button)
+
+        div += '</br>' \
+               '<button class="btn btn-warning btn-sm mt-5 ml-5">Skip dialog...</button>' \
+               '<button class="btn btn-warning btn-sm mt-5 ml-5"">Leave me alone!</button>'  \
                '</div> </br>'
         return div
 
@@ -146,7 +166,7 @@ class Tablet:
     def get_dialog_div(self):
         div = ''
         if self.dialog != '':
-            div = '<div style="width: 90%; height: 10%; font-size: 1.6vw;' \
+            div = '<div style="width: 90%; font-size: 1.6vw;' \
                       'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
                       'padding: 8px 12px;'\
                       ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
@@ -157,7 +177,7 @@ class Tablet:
     def get_yousaid_div(self):
         div = ''
         if self.you_chose is not None and self.you_chose != '':
-            div = '<div style="width: 90%; height: 10%; font-size: 1.6vw;' \
+            div = '<div style="width: 90%; font-size: 1.6vw;' \
                       'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
                       'padding: 8px 12px;'\
                       ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \

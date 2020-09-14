@@ -33,7 +33,7 @@ class SIC(AbstractSICConnector):
 
         button = button.strip()
         if button == 'Leave me alone!':
-            self.action_stop_talking()
+            self.stop_talking()
             self.agent.give_up()
             # wait a bit for subject to leave
             sleep(self.agent.parameters['rejection_tryagain'])
@@ -45,34 +45,38 @@ class SIC(AbstractSICConnector):
 
             # for clicking on entities of intents
             elif self.agent.current_context in self.agent.xplain.get_intents_entities() \
-                 and self.agent.xplain.get_intents_entities()[self.agent.current_context]:
+                 and button in self.agent.xplain.get_intents_entities()[self.agent.current_context]:
                     self.done_tablet_info(button)
-
-            elif button == 'Skip dialog...':
-                self.action_stop_talking()
 
             # for clicking on item found during search
             elif button.split(':')[0] == 'Found':
                 self.done_tablet_info(self.agent.current_search_found)
 
             # for deleting latest typed letter
-            elif button == 'Delete':
+            elif button == 'Del':
                 self.agent.current_keyboard_search = self.agent.current_keyboard_search[:-1]
                 self.agent.sic.tablet_show(self.agent.tablet.get_body())
                 self.current_search_query()
 
             # for clicking on the typed content
-            elif button.split(':')[0] == 'Typed':
-                if self.agent.current_context == 'visitor_name':
-                    self.done_tablet_info(self.agent.current_keyboard_search)
+            elif button.split(':')[0] == 'Send':
+                self.done_tablet_info(self.agent.current_keyboard_search)
 
-            # for typed letter
-            else:
+            # for visitor rejecting mailing
+            elif button == 'NO!' and self.agent.current_context == 'visitor_name':
+                self.done_tablet_info(button[:-1].lower())
+
+            # for typed keyboard key
+            elif button in list(string.ascii_lowercase):
                 self.agent.current_keyboard_search += button
                 if self.agent.current_context == 'employee_name':
                     self.current_search_query()
                 self.agent.sic.tablet_show(self.agent.tablet.get_body())
 
+            self.stop_talking()
+
+    def stop_talking(self):
+        if self.agent.xplain.is_belief('speaking'):
             self.action_stop_talking()
 
     def current_search_query(self):
@@ -87,6 +91,7 @@ class SIC(AbstractSICConnector):
         self.agent.xplain.adopt(self.agent.current_context, 'cognition', param)
 
         # in case listening has already started, refreshes it
+        self.agent.xplain.drop('contact_attempt')
         self.agent.xplain.drop('speech_text')
         self.agent.xplain.drop('waiting_answer')
         self.agent.try_listen = False

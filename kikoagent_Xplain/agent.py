@@ -51,7 +51,7 @@ class Agent:
                               timeout=self.parameters['timeout_listening'])
 
         if self.xplain.is_belief('disclaimer_visible'):
-
+            
             if self.xplain.belief_params('disclaimer_visible') == 'no' \
                     and not self.xplain.is_belief('disclaimer_given'):
 
@@ -145,7 +145,7 @@ class Agent:
                 self.give_up()
 
         # answer is unexpected
-        if self.xplain.is_belief('input.unknown'):
+        elif self.xplain.is_belief('input.unknown'):
             self.xplain.drop('contact_attempt')
             self.xplain.adopt('contact_attempt', 'action', '1')
 
@@ -159,7 +159,7 @@ class Agent:
             self.xplain.drop('speech_text')
 
         # say it for the first time
-        if self.xplain.is_belief('has_subject') and not(self.xplain.is_belief('waiting_answer')):
+        elif self.xplain.is_belief('has_subject') and not(self.xplain.is_belief('waiting_answer')):
             self.xplain.adopt('contact_attempt', 'action', '1')
 
             self.current_context = belief_type

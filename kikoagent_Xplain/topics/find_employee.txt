@@ -1,7 +1,7 @@
 ask_name|1|Please, inform me the name \pau=100\ and surname of the employee by spelling it in moderate speed. For instance, for Bob Lee, say, b, o, b, l, e, e.
 ask_name|2|Please, tell me the name \pau=100\ and surname of the employee by spelling it in moderate speed. For example, for Bob Lee, say, b, o, b, l, e, e.
-social_distancing|1|Please, remember to keep a distance of one and a half meters.
-social_distancing|2|Please, do not forget to keep a distance of one and a half meters.
+social_distancing|1| Please, remember to keep a distance of one and a half meters.
+social_distancing|2| Please, do not forget to keep a distance of one and a half meters.
 not_found|1|I'm sorry, I could not find {}.
 not_found|2|I'm sorry, I did not find {}.
 unexpected_answer|1|\pau=100\ umm... \pau=300\  Can you please spell it again?

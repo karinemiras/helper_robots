@@ -7,9 +7,12 @@ class FindEmployee:
     def __init__(self, agent):
         self.agent = agent
 
-    def show_keyboard(self):
+    def set_keyboard(self, more=None):
         alphabet = list(string.ascii_lowercase)
-        self.agent.sic.tablet_show(self.agent.tablet.get_body(buttons=alphabet+['Delete']))
+        self.agent.tablet.button_width = '60'
+        self.agent.tablet.buttons = alphabet+['Del']
+        if more is not None:
+            self.agent.tablet.buttons += more
 
     def act(self):
 
@@ -18,7 +21,7 @@ class FindEmployee:
         self.agent.xplain.adopt('helping', 'action')
 
         if not self.agent.xplain.is_belief('employee_name'):
-            self.show_keyboard()
+            self.set_keyboard()
             self.agent.say_and_wait(belief_type='employee_name',
                                     say_text=self.agent.get_sentence('find_employee', 'ask_name'),
                                     unexpected_answer_topic='find_employee',
@@ -44,7 +47,7 @@ class FindEmployee:
 
         if self.agent.xplain.is_belief('employee_info_given') and not self.agent.xplain.is_belief('visitor_name'):
             self.agent.tablet.reset_extras()
-            self.show_keyboard()
+            self.set_keyboard(['NO!'])
             self.agent.say_and_wait(belief_type='visitor_name',
                                     say_text=self.agent.get_sentence('find_employee', 'offer_email'),
                                     unexpected_answer_topic='find_employee',
@@ -120,6 +123,9 @@ class FindEmployee:
         # ends this particular help
         self.agent.xplain.drop('employee_name')
         self.agent.xplain.drop('visitor_name')
+        self.agent.xplain.drop('send_email')
+        self.agent.xplain.drop('correct_name')
+        self.agent.xplain.drop('employee_email')
         self.agent.xplain.drop('employee_info_given')
         self.agent.clear_answer_beliefs()
         self.agent.xplain.drop('helping')
