@@ -64,7 +64,6 @@ parameters = {
             'timeout_watchlook': 15,
             'rejection_tryagain': 10,
             'contact_attempts': 3,
-            'corona_max_occupation': 2,
             'experiment_name': 'test'
             }
 

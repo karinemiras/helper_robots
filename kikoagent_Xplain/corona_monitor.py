@@ -58,10 +58,10 @@ class CoronaMonitor:
 
                     if self.agent.xplain.is_belief('which_floor') and self.agent.xplain.is_belief('which_wing'):
 
-                        occupation = 0
+                        occupation, occupation_max = self.check_occupation()
+
                         if not self.agent.xplain.is_belief('checkin_info'):
 
-                            occupation = self.check_occupation()
                             if occupation == 0:
                                 presence_aux = 'are no people'
                             elif occupation == 1:
@@ -71,7 +71,7 @@ class CoronaMonitor:
 
                             self.agent.say(self.agent.get_sentence('corona', 'inform_occupation', [presence_aux]))
 
-                            if occupation >= self.agent.parameters['corona_max_occupation']:
+                            if occupation >= occupation_max:
                                 self.agent.xplain.adopt('max_occupation', 'belief')
                                 self.agent.say(self.agent.get_sentence('corona', 'wait_advice'))
 
@@ -82,7 +82,7 @@ class CoronaMonitor:
 
                         # after giving checkin info, may or my not provide full occupation warning
                         if self.agent.xplain.is_belief('checkin_info'):
-                            if occupation < self.agent.parameters['corona_max_occupation']:
+                            if occupation < occupation_max:
                                 self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_more')])
                             else:
                                 self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_while')])
@@ -90,12 +90,13 @@ class CoronaMonitor:
     def check_occupation(self):
         try:
             cursor = self.agent.postgres.connection.cursor()
-            query = "select occupation from occupation_building_history where active=True and floor=%s and wing=%s"
+            query = "select occupation, max_occupation from occupation_building_history" \
+                    " where active=True and floor=%s and wing=%s"
             cursor.execute(query, (self.agent.xplain.belief_params('which_floor'),
                                    self.agent.xplain.belief_params('which_wing')))
             records = cursor.fetchall()
             cursor.close()
-            return records[0][0]
+            return records[0][0], records[0][1]
 
         except Exception as error:
             self.agent.log.write('\nERROR db check_occupation: {}'.format(error))
@@ -103,9 +104,11 @@ class CoronaMonitor:
     def update_occupation(self):
 
         if self.agent.xplain.belief_params('in_or_out') == 'in':
-            new_occupation = self.check_occupation() + 1
+            new_occupation, aux = self.check_occupation()
+            new_occupation += 1
         else:
-            new_occupation = max(0, self.check_occupation() - 1)
+            new_occupation, aux = self.check_occupation()
+            new_occupation = max(0, new_occupation - 1)
 
         try:
             cursor = self.agent.postgres.connection.cursor()
@@ -125,8 +128,8 @@ class CoronaMonitor:
             cursor = self.agent.postgres.connection.cursor()
             query = "update occupation_building_history set active=False where active=True"
             cursor.execute(query)
-            query = "insert into occupation_building_history (datetime, floor, occupation, wing, active) \
-                        (select now(), floor, occupation, wing, True   from occupation_building)"
+            query = "insert into occupation_building_history (datetime, floor, occupation, max_occupation, wing, active) \
+                        (select now(), floor, occupation, max_occupation, wing, True   from occupation_building)"
             cursor.execute(query)
             cursor.close()
 
