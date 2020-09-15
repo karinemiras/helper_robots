@@ -10,7 +10,7 @@ class FindEmployee:
     def set_keyboard(self, more=None):
         alphabet = list(string.ascii_lowercase)
         self.agent.tablet.button_width = '60'
-        self.agent.tablet.buttons = alphabet+['Del']
+        self.agent.tablet.buttons = alphabet+['Space']+['Del']
         if more is not None:
             self.agent.tablet.buttons += more
 
@@ -46,6 +46,7 @@ class FindEmployee:
                 self.agent.try_get_input_again('employee_name')
 
         if self.agent.xplain.is_belief('employee_info_given') and not self.agent.xplain.is_belief('visitor_name'):
+
             self.agent.tablet.reset_extras()
             self.set_keyboard(['NO!'])
             self.agent.say_and_wait(belief_type='visitor_name',
@@ -59,20 +60,19 @@ class FindEmployee:
                 self.agent.say(self.agent.get_sentence('find_employee', 'ok_no'))
                 self.end_help()
             else:
+                visitor_name = self.agent.xplain.belief_params('visitor_name')
+                visitor_name = visitor_name.replace(' ', '')
+                visitor_name = visitor_name.capitalize()
 
                 if not self.agent.xplain.is_belief('correct_name'):
                     self.agent.say_and_wait(belief_type='correct_name',
                                             say_text=self.agent.get_sentence('find_employee', 'check_visitor',
-                                                         [self.agent.xplain.belief_params('visitor_name')]),
+                                                         [visitor_name]),
                                             unexpected_answer_topic='find_employee',
                                             timeout=self.agent.parameters['timeout_listening'])
 
                 else:
                     if self.agent.xplain.belief_params('correct_name') == 'yes':
-
-                        visitor_name = self.agent.xplain.belief_params('visitor_name')
-                        visitor_name = visitor_name.replace(' ', '')
-                        visitor_name = visitor_name.capitalize()
 
                         status = self.send_email(self.agent.xplain.belief_params('employee_email'),
                                  self.agent.get_sentence('find_employee', 'email', [visitor_name]))

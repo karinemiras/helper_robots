@@ -55,8 +55,8 @@ class SIC(AbstractSICConnector):
             # for deleting latest typed letter
             elif button == 'Del':
                 self.agent.current_keyboard_search = self.agent.current_keyboard_search[:-1]
+                self.current_employee_query()
                 self.agent.sic.tablet_show(self.agent.tablet.get_body())
-                self.current_search_query()
 
             # for clicking on the typed content
             elif button.split(':')[0] == 'Send':
@@ -67,10 +67,15 @@ class SIC(AbstractSICConnector):
                 self.done_tablet_info(button[:-1].lower())
 
             # for typed keyboard key
-            elif button in list(string.ascii_lowercase):
-                self.agent.current_keyboard_search += button
+            elif button in list(string.ascii_lowercase)+['Space']:
+
+                if button == 'Space':
+                    self.agent.current_keyboard_search += ' '
+                else:
+                    self.agent.current_keyboard_search += button
+
                 if self.agent.current_context == 'employee_name':
-                    self.current_search_query()
+                    self.current_employee_query()
                 self.agent.sic.tablet_show(self.agent.tablet.get_body())
 
             self.stop_talking()
@@ -79,7 +84,7 @@ class SIC(AbstractSICConnector):
         if self.agent.xplain.is_belief('speaking'):
             self.action_stop_talking()
 
-    def current_search_query(self):
+    def current_employee_query(self):
         records = self.agent.postgres.query_employee(self.agent.current_keyboard_search)
         if len(records) > 0:
             self.agent.current_search_found = records[0][0]
