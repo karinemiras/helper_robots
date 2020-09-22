@@ -6,8 +6,8 @@ ask_floor_in|1|Ok. And to which floor are you going? For example, first floor.
 ask_wing_in|1|Ok. And to which wing \pau=40\ are you going? Say apple for Wing \pau=40\ A, and banana for Wing \pau=40\ B.
 ask_floor_out|1|Ok. And in which floor were you in? For example, ground floor.
 ask_wing_out|1|Ok, and in which wing \pau=40\ were you in? Say apple for Wing \pau=40\ A, and banana for Wing \pau=40\ B.
-checkin_reminder|1|Please, do not forget to check in and wash your hands before you go in.
-checkin_reminder|2|Please, remember to check in and wash your hands before you go in.
+hi_sanitize|1|Hello! Please, do not forget to check-in and sanitise your hands before you go in or touch me.
+hi_sanitize|2|Hi! Please, remember to check-in and sanitise your hands before you go in or touch me.
 inform_occupation|1|All right, thank you! I estimate that there {} there.
 inform_occupation|2|Ok, thanks a lot! I estimate that there {} there.
 wait_advice|1|Going up now could result in violation of the guidelines of social distancing. Perhaps you should wait here a little bit.

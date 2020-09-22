@@ -41,6 +41,12 @@ class Agent:
 
         self.search_subject()
 
+        print(self.xplain.is_belief('has_subject'),  self.xplain.is_belief('hi_sanitize'),self.xplain.is_belief('disclaimer_visible'))
+
+        if self.xplain.is_belief('has_subject') and not self.xplain.is_belief('hi_sanitize'):
+            self.say(self.get_sentence('corona', 'hi_sanitize'))
+            self.xplain.adopt('hi_sanitize', 'belief')
+
         if not self.xplain.is_belief('disclaimer_visible') and self.xplain.is_belief('has_subject'):
 
             self.sic.tablet_show(self.tablet.get_body(extras_type='disclaimer'))
@@ -67,6 +73,7 @@ class Agent:
 
     def search_subject(self):
         # if it doesnt believe to have a subject, keeps searching for it
+        print('test')
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
 
@@ -275,6 +282,7 @@ class Agent:
         return text
 
     def clear_answer_beliefs(self):
+        self.xplain.drop('input.unknown')
         self.xplain.drop('waiting_answer')
         self.xplain.drop('speech_text')
         self.xplain.drop('contact_attempt')

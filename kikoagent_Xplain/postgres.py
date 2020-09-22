@@ -59,13 +59,10 @@ class Postgres:
             records = []
             if name != '':
                 cursor = self.connection.cursor()
-                print(name)
                 query = "select * from (SELECT *, similarity(replace(name,' ',''), replace('"+name+"',' ','')) AS sim " \
                         "FROM employees order by sim desc limit 1 ) as f"
-                print(query)
                 cursor.execute(query)
                 records = cursor.fetchall()
-                print(records)
                 cursor.close()
             return records
 

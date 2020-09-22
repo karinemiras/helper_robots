@@ -79,6 +79,7 @@ class SIC(AbstractSICConnector):
                 self.agent.sic.tablet_show(self.agent.tablet.get_body())
 
             self.stop_talking()
+        print('cuu')
 
     def stop_talking(self):
         if self.agent.xplain.is_belief('speaking'):
@@ -98,6 +99,7 @@ class SIC(AbstractSICConnector):
         # in case listening has already started, refreshes it
         self.agent.xplain.drop('contact_attempt')
         self.agent.xplain.drop('speech_text')
+        self.agent.xplain.drop('input.unknown')
         self.agent.xplain.drop('waiting_answer')
         self.agent.try_listen = False
         self.agent.current_keyboard_search = ''

@@ -31,16 +31,19 @@ class CoronaMonitor:
                                                 timeout=self.agent.parameters['timeout_listening'])
 
                     if self.agent.xplain.is_belief('which_floor') and not self.agent.xplain.is_belief('which_wing'):
-                        self.agent.say_and_wait(belief_type='which_wing',
-                                                say_text=self.agent.get_sentence('corona', 'ask_wing_out'),
-                                                unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
-                                                timeout=self.agent.parameters['timeout_listening'])
+                        # self.agent.say_and_wait(belief_type='which_wing',
+                        #                         say_text=self.agent.get_sentence('corona', 'ask_wing_out'),
+                        #                         unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
+                        #                         timeout=self.agent.parameters['timeout_listening'])
+                        # for now, only wing a being used
+                        self.agent.xplain.adopt('which_wing', 'Wing A')
 
                     if self.agent.xplain.is_belief('which_floor') and self.agent.xplain.is_belief('which_wing'):
-                        self.agent.say(self.agent.get_sentence('corona', 'checkout'))
-                        self.update_occupation()
-                        self.agent.xplain.dropall()
-                        self.agent.give_up()
+                        if not self.agent.xplain.is_belief('bye_checkout'):
+                            self.agent.say(self.agent.get_sentence('corona', 'checkout'))
+                            self.update_occupation()
+                            self.agent.xplain.adopt('bye_checkout', 'action')
+                        self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_more')])
 
                 if self.agent.xplain.belief_params('in_or_out') == 'in':
 
@@ -51,16 +54,18 @@ class CoronaMonitor:
                                                 timeout=self.agent.parameters['timeout_listening'])
 
                     if self.agent.xplain.is_belief('which_floor') and not self.agent.xplain.is_belief('which_wing'):
-                        self.agent.say_and_wait(belief_type='which_wing',
-                                                say_text=self.agent.get_sentence('corona', 'ask_wing_in'),
-                                                unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
-                                                timeout=self.agent.parameters['timeout_listening'])
+                        # self.agent.say_and_wait(belief_type='which_wing',
+                        #                         say_text=self.agent.get_sentence('corona', 'ask_wing_in'),
+                        #                         unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
+                        #                         timeout=self.agent.parameters['timeout_listening'])
+                        # for now, only wing a being used
+                        self.agent.xplain.adopt('which_wing', 'Wing A')
 
                     if self.agent.xplain.is_belief('which_floor') and self.agent.xplain.is_belief('which_wing'):
 
                         occupation, occupation_max = self.check_occupation()
 
-                        if not self.agent.xplain.is_belief('checkin_info'):
+                        if not self.agent.xplain.is_belief('occupation_info'):
 
                             if occupation == 0:
                                 presence_aux = 'are no people'
@@ -75,13 +80,12 @@ class CoronaMonitor:
                                 self.agent.xplain.adopt('max_occupation', 'belief')
                                 self.agent.say(self.agent.get_sentence('corona', 'wait_advice'))
 
-                            self.agent.say(self.agent.get_sentence('corona', 'checkin_reminder'))
-                            self.agent.xplain.adopt('checkin_info', 'action')
+                            self.agent.xplain.adopt('occupation_info', 'action')
 
                             self.update_occupation()
 
-                        # after giving checkin info, may or my not provide full occupation warning
-                        if self.agent.xplain.is_belief('checkin_info'):
+                        # after giving occupation info, may or my not provide full occupation warning
+                        if self.agent.xplain.is_belief('occupation_info'):
                             if occupation < occupation_max:
                                 self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_more')])
                             else:

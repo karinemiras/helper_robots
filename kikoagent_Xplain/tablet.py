@@ -50,7 +50,7 @@ class Tablet:
         return body
 
     def get_default(self):
-        div = '<div style="width: 90%; font-color: green; font-size: 4vw;' \
+        div = '<div style="width: 100%; font-color: green; font-size: 8vw;' \
               'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
               'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
               ' Please, always <b>check-in</b> and <b>check-out</b> with me. ' \
@@ -81,16 +81,16 @@ class Tablet:
 
     def get_buttons(self):
 
-        div = '<div style="width: 90%; font-size: 1.6vw;' \
+        div = '<div style="width: 100%; font-size: 1.8vw;' \
               'border: 1px solid #333; padding: 8px 12px;">  ' \
               '<img src="img/touch.gif" style="width: 50px; height: 50px;">' \
-              '<button class="btn btn-warning btn-sm mt-1 ml-5">Skip dialog...</button>' \
-              '<button class="btn btn-warning btn-sm mt-1 ml-5"">Leave me alone!</button>' \
-              '</br>'
+              '<button class="btn btn-warning btn-sm mt-1 ml-5" style="font-size: 1.8vw;">Skip dialog...</button></br>'
 
-        typed_div = '<button class="btn btn-secondary btn-sm mt-3 ml-3" style="width:445px;text-align:left;">' \
+        # '<button class="btn btn-warning btn-sm mt-1 ml-5" style="font-size: 1.8vw;">Leave me alone!</button>' \
+        typed_div = '<button class="btn btn-secondary btn-sm mt-3 ml-3" ' \
+                    'style="width:445px;text-align:left;font-size: 1.8vw;">' \
                     '{}</button>'.format(self.agent.current_keyboard_search)
-        ok_button = '<button class="btn btn-success btn-sm mt-3 ml-3"> Send </button>'
+        ok_button = '<button class="btn btn-success btn-sm mt-3 ml-3" style="font-size: 1.8vw;"> Send </button>'
 
         if self.agent.current_keyboard_search != '':
             if self.agent.current_context == 'employee_name':
@@ -99,17 +99,18 @@ class Tablet:
                 div += typed_div + ok_button
 
         if self.agent.current_search_found != '':
-            div += '</br><button class="btn btn-success btn-sm mt-3 ml-3" style="width:520px;text-align:left;">' \
+            div += '</br><button class="btn btn-success btn-sm mt-3 ml-3" ' \
+                   'style="width:520px;text-align:left;font-size: 1.8vw;">' \
                    'Found: {}</button>'.format(self.agent.current_search_found)
 
         div += '</br>' if len(self.buttons) > 0 else ''
 
         for button in self.buttons:
             if self.button_width is not None:
-                div += '<button class="btn btn-primary btn-sm mt-3 ml-3" style="width: {}px;">' \
+                div += '<button class="btn btn-primary btn-sm mt-3 ml-3" style="width: {}px;font-size: 1.8vw;">' \
                        '{}</button>'.format(self.button_width, button)
             else:
-                div += '<button class="btn btn-primary btn-sm mt-3 ml-5">{}</button>'.format(button)
+                div += '<button class="btn btn-primary btn-sm mt-3 ml-5" style="font-size: 1.8vw;">{}</button>'.format(button)
         div += '</div>'
 
         return div
@@ -167,7 +168,7 @@ class Tablet:
     def get_dialog_div(self):
         div = ''
         if self.dialog != '':
-            div = '<div style="width: 90%; font-size: 1.6vw;' \
+            div = '<div style="width: 100%; font-size: 1.8vw;' \
                       'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
                       'padding: 8px 12px;'\
                       ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
@@ -178,7 +179,7 @@ class Tablet:
     def get_yousaid_div(self):
         div = ''
         if self.you_chose is not None and self.you_chose != '':
-            div = '<div style="width: 90%; font-size: 1.6vw;' \
+            div = '<div style="width: 100%; font-size: 1.8vw;' \
                       'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
                       'padding: 8px 12px;'\
                       ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
@@ -201,7 +202,7 @@ class Tablet:
 
         div = ''
         if self.extras != '':
-            div = ' </br><div style="width: 90%; height: 10%; font-color: green; font-size: 1.6vw;' \
+            div = ' </br><div style="width: 100%; height: 10%; font-color: green; font-size: 1.8vw;' \
                           'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
                           'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
                           ' {} ' \
