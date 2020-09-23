@@ -36,7 +36,7 @@ class CoronaMonitor:
                         #                         unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
                         #                         timeout=self.agent.parameters['timeout_listening'])
                         # for now, only wing a being used
-                        self.agent.xplain.adopt('which_wing', 'Wing A')
+                        self.agent.xplain.adopt('which_wing', 'cognition','Wing A')
 
                     if self.agent.xplain.is_belief('which_floor') and self.agent.xplain.is_belief('which_wing'):
                         if not self.agent.xplain.is_belief('bye_checkout'):
@@ -59,7 +59,7 @@ class CoronaMonitor:
                         #                         unexpected_answer_params=[self.agent.xplain.belief_params('speech_text')],
                         #                         timeout=self.agent.parameters['timeout_listening'])
                         # for now, only wing a being used
-                        self.agent.xplain.adopt('which_wing', 'Wing A')
+                        self.agent.xplain.adopt('which_wing', 'cognition', 'Wing A')
 
                     if self.agent.xplain.is_belief('which_floor') and self.agent.xplain.is_belief('which_wing'):
 
@@ -100,6 +100,7 @@ class CoronaMonitor:
                                    self.agent.xplain.belief_params('which_wing')))
             records = cursor.fetchall()
             cursor.close()
+
             return records[0][0], records[0][1]
 
         except Exception as error:

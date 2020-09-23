@@ -12,14 +12,16 @@ class Main:
         self.postgres = Postgres(parameters, self.log)
         self.agent = Agent(parameters, self.log, self.postgres)
 
-        # magic_beliefs are for testing only:
+        # magic_beliefs are for testing only ###
         # use it to provide a particular state of mind for Kiko in his awakening
         #{'belief': ['belieftype', 'params']}
+
+
        # magic_beliefs = {'has_subject': ['cogtition', '']
          #                      , 'disclaimer_visible': ['cogtition', 'yes']
-         #        , 'disclaimer_given': ['cogtition', '']
-         #                      , 'in_or_out': ['cogtition', 'in']
-         #                     ,'which_floor': ['cogtition', 'second']
+         #         , 'disclaimer_given': ['cogtition', '']
+         #                       , 'in_or_out': ['cogtition', 'in']
+         # #                     ,'which_floor': ['cogtition', 'second']
          #                       ,'which_wing': ['cogtition', 'Wing A']
          #         , 'hi_sanitize': ['cogtition', '']
         #         , 'occupation_info': ['cogtition', '']
@@ -32,13 +34,15 @@ class Main:
 
         # , 'given_word': ['cogtition', 'test']
        # }
-
         #self.agent.load_magic_beliefs(magic_beliefs)
+
+
+        # magic_beliefs are for testing only ###
 
     def run(self):
 
         # wait for tablet to be ready
-        time.sleep(7)
+        time.sleep(7) #10
 
         while not self.agent.sleeping:
 
@@ -61,7 +65,7 @@ parameters = {
             'postgres_database': 'kikoagent',
             'timeout_listening': 10,
             'timeout_watchlook': 15,
-            'rejection_tryagain': 10,
+            'rejection_tryagain': 3,
             'contact_attempts': 3,
             'experiment_name': 'test'
             }

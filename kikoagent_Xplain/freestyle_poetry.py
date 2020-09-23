@@ -58,7 +58,7 @@ class FreestylePoetry:
                     ending, verse = self.write_verse(rhyming=True, rhyming_word=ending)
                     self.format_verse(verse, verses)
 
-                    poem = ' \\pau=800\\ \\rspd=85\\ '
+                    poem = ' \\pau=800\\ \\rspd=100\\ '
                     for verse in verses:
                         poem += verse + '. \\pau=300\\ '
 

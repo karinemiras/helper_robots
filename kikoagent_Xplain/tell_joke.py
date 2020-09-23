@@ -26,9 +26,9 @@ class TellJoke:
         joke = joke.replace('.', '. \\pau=300\\ ')
         joke = joke.replace('"', ' \\pau=300\\ ')
 
-        text = self.agent.get_sentence('tell_joke', 'warn_start') + ' \\pau=800\\ \\rspd=85\\ '
+        text = self.agent.get_sentence('tell_joke', 'warn_start') + ' \\pau=800\\ '
         self.agent.say(text)
-        self.agent.say(joke, extra_text=True)
+        self.agent.say('\\rspd=100\\'+joke, extra_text=True)
 
         self.agent.sic.tablet_show(self.agent.tablet.get_body(extras_type='joke', extras_params=['laugh', joke]))
         type_laugh = random.choice(['laugh1.wav', 'laugh3.mp3', 'laugh4.mp3', 'laugh5.mp3'])

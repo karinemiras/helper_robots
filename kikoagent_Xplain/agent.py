@@ -41,11 +41,12 @@ class Agent:
 
         self.search_subject()
 
-        print(self.xplain.is_belief('has_subject'),  self.xplain.is_belief('hi_sanitize'),self.xplain.is_belief('disclaimer_visible'))
+        if self.xplain.is_belief('has_subject') and not self.xplain.is_belief('user_ready'):
 
-        if self.xplain.is_belief('has_subject') and not self.xplain.is_belief('hi_sanitize'):
-            self.say(self.get_sentence('corona', 'hi_sanitize'))
-            self.xplain.adopt('hi_sanitize', 'belief')
+            self.say_and_wait(belief_type='user_ready',
+                              say_text=self.get_sentence('corona', 'hi_sanitize'),
+                              unexpected_answer_params=[self.xplain.belief_params('speech_text')],
+                              timeout=20)
 
         if not self.xplain.is_belief('disclaimer_visible') and self.xplain.is_belief('has_subject'):
 
@@ -73,7 +74,6 @@ class Agent:
 
     def search_subject(self):
         # if it doesnt believe to have a subject, keeps searching for it
-        print('test')
         if not(self.xplain.is_belief('has_subject')):
             print('\n> searching subject')
 
@@ -187,6 +187,8 @@ class Agent:
             self.sic.tablet_show(self.tablet.get_body(dialog=text))
 
         print('Say: ', text)
+
+        text = "\\rspd=125\\"+text
 
         if say_animated:
             self.sic.say_animated(text)

@@ -79,7 +79,6 @@ class SIC(AbstractSICConnector):
                 self.agent.sic.tablet_show(self.agent.tablet.get_body())
 
             self.stop_talking()
-        print('cuu')
 
     def stop_talking(self):
         if self.agent.xplain.is_belief('speaking'):

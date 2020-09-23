@@ -53,9 +53,7 @@ class Tablet:
         div = '<div style="width: 100%; font-color: green; font-size: 8vw;' \
               'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
               'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-              ' Please, always <b>check-in</b> and <b>check-out</b> with me. ' \
-              '</div>'
-                # ' I am <b>Coco</b>, </br> your Corona Control helper. ' \
+              ' Please, always <b>check-in</b> and <b>check-out</b> with me. '
         return div
 
     def get_header_html(self):
@@ -172,7 +170,7 @@ class Tablet:
                       'border: 1px solid #333; box-shadow: 8px 8px 5px #444;' \
                       'padding: 8px 12px;'\
                       ' background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-                      ' <b>Coco:</b> {} ' \
+                      ' {} ' \
                   '</div> </br>'.format(self.dialog)
         return div
 
