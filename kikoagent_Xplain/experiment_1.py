@@ -17,14 +17,13 @@ class Main:
         #{'belief': ['belieftype', 'params']}
 
 
-       # magic_beliefs = {'has_subject': ['cogtition', '']
-         #                      , 'disclaimer_visible': ['cogtition', 'yes']
-         #         , 'disclaimer_given': ['cogtition', '']
-         #                       , 'in_or_out': ['cogtition', 'in']
-         # #                     ,'which_floor': ['cogtition', 'second']
-         #                       ,'which_wing': ['cogtition', 'Wing A']
-         #         , 'hi_sanitize': ['cogtition', '']
-        #         , 'occupation_info': ['cogtition', '']
+        magic_beliefs = {'has_subject': ['cogtition', '']
+                 #               , 'disclaimer_visible': ['cogtition', 'yes']
+                 #  , 'disclaimer_given': ['cogtition', '']
+                 #                , 'in_or_out': ['cogtition', 'in']
+                 #               ,'which_floor': ['cogtition', 'second']
+                 #  , 'user_ready': ['cogtition', '']
+                 # , 'occupation_info': ['cogtition', '']
          #        , 'type_of_help': ['cogtition', 'find employee']
          #    #   , 'employee_name': ['cogtition', 'k a r i n e']
          # , 'helping': ['cogtition', '']
@@ -33,8 +32,8 @@ class Main:
        #     , 'type_of_entertainment': ['cogtition', 'freestyle']
 
         # , 'given_word': ['cogtition', 'test']
-       # }
-        #self.agent.load_magic_beliefs(magic_beliefs)
+        }
+        self.agent.load_magic_beliefs(magic_beliefs)
 
 
         # magic_beliefs are for testing only ###

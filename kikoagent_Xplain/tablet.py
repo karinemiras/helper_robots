@@ -50,10 +50,16 @@ class Tablet:
         return body
 
     def get_default(self):
-        div = '<div style="width: 100%; font-color: green; font-size: 8vw;' \
+        div = '<div style="width: 100%; font-size: 6.5vw;' \
               'border: 1px solid #090; box-shadow: 8px 8px 5px #0c0;' \
               'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-              ' Please, always <b>check-in</b> and <b>check-out</b> with me. '
+              ' Please, always <b>check-in</b> and <b>check-out</b> with me. </div> </br> '
+
+        div += '<div style="width: 100%; font-size: 3.2vw;' \
+               'border: 1px solid #090; box-shadow: 8px 8px 5px #eca;' \
+               'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
+               '{} </br> <div style="font-size: 1.8vw;">Info from rivm.nl at 09/23/2020 - 14:22<div></div> '.format(self.corona_info())
+
         return div
 
     def get_header_html(self):
@@ -221,4 +227,15 @@ class Tablet:
         self.extras_type = None
         self.extras = ''
 
+    def corona_info(self):
+        try:
+            cursor = self.agent.postgres.connection.cursor()
+            query = "select info from corona_info order by random() limit 1"
+            cursor.execute(query)
+            records = cursor.fetchall()
+            cursor.close()
+            return records[0][0]
+
+        except Exception as error:
+            self.agent.postgres.log.write('\nERROR db corona_info: {}'.format(error))
 
