@@ -1,6 +1,5 @@
 from xplain import Xplain
-from time import sleep
-from os import system
+from postgres import Postgres
 
 parameters = {
             'postgres_user': 'postgres',
@@ -10,10 +9,11 @@ parameters = {
             'postgres_database': 'kikoagent',
             }
 
-xplain = Xplain(parameters)
+xplain = Xplain(Postgres(parameters, ''))
 
-while True:
-    system('clear')
-    xplain.summary_facts()
-    sleep(1)
+print('EXPLANATIONS:\n')
+explanations = xplain.get_all_explanations()
+
+
+
 

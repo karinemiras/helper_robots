@@ -76,6 +76,7 @@ class CoronaMonitor:
 
                             self.agent.say(self.agent.get_sentence('corona', 'inform_occupation', [presence_aux]))
 
+                            # may or my not provide full occupation warning
                             if occupation >= occupation_max:
                                 self.agent.xplain.adopt('max_occupation', 'belief')
                                 self.agent.say(self.agent.get_sentence('corona', 'wait_advice'))
@@ -84,7 +85,7 @@ class CoronaMonitor:
 
                             self.update_occupation()
 
-                        # after giving occupation info, may or my not provide full occupation warning
+                        # offer help
                         if self.agent.xplain.is_belief('occupation_info'):
                             if occupation < occupation_max:
                                 self.agent.offer_help([self.agent.get_sentence('general', 'offer_help_intro_more')])

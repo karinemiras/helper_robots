@@ -1,6 +1,0 @@
-use facts as knowledge.
-use dynamics as knowledge.
-
-module kiko_init {
-	
-}

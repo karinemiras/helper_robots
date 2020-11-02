@@ -11,6 +11,7 @@ class Postgres:
         self.port = parameters['postgres_port']
         self.database = parameters['postgres_database']
         self.log = log
+        self.connection = None
 
         self.open()
 

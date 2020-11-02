@@ -17,7 +17,7 @@ class Main:
         #{'belief': ['belieftype', 'params']}
 
 
-        magic_beliefs = {'has_subject': ['cogtition', '']
+       # magic_beliefs = {'has_subject': ['cogtition', '']
                  #               , 'disclaimer_visible': ['cogtition', 'yes']
                  #  , 'disclaimer_given': ['cogtition', '']
                  #                , 'in_or_out': ['cogtition', 'in']
@@ -32,8 +32,8 @@ class Main:
        #     , 'type_of_entertainment': ['cogtition', 'freestyle']
 
         # , 'given_word': ['cogtition', 'test']
-        }
-        self.agent.load_magic_beliefs(magic_beliefs)
+      #  }
+       # self.agent.load_magic_beliefs(magic_beliefs)
 
 
         # magic_beliefs are for testing only ###
@@ -41,7 +41,7 @@ class Main:
     def run(self):
 
         # wait for tablet to be ready
-        time.sleep(7) #10
+        time.sleep(7)
 
         while not self.agent.sleeping:
 
@@ -66,7 +66,7 @@ parameters = {
             'timeout_watchlook': 15,
             'rejection_tryagain': 3,
             'contact_attempts': 3,
-            'experiment_name': 'test'
+            'experiment_name': 'experiment_1'
             }
 
 

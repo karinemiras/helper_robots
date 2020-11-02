@@ -4,6 +4,9 @@
 # The agent knows its own deeds, each represented by a belief called 'action'.
 # The agent knows beliefs about its environment and itself, represented by beliefs of type 'percept' and 'inference'.
 
+import pandas
+import pprint
+
 
 class Xplain:
 
@@ -113,5 +116,13 @@ class Xplain:
                 intents[intent[0]] = intent[1].split('|')
 
             return intents
+
         except Exception as error:
             self.postgres.log.write('\nERROR db get_domain_intents: {}'.format(error))
+
+    def get_all_explanations(self):
+        query = "SELECT * from public.explanations"
+        pandas.set_option('display.max_rows', None)
+        explanations = pandas.read_sql(query, self.postgres.connection)
+        print(explanations)
+
