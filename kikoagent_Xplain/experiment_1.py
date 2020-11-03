@@ -12,31 +12,11 @@ class Main:
         self.postgres = Postgres(parameters, self.log)
         self.agent = Agent(parameters, self.log, self.postgres)
 
-        # magic_beliefs are for testing only ###
+        # !magic_beliefs are for testing only! ###
         # use it to provide a particular state of mind for Kiko in his awakening
-        #{'belief': ['belieftype', 'params']}
-
-
-       # magic_beliefs = {'has_subject': ['cogtition', '']
-                 #               , 'disclaimer_visible': ['cogtition', 'yes']
-                 #  , 'disclaimer_given': ['cogtition', '']
-                 #                , 'in_or_out': ['cogtition', 'in']
-                 #               ,'which_floor': ['cogtition', 'second']
-                 #  , 'user_ready': ['cogtition', '']
-                 # , 'occupation_info': ['cogtition', '']
-         #        , 'type_of_help': ['cogtition', 'find employee']
-         #    #   , 'employee_name': ['cogtition', 'k a r i n e']
-         # , 'helping': ['cogtition', '']
-       #      , 'employee_info_given': ['cogtition', '']
-      #  , 'visitor_name': ['cogtition', 'an n a']
-       #     , 'type_of_entertainment': ['cogtition', 'freestyle']
-
-        # , 'given_word': ['cogtition', 'test']
-      #  }
-       # self.agent.load_magic_beliefs(magic_beliefs)
-
-
-        # magic_beliefs are for testing only ###
+        # magic_beliefs = {'has_subject': ['cognition', ''] ...}
+        # self.agent.load_magic_beliefs(magic_beliefs)
+        # !magic_beliefs are for testing only! ###
 
     def run(self):
 

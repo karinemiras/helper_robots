@@ -120,9 +120,16 @@ class Xplain:
         except Exception as error:
             self.postgres.log.write('\nERROR db get_domain_intents: {}'.format(error))
 
-    def get_all_explanations(self):
+    def get_all_explanations(self, time_ini, time_end):
+
         query = "SELECT * from public.explanations"
+
+        # filtering actions performed in a particular time-frame
+        if time_ini is not None:
+            query += " where action_started>= '"+time_ini+"' and action_started <= '"+time_end+"'"
+
         pandas.set_option('display.max_rows', None)
+
         explanations = pandas.read_sql(query, self.postgres.connection)
         print(explanations)
 

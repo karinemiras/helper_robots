@@ -58,7 +58,7 @@ class Tablet:
         div += '<div style="width: 100%; font-size: 3.2vw;' \
                'border: 1px solid #090; box-shadow: 8px 8px 5px #eca;' \
                'padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc)">' \
-               '{} </br> <div style="font-size: 1.8vw;">Info from rivm.nl at 09/23/2020 - 14:22<div></div> '.format(self.corona_info())
+               '{} </br> <div style="font-size: 1.8vw;">Info from rivm.nl at 03/11/2020 - 14:01<div></div> '.format(self.corona_info())
 
         return div
 
