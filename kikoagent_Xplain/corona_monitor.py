@@ -87,9 +87,12 @@ class CoronaMonitor:
                                                                 self.agent.xplain.belief_params('speech_text')],
                                                             timeout=self.agent.parameters['timeout_listening'])
 
+
+
                             self.agent.xplain.adopt('occupation_info', 'action')
 
-                            if self.agent.xplain.belief_params('wait_or_not') == 'yes':
+                            # updates occupation if floor is not full or if person wants to enter regardless
+                            if self.agent.xplain.belief_params('wait_or_not') == 'yes' or occupation < occupation_max:
                                 self.update_occupation()
 
                         # offer help
