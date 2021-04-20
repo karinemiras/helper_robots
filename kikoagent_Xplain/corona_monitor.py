@@ -79,11 +79,18 @@ class CoronaMonitor:
                             # may or my not provide full occupation warning
                             if occupation >= occupation_max:
                                 self.agent.xplain.adopt('max_occupation', 'belief')
-                                self.agent.say(self.agent.get_sentence('corona', 'wait_advice'))
+
+                                if not self.agent.xplain.is_belief('wait_or_not'):
+                                    self.agent.say_and_wait(belief_type='wait_or_not',
+                                                            say_text=self.agent.get_sentence('corona', 'wait_or_not'),
+                                                            unexpected_answer_params=[
+                                                                self.agent.xplain.belief_params('speech_text')],
+                                                            timeout=self.agent.parameters['timeout_listening'])
 
                             self.agent.xplain.adopt('occupation_info', 'action')
 
-                            self.update_occupation()
+                            if self.agent.xplain.belief_params('wait_or_not') == 'yes':
+                                self.update_occupation()
 
                         # offer help
                         if self.agent.xplain.is_belief('occupation_info'):
